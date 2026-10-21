@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>교토 술집 지도 | My Kyoto Izakaya Map</title>
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" crossorigin=""/>
+<style>
+:root{--ink:#26251f;--muted:#77766f;--paper:#f7f5ef;--card:#fffdf8;--accent:#a34532;--line:#e4e0d6;--green:#5f7058}
+*{box-sizing:border-box}body{margin:0;background:var(--paper);color:var(--ink);font-family:ui-sans-serif,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}
+header{padding:23px 28px 17px;border-bottom:1px solid var(--line);display:flex;align-items:center;justify-content:space-between;gap:18px;background:#fbfaf6}
+.brand small{display:block;letter-spacing:.18em;text-transform:uppercase;font-size:10px;color:var(--accent);font-weight:700;margin-bottom:5px}
+h1{font-family:Georgia,serif;font-size:clamp(23px,3vw,34px);font-weight:500;margin:0;letter-spacing:-.04em}
+.subtitle{font-size:12px;color:var(--muted);margin-top:7px}
+.header-actions{display:flex;gap:8px;flex-wrap:wrap}
+button,.button{border:1px solid var(--ink);background:var(--ink);color:white;border-radius:4px;padding:10px 13px;font-size:12px;cursor:pointer}
+button.secondary{background:transparent;color:var(--ink);border-color:var(--line)}
+main{display:grid;grid-template-columns:minmax(280px,350px) 1fr;min-height:calc(100vh - 100px)}
+.sidebar{padding:20px;border-right:1px solid var(--line);background:#fbfaf6;overflow:auto;max-height:calc(100vh - 100px)}
+.search{width:100%;padding:12px 12px;border:1px solid var(--line);border-radius:4px;background:white;font-size:13px;margin-bottom:13px}
+.stats{display:flex;gap:9px;margin:0 0 20px}.stat{flex:1;border:1px solid var(--line);padding:12px;background:var(--card)}.stat strong{display:block;font-family:Georgia,serif;font-size:24px;font-weight:500}.stat span{font-size:10px;color:var(--muted);letter-spacing:.06em}
+.section-title{display:flex;justify-content:space-between;align-items:center;font-size:11px;text-transform:uppercase;letter-spacing:.12em;color:var(--muted);margin:18px 0 10px}
+.place-list{display:grid;gap:8px}
+.place-card{background:var(--card);border:1px solid var(--line);padding:13px;cursor:pointer;transition:.15s}
+.place-card:hover,.place-card.active{border-color:var(--accent);transform:translateY(-1px)}
+.place-top{display:flex;justify-content:space-between;gap:8px}.place-name{font-size:14px;font-weight:650}.rating{font-size:12px;color:var(--accent);white-space:nowrap}
+.place-meta{font-size:11px;color:var(--muted);margin-top:5px}.place-note{font-size:12px;line-height:1.55;margin-top:8px;color:#4e4b43;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.tag{display:inline-block;font-size:10px;border:1px solid var(--line);padding:3px 6px;margin:7px 4px 0 0;color:var(--green)}
+.map-wrap{position:relative;min-height:520px}#map{width:100%;height:100%;min-height:calc(100vh - 100px);background:#e9e7df}
+.map-note{position:absolute;z-index:500;left:16px;top:16px;background:rgba(255,253,248,.94);border:1px solid var(--line);padding:10px 12px;font-size:11px;color:var(--muted);max-width:230px;box-shadow:0 3px 12px #0000000a}
+.empty{padding:22px 10px;color:var(--muted);font-size:12px;line-height:1.7;text-align:center;border:1px dashed var(--line)}
+.leaflet-popup-content-wrapper{border-radius:5px;background:var(--card)}.leaflet-popup-content{font-family:inherit;min-width:180px}.popup-name{font-weight:700;font-size:14px}.popup-rating{color:var(--accent);font-size:12px;margin:5px 0}.popup-review{font-size:12px;line-height:1.5;color:#555}
+.custom-pin{background:var(--accent);border:2px solid #fffaf1;border-radius:50% 50% 50% 0;width:23px;height:23px;transform:rotate(-45deg);box-shadow:0 2px 6px #0003}.custom-pin:after{content:"";display:block;background:#fffaf1;width:6px;height:6px;border-radius:50%;position:absolute;top:6.5px;left:6.5px}
+.modal-backdrop{position:fixed;inset:0;background:#18171188;z-index:2000;display:none;align-items:center;justify-content:center;padding:18px}.modal-backdrop.show{display:flex}.modal{background:var(--card);width:min(560px,100%);max-height:92vh;overflow:auto;padding:23px;border:1px solid var(--line);box-shadow:0 15px 50px #0002}.modal h2{font-family:Georgia,serif;font-weight:500;margin:0 0 5px;font-size:26px}.modal p{font-size:12px;color:var(--muted);margin:0 0 18px}.form-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}.field{display:flex;flex-direction:column;gap:6px;margin-bottom:12px}.field.full{grid-column:1/-1}.field label{font-size:11px;color:var(--muted);letter-spacing:.05em}.field input,.field textarea,.field select{width:100%;border:1px solid var(--line);padding:10px;background:white;font:inherit;font-size:13px;border-radius:3px}.field textarea{min-height:100px;resize:vertical}.form-actions{display:flex;justify-content:space-between;gap:8px;margin-top:10px}.right-actions{display:flex;gap:8px}.hint{font-size:10px;color:var(--muted);line-height:1.6;margin-top:12px}
+@media(max-width:800px){header{padding:18px;align-items:flex-start;flex-direction:column}.header-actions{width:100%}main{grid-template-columns:1fr}.sidebar{max-height:none;border-right:0;border-bottom:1px solid var(--line);order:2}.map-wrap{order:1;min-height:55vh}#map{min-height:55vh;height:55vh}.stats{max-width:420px}.form-grid{grid-template-columns:1fr}.field.full{grid-column:auto}}
+</style>
+</head>
+<body>
+<header>
+ <div class="brand"><small>PERSONAL KYOTO GUIDE · VOL. 01</small><h1>교토, 한 잔의 기록.</h1><div class="subtitle">내가 가고, 마시고, 기억하고 싶은 이자카야 지도</div></div>
+ <div class="header-actions"><button id="addBtn">＋ 술집 기록하기</button><button class="secondary" id="exportBtn">기록 백업</button><button class="secondary" id="importBtn">백업 불러오기</button><input type="file" id="importFile" accept="application/json" hidden></div>
+</header>
+<main>
+ <aside class="sidebar">
+  <input class="search" id="search" placeholder="가게 이름, 동네, 리뷰 검색…"/>
+  <div class="stats"><div class="stat"><strong id="count">0</strong><span>PLACES VISITED</span></div><div class="stat"><strong id="avg">—</strong><span>MY AVG. RATING</span></div></div>
+  <div class="section-title"><span>나의 술집 기록</span><span id="resultCount">0곳</span></div>
+  <div class="place-list" id="placeList"></div>
+  <div class="hint">마커에 마우스를 올리면 리뷰 미리보기가 나와요. 가게를 클릭하면 상세 기록을 볼 수 있습니다. 기록은 이 브라우저에 저장돼요.</div>
+ </aside>
+ <section class="map-wrap"><div id="map"></div><div class="map-note">KYOTO · JAPAN<br>마커에 커서를 올려 리뷰를 확인해 보세요.</div></section>
+</main>
+<div class="modal-backdrop" id="modalBackdrop">
+ <div class="modal">
+  <h2 id="modalTitle">새로운 술집 기록</h2><p>내 취향으로 기록하는 교토의 밤.</p>
+  <form id="placeForm">
+   <input type="hidden" id="placeId"/>
+   <div class="form-grid">
+    <div class="field"><label for="name">가게 이름 *</label><input id="name" required placeholder="예: ○○ 이자카야"/></div>
+    <div class="field"><label for="area">동네 / 역</label><input id="area" placeholder="예: 시조오미야"/></div>
+    <div class="field"><label for="rating">내 별점</label><select id="rating"><option value="5">★★★★★ · 5</option><option value="4">★★★★☆ · 4</option><option value="3">★★★☆☆ · 3</option><option value="2">★★☆☆☆ · 2</option><option value="1">★☆☆☆☆ · 1</option></select></div>
+    <div class="field"><label for="category">분위기 / 종류</label><input id="category" placeholder="예: 가성비, 해산물, 특이한 메뉴"/></div>
+    <div class="field"><label for="lat">위도 (지도 위치)</label><input id="lat" type="number" step="any" placeholder="지도 클릭으로 자동 입력"/></div>
+    <div class="field"><label for="lng">경도 (지도 위치)</label><input id="lng" type="number" step="any" placeholder="지도 클릭으로 자동 입력"/></div>
+    <div class="field full"><label for="review">나의 리뷰 *</label><textarea id="review" required placeholder="뭐가 맛있었는지, 가격은 어땠는지, 다시 갈 건지…"></textarea></div>
+    <div class="field full"><label for="visited">방문일</label><input id="visited" type="date"/></div>
+   </div>
+   <div class="hint">좌표 입력이 어려우면 지도를 원하는 위치로 이동한 다음, 지도에서 가게 위치를 클릭하세요. 좌표가 자동으로 채워집니다.</div>
+   <div class="form-actions"><button type="button" class="secondary" id="cancelBtn">취소</button><div class="right-actions"><button type="button" class="secondary" id="deleteBtn" style="display:none">삭제</button><button type="submit">저장하기</button></div></div>
+  </form>
+ </div>
+</div>
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" crossorigin=""></script>
+<script>
+const KEY='kyotoIzakayaRecords_v1';
+const starter=[
+ {id:'demo1',name:'예시 이자카야',area:'시조오미야',rating:5,category:'가성비 · 편안한 분위기',review:'여기에 내가 직접 쓴 리뷰가 표시돼요. 이 예시 기록은 편집하거나 삭제하고, 실제로 방문한 가게를 추가해 보세요.',visited:'',lat:35.0038,lng:135.7498,demo:true}
+];
+let places=loadPlaces(),markers={},activeId=null,choosingLocation=false;
+function loadPlaces(){try{const x=JSON.parse(localStorage.getItem(KEY));return Array.isArray(x)?x:starter.slice()}catch(e){return starter.slice()}}
+function save(){localStorage.setItem(KEY,JSON.stringify(places))}
+const map=L.map('map',{zoomControl:true}).setView([35.0116,135.7681],13);
+L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{maxZoom:19,attribution:'&copy; OpenStreetMap contributors'}).addTo(map);
+const pin=L.divIcon({className:'',html:'<div class="custom-pin"></div>',iconSize:[23,23],iconAnchor:[11,22]});
+function esc(s=''){return String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
+function stars(n){return '★'.repeat(Number(n)||0)+'☆'.repeat(5-(Number(n)||0))}
+function popup(p){return `<div class="popup-name">${esc(p.name)}</div><div class="popup-rating">${stars(p.rating)} · ${p.rating}/5</div><div class="popup-review">${esc(p.review).slice(0,150)}${p.review.length>150?'…':''}</div><div style="font-size:10px;color:#888;margin-top:7px">${esc(p.area||'교토')} · 클릭해서 상세 보기</div>`}
+function render(){
+ Object.values(markers).forEach(m=>map.removeLayer(m));markers={};
+ places.forEach(p=>{if(Number.isFinite(+p.lat)&&Number.isFinite(+p.lng)){let m=L.marker([+p.lat,+p.lng],{icon:pin}).addTo(map);m.bindTooltip(popup(p),{direction:'top',offset:[0,-15],opacity:1});m.bindPopup(popup(p));m.on('click',()=>{activeId=p.id;renderList();});m.on('dblclick',()=>openEdit(p.id));markers[p.id]=m;}});
+ renderList();document.getElementById('count').textContent=places.length;
+ document.getElementById('avg').textContent=places.length?(places.reduce((s,p)=>s+(+p.rating||0),0)/places.length).toFixed(1):'—';
+}
+function renderList(){
+ const q=document.getElementById('search').value.toLowerCase().trim();
+ const list=places.filter(p=>[p.name,p.area,p.category,p.review].join(' ').toLowerCase().includes(q));
+ document.getElementById('resultCount').textContent=list.length+'곳';
+ document.getElementById('placeList').innerHTML=list.length?list.map(p=>`<article class="place-card ${activeId===p.id?'active':''}" data-id="${esc(p.id)}"><div class="place-top"><div class="place-name">${esc(p.name)}</div><div class="rating">${stars(p.rating)}</div></div><div class="place-meta">${esc(p.area||'교토')}${p.visited?' · '+esc(p.visited):''}</div><div class="place-note">${esc(p.review)}</div>${p.category?`<span class="tag">${esc(p.category)}</span>`:''}</article>`).join(''):'<div class="empty">아직 일치하는 기록이 없어요.<br>첫 번째 술집을 기록해 보세요.</div>';
+ document.querySelectorAll('.place-card').forEach(el=>el.addEventListener('click',()=>{const p=places.find(x=>x.id===el.dataset.id);if(!p)return;activeId=p.id;renderList();if(markers[p.id]){map.setView(markers[p.id].getLatLng(),16);markers[p.id].openPopup()}else openEdit(p.id)}));
+}
+const backdrop=document.getElementById('modalBackdrop');
+function openNew(){activeId=null;document.getElementById('placeForm').reset();document.getElementById('placeId').value='';document.getElementById('modalTitle').textContent='새로운 술집 기록';document.getElementById('deleteBtn').style.display='none';backdrop.classList.add('show')}
+function openEdit(id){const p=places.find(x=>x.id===id);if(!p)return;activeId=id;document.getElementById('placeId').value=p.id;['name','area','rating','category','review','visited','lat','lng'].forEach(k=>document.getElementById(k).value=p[k]??'');document.getElementById('modalTitle').textContent='기록 수정하기';document.getElementById('deleteBtn').style.display='inline-block';backdrop.classList.add('show')}
+function closeModal(){backdrop.classList.remove('show');choosingLocation=false;map.getContainer().style.cursor=''}
+document.getElementById('addBtn').onclick=openNew;document.getElementById('cancelBtn').onclick=closeModal;document.getElementById('search').addEventListener('input',renderList);
+map.on('click',e=>{if(backdrop.classList.contains('show')){document.getElementById('lat').value=e.latlng.lat.toFixed(6);document.getElementById('lng').value=e.latlng.lng.toFixed(6)}});
+document.getElementById('placeForm').addEventListener('submit',e=>{e.preventDefault();const id=document.getElementById('placeId').value||('p'+Date.now());const p={id};['name','area','rating','category','review','visited'].forEach(k=>p[k]=document.getElementById(k).value.trim());p.lat=parseFloat(document.getElementById('lat').value);p.lng=parseFloat(document.getElementById('lng').value);if(!Number.isFinite(p.lat)||!Number.isFinite(p.lng)){p.lat=35.0116;p.lng=135.7681;alert('좌표를 입력하지 않아 교토 중심에 표시했어요. 정확한 위치를 지정하려면 수정 화면에서 지도 클릭 후 저장하세요.')}const idx=places.findIndex(x=>x.id===id);if(idx>=0)places[idx]=p;else places.unshift(p);save();closeModal();activeId=id;render();if(markers[id])map.setView(markers[id].getLatLng(),16)});
+document.getElementById('deleteBtn').onclick=()=>{const id=document.getElementById('placeId').value;if(id&&confirm('이 기록을 삭제할까요?')){places=places.filter(p=>p.id!==id);save();closeModal();activeId=null;render()}};
+document.getElementById('exportBtn').onclick=()=>{const blob=new Blob([JSON.stringify(places,null,2)],{type:'application/json'});const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='kyoto-izakaya-backup.json';a.click();URL.revokeObjectURL(a.href)};
+document.getElementById('importBtn').onclick=()=>document.getElementById('importFile').click();
+document.getElementById('importFile').onchange=async e=>{const f=e.target.files[0];if(!f)return;try{const data=JSON.parse(await f.text());if(!Array.isArray(data))throw new Error();if(confirm('현재 기록을 백업 파일 내용으로 바꿀까요?')){places=data;save();render()}}catch(err){alert('백업 파일을 읽을 수 없어요. 올바른 JSON 파일인지 확인해 주세요.')}e.target.value=''};
+render();
+</script>
+</body>
+</html>
