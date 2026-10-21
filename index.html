@@ -224,6 +224,70 @@ function renderList() {
   });
 }
 
+document.getElementById('placeForm').addEventListener('submit', async (e) => {
+  e.preventDefault();
+
+  const name = document.getElementById('name').value.trim();
+  const area = document.getElementById('area').value.trim();
+  const rating = Number(document.getElementById('rating').value);
+  const category = document.getElementById('category').value.trim();
+  const lat = Number(document.getElementById('lat').value);
+  const lng = Number(document.getElementById('lng').value);
+  const review = document.getElementById('review').value.trim();
+  const visited = document.getElementById('visited').value;
+
+  if (!name || !review) {
+    alert('가게 이름과 리뷰를 입력해 주세요.');
+    return;
+  }
+
+  if (
+    document.getElementById('lat').value.trim() === '' ||
+    document.getElementById('lng').value.trim() === '' ||
+    !Number.isFinite(lat) ||
+    !Number.isFinite(lng) ||
+    lat < -90 || lat > 90 ||
+    lng < -180 || lng > 180
+  ) {
+    alert('지도에서 가게 위치를 선택해 주세요.');
+    return;
+  }
+
+  const row = {
+    name,
+    address: area || '교토',
+    latitude: lat,
+    longitude: lng,
+    review,
+    rating
+  };
+
+  const { data, error } = await supabaseClient
+    .from('places')
+    .insert(row)
+    .select()
+    .single();
+
+  if (error) {
+    console.error('저장 실패:', error);
+    alert('저장에 실패했어요. Supabase 권한 설정을 확인해 주세요.');
+    return;
+  }
+
+  places.unshift({
+    ...data,
+    lat: data.latitude,
+    lng: data.longitude,
+    area: data.address || '교토',
+    category,
+    visited
+  });
+
+  render();
+  document.getElementById('placeForm').reset();
+  alert('가게 리뷰를 저장했어요!');
+});
+
 document.getElementById('search').addEventListener('input', renderList);
 
 loadPlaces();
