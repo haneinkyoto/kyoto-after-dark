@@ -212,6 +212,107 @@ supabaseClient.auth.onAuthStateChange(() => {
 });
 
 updateAdminUI();
+ 
+const nameInput = document.getElementById('name');
+const suggestionsBox = document.getElementById('nameSuggestions');
+
+let searchTimer;
+
+nameInput.addEventListener('input', () => {
+  clearTimeout(searchTimer);
+
+  const query = nameInput.value.trim();
+
+  if (query.length < 2) {
+    suggestionsBox.style.display = 'none';
+    suggestionsBox.innerHTML = '';
+    return;
+  }
+
+  searchTimer = setTimeout(async () => {
+    try {
+      const url =
+        'https://photon.komoot.io/api/?' +
+        new URLSearchParams({
+          q: query,
+          limit: '6',
+          lat: '35.0116',
+          lon: '135.7681',
+          lang: 'en'
+        });
+
+      const response = await fetch(url);
+      if (!response.ok) throw new Error('검색 실패');
+
+      const data = await response.json();
+      suggestionsBox.innerHTML = '';
+
+      const results = (data.features || []).filter(feature => {
+        const p = feature.properties || {};
+        return p.name && (
+          p.name ||
+          p.street ||
+          p.city
+        );
+      });
+
+      if (results.length === 0) {
+        suggestionsBox.innerHTML =
+          '<div style="padding:12px;">검색 결과가 없어요. 가게 이름을 더 입력해 주세요.</div>';
+      } else {
+        results.forEach(feature => {
+          const p = feature.properties;
+          const [lng, lat] = feature.geometry.coordinates;
+
+          const item = document.createElement('button');
+          item.type = 'button';
+          item.style.cssText =
+            'display:block;width:100%;padding:10px;text-align:left;' +
+            'border:0;border-bottom:1px solid #eee;background:white;color:#222;cursor:pointer;';
+
+          item.textContent = [
+            p.name,
+            p.street,
+            p.city || p.district
+          ].filter(Boolean).join(' · ');
+
+          item.addEventListener('click', () => {
+            nameInput.value = p.name;
+            document.getElementById('lat').value = lat.toFixed(6);
+            document.getElementById('lng').value = lng.toFixed(6);
+
+            if (p.street || p.city || p.district) {
+              document.getElementById('area').value =
+                [p.street, p.city || p.district]
+                  .filter(Boolean).join(', ');
+            }
+
+            suggestionsBox.style.display = 'none';
+            suggestionsBox.innerHTML = '';
+          });
+
+          suggestionsBox.appendChild(item);
+        });
+      }
+
+      suggestionsBox.style.display = 'block';
+    } catch (error) {
+      suggestionsBox.innerHTML =
+        '<div style="padding:12px;">검색에 실패했어요. 잠시 후 다시 시도해 주세요.</div>';
+      suggestionsBox.style.display = 'block';
+    }
+  }, 400);
+});
+
+document.addEventListener('click', event => {
+  if (
+    event.target !== nameInput &&
+    !suggestionsBox.contains(event.target)
+  ) {
+    suggestionsBox.style.display = 'none';
+  }
+});
+
 const map = L.map('map', { zoomControl: true }).setView([35.0116, 135.7681], 13);
 document.getElementById('addPlaceBtn').addEventListener('click', () => {
   document.getElementById('placeForm').reset();
