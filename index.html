@@ -38,7 +38,9 @@ main{display:grid;grid-template-columns:minmax(280px,350px) 1fr;min-height:calc(
 <body>
 <header>
  <div class="brand"><small>PERSONAL KYOTO GUIDE · VOL. 01</small><h1>교토, 한 잔의 기록.</h1><div class="subtitle">내가 가고, 마시고, 기억하고 싶은 이자카야 지도</div></div>
- <div class="header-actions"><button id="addBtn">＋ 술집 기록하기</button><button class="secondary" id="exportBtn">기록 백업</button><button class="secondary" id="importBtn">백업 불러오기</button><input type="file" id="importFile" accept="application/json" hidden></div>
+<div class="header-actions">
+  <span class="subtitle">PERSONAL GUIDE TO KYOTO'S NIGHTLIFE</span>
+</div>
 </header>
 <main>
  <aside class="sidebar">
@@ -46,7 +48,7 @@ main{display:grid;grid-template-columns:minmax(280px,350px) 1fr;min-height:calc(
   <div class="stats"><div class="stat"><strong id="count">0</strong><span>PLACES VISITED</span></div><div class="stat"><strong id="avg">—</strong><span>MY AVG. RATING</span></div></div>
   <div class="section-title"><span>나의 술집 기록</span><span id="resultCount">0곳</span></div>
   <div class="place-list" id="placeList"></div>
-  <div class="hint">마커에 마우스를 올리면 리뷰 미리보기가 나와요. 가게를 클릭하면 상세 기록을 볼 수 있습니다. 기록은 이 브라우저에 저장돼요.</div>
+ <div class="hint">마커에 마우스를 올리면 리뷰 미리보기가 나와요. 가게를 클릭하면 상세 기록을 볼 수 있습니다. 이 지도는 교토의 술집을 직접 기록하는 개인 가이드입니다.</div>
  </aside>
  <section class="map-wrap"><div id="map"></div><div class="map-note">KYOTO · JAPAN<br>마커에 커서를 올려 리뷰를 확인해 보세요.</div></section>
 </main>
