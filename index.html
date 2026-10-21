@@ -81,6 +81,34 @@ let places = Array.isArray(window.KYOTO_PLACES) ? window.KYOTO_PLACES : [];
 let markers = {};
 let activeId = null;
 
+const supabaseClient = window.supabase.createClient(
+  window.SUPABASE_URL,
+  window.SUPABASE_PUBLISHABLE_KEY
+);
+
+async function loadPlaces() {
+  const { data, error } = await supabaseClient
+    .from('places')
+    .select('*')
+    .order('created_at', { ascending: false });
+
+  if (error) {
+    console.error('가게 데이터 불러오기 실패:', error);
+    alert('가게 정보를 불러오지 못했어요. 설정을 확인해 주세요.');
+    render();
+    return;
+  }
+
+  places = data.map(row => ({
+    ...row,
+    lat: row.latitude,
+    lng: row.longitude,
+    area: row.address || '교토'
+  }));
+
+  render();
+}
+
 const map = L.map('map', { zoomControl: true }).setView([35.0116, 135.7681], 13);
 
 L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
@@ -198,7 +226,7 @@ function renderList() {
 
 document.getElementById('search').addEventListener('input', renderList);
 
-render();
+loadPlaces();
 </script>
 </body>
 </html>
