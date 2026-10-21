@@ -72,45 +72,129 @@ main{display:grid;grid-template-columns:minmax(280px,350px) 1fr;min-height:calc(
 </div>
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" crossorigin=""></script>
 <script src="./places.js"></script>
-<script>
-const KEY='kyotoIzakayaRecords_v1';
-const starter=[
- {id:'demo1',name:'예시 이자카야',area:'시조오미야',rating:5,category:'가성비 · 편안한 분위기',review:'여기에 내가 직접 쓴 리뷰가 표시돼요. 이 예시 기록은 편집하거나 삭제하고, 실제로 방문한 가게를 추가해 보세요.',visited:'',lat:35.0038,lng:135.7498,demo:true}
-];
-let places=loadPlaces(),markers={},activeId=null,choosingLocation=false;
-function loadPlaces(){try{const x=JSON.parse(localStorage.getItem(KEY));return Array.isArray(x)?x:starter.slice()}catch(e){return starter.slice()}}
-function save(){localStorage.setItem(KEY,JSON.stringify(places))}
-const map=L.map('map',{zoomControl:true}).setView([35.0116,135.7681],13);
-L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{maxZoom:19,attribution:'&copy; OpenStreetMap contributors'}).addTo(map);
-const pin=L.divIcon({className:'',html:'<div class="custom-pin"></div>',iconSize:[23,23],iconAnchor:[11,22]});
-function esc(s=''){return String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
-function stars(n){return '★'.repeat(Number(n)||0)+'☆'.repeat(5-(Number(n)||0))}
-function popup(p){return `<div class="popup-name">${esc(p.name)}</div><div class="popup-rating">${stars(p.rating)} · ${p.rating}/5</div><div class="popup-review">${esc(p.review).slice(0,150)}${p.review.length>150?'…':''}</div><div style="font-size:10px;color:#888;margin-top:7px">${esc(p.area||'교토')} · 클릭해서 상세 보기</div>`}
-function render(){
- Object.values(markers).forEach(m=>map.removeLayer(m));markers={};
- places.forEach(p=>{if(Number.isFinite(+p.lat)&&Number.isFinite(+p.lng)){let m=L.marker([+p.lat,+p.lng],{icon:pin}).addTo(map);m.bindTooltip(popup(p),{direction:'top',offset:[0,-15],opacity:1});m.bindPopup(popup(p));m.on('click',()=>{activeId=p.id;renderList();});m.on('dblclick',()=>openEdit(p.id));markers[p.id]=m;}});
- renderList();document.getElementById('count').textContent=places.length;
- document.getElementById('avg').textContent=places.length?(places.reduce((s,p)=>s+(+p.rating||0),0)/places.length).toFixed(1):'—';
+
+let places = Array.isArray(window.KYOTO_PLACES) ? window.KYOTO_PLACES : [];
+let markers = {};
+let activeId = null;
+
+const map = L.map('map', { zoomControl: true }).setView([35.0116, 135.7681], 13);
+
+L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+  maxZoom: 19,
+  attribution: '&copy; OpenStreetMap contributors'
+}).addTo(map);
+
+const pin = L.divIcon({
+  className: '',
+  html: '<div class="custom-pin"></div>',
+  iconSize: [23, 23],
+  iconAnchor: [11, 22]
+});
+
+function esc(s = '') {
+  return String(s).replace(/[&<>"']/g, c => ({
+    '&': '&amp;',
+    '<': '&lt;',
+    '>': '&gt;',
+    '"': '&quot;',
+    "'": '&#39;'
+  }[c]));
 }
-function renderList(){
- const q=document.getElementById('search').value.toLowerCase().trim();
- const list=places.filter(p=>[p.name,p.area,p.category,p.review].join(' ').toLowerCase().includes(q));
- document.getElementById('resultCount').textContent=list.length+'곳';
- document.getElementById('placeList').innerHTML=list.length?list.map(p=>`<article class="place-card ${activeId===p.id?'active':''}" data-id="${esc(p.id)}"><div class="place-top"><div class="place-name">${esc(p.name)}</div><div class="rating">${stars(p.rating)}</div></div><div class="place-meta">${esc(p.area||'교토')}${p.visited?' · '+esc(p.visited):''}</div><div class="place-note">${esc(p.review)}</div>${p.category?`<span class="tag">${esc(p.category)}</span>`:''}</article>`).join(''):'<div class="empty">아직 일치하는 기록이 없어요.<br>첫 번째 술집을 기록해 보세요.</div>';
- document.querySelectorAll('.place-card').forEach(el=>el.addEventListener('click',()=>{const p=places.find(x=>x.id===el.dataset.id);if(!p)return;activeId=p.id;renderList();if(markers[p.id]){map.setView(markers[p.id].getLatLng(),16);markers[p.id].openPopup()}else openEdit(p.id)}));
+
+function stars(n) {
+  n = Math.max(0, Math.min(5, Number(n) || 0));
+  return '★'.repeat(n) + '☆'.repeat(5 - n);
 }
-const backdrop=document.getElementById('modalBackdrop');
-function openNew(){activeId=null;document.getElementById('placeForm').reset();document.getElementById('placeId').value='';document.getElementById('modalTitle').textContent='새로운 술집 기록';document.getElementById('deleteBtn').style.display='none';backdrop.classList.add('show')}
-function openEdit(id){const p=places.find(x=>x.id===id);if(!p)return;activeId=id;document.getElementById('placeId').value=p.id;['name','area','rating','category','review','visited','lat','lng'].forEach(k=>document.getElementById(k).value=p[k]??'');document.getElementById('modalTitle').textContent='기록 수정하기';document.getElementById('deleteBtn').style.display='inline-block';backdrop.classList.add('show')}
-function closeModal(){backdrop.classList.remove('show');choosingLocation=false;map.getContainer().style.cursor=''}
-document.getElementById('addBtn').onclick=openNew;document.getElementById('cancelBtn').onclick=closeModal;document.getElementById('search').addEventListener('input',renderList);
-map.on('click',e=>{if(backdrop.classList.contains('show')){document.getElementById('lat').value=e.latlng.lat.toFixed(6);document.getElementById('lng').value=e.latlng.lng.toFixed(6)}});
-document.getElementById('placeForm').addEventListener('submit',e=>{e.preventDefault();const id=document.getElementById('placeId').value||('p'+Date.now());const p={id};['name','area','rating','category','review','visited'].forEach(k=>p[k]=document.getElementById(k).value.trim());p.lat=parseFloat(document.getElementById('lat').value);p.lng=parseFloat(document.getElementById('lng').value);if(!Number.isFinite(p.lat)||!Number.isFinite(p.lng)){p.lat=35.0116;p.lng=135.7681;alert('좌표를 입력하지 않아 교토 중심에 표시했어요. 정확한 위치를 지정하려면 수정 화면에서 지도 클릭 후 저장하세요.')}const idx=places.findIndex(x=>x.id===id);if(idx>=0)places[idx]=p;else places.unshift(p);save();closeModal();activeId=id;render();if(markers[id])map.setView(markers[id].getLatLng(),16)});
-document.getElementById('deleteBtn').onclick=()=>{const id=document.getElementById('placeId').value;if(id&&confirm('이 기록을 삭제할까요?')){places=places.filter(p=>p.id!==id);save();closeModal();activeId=null;render()}};
-document.getElementById('exportBtn').onclick=()=>{const blob=new Blob([JSON.stringify(places,null,2)],{type:'application/json'});const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='kyoto-izakaya-backup.json';a.click();URL.revokeObjectURL(a.href)};
-document.getElementById('importBtn').onclick=()=>document.getElementById('importFile').click();
-document.getElementById('importFile').onchange=async e=>{const f=e.target.files[0];if(!f)return;try{const data=JSON.parse(await f.text());if(!Array.isArray(data))throw new Error();if(confirm('현재 기록을 백업 파일 내용으로 바꿀까요?')){places=data;save();render()}}catch(err){alert('백업 파일을 읽을 수 없어요. 올바른 JSON 파일인지 확인해 주세요.')}e.target.value=''};
+
+function popup(p) {
+  const review = String(p.review || '');
+  return `
+    <div class="popup-name">${esc(p.name)}</div>
+    <div class="popup-rating">${stars(p.rating)} · ${Number(p.rating) || 0}/5</div>
+    <div class="popup-review">${esc(review.slice(0, 150))}${review.length > 150 ? '…' : ''}</div>
+    <div style="font-size:10px;color:#888;margin-top:7px">
+      ${esc(p.area || '교토')} · 클릭해서 상세 보기
+    </div>
+  `;
+}
+
+function render() {
+  Object.values(markers).forEach(m => map.removeLayer(m));
+  markers = {};
+
+  places.forEach(p => {
+    if (!Number.isFinite(Number(p.lat)) || !Number.isFinite(Number(p.lng))) return;
+
+    const m = L.marker([Number(p.lat), Number(p.lng)], { icon: pin }).addTo(map);
+    m.bindTooltip(popup(p), {
+      direction: 'top',
+      offset: [0, -15],
+      opacity: 1
+    });
+    m.bindPopup(popup(p));
+
+    m.on('click', () => {
+      activeId = p.id;
+      renderList();
+    });
+
+    markers[p.id] = m;
+  });
+
+  renderList();
+
+  document.getElementById('count').textContent = places.length;
+
+  document.getElementById('avg').textContent = places.length
+    ? (places.reduce((sum, p) => sum + (Number(p.rating) || 0), 0) / places.length).toFixed(1)
+    : '—';
+}
+
+function renderList() {
+  const q = document.getElementById('search').value.toLowerCase().trim();
+
+  const list = places.filter(p =>
+    [p.name, p.area, p.category, p.review]
+      .join(' ')
+      .toLowerCase()
+      .includes(q)
+  );
+
+  document.getElementById('resultCount').textContent = list.length + '곳';
+
+  document.getElementById('placeList').innerHTML = list.length
+    ? list.map(p => `
+      <article class="place-card ${activeId === p.id ? 'active' : ''}" data-id="${esc(p.id)}">
+        <div class="place-top">
+          <div class="place-name">${esc(p.name)}</div>
+          <div class="rating">${stars(p.rating)}</div>
+        </div>
+        <div class="place-meta">${esc(p.area || '교토')}${p.visited ? ' · ' + esc(p.visited) : ''}</div>
+        <div class="place-note">${esc(p.review || '')}</div>
+        ${p.category ? `<span class="tag">${esc(p.category)}</span>` : ''}
+      </article>
+    `).join('')
+    : '<div class="empty">아직 일치하는 기록이 없어요.<br>새로운 리뷰가 등록되면 여기에 표시됩니다.</div>';
+
+  document.querySelectorAll('.place-card').forEach(el => {
+    el.addEventListener('click', () => {
+      const p = places.find(x => String(x.id) === el.dataset.id);
+      if (!p) return;
+
+      activeId = p.id;
+      renderList();
+
+      if (markers[p.id]) {
+        map.setView(markers[p.id].getLatLng(), 16);
+        markers[p.id].openPopup();
+      }
+    });
+  });
+}
+
+document.getElementById('search').addEventListener('input', renderList);
+
 render();
-</script>
+
 </body>
 </html>
