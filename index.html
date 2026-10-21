@@ -83,7 +83,13 @@ main{display:grid;grid-template-columns:minmax(280px,350px) 1fr;min-height:calc(
   <form id="placeForm">
    <input type="hidden" id="placeId"/>
    <div class="form-grid">
-    <div class="field"><label for="name">가게 이름 *</label><input id="name" required placeholder="예: ○○ 이자카야"/></div>
+    
+<div class="field" style="position:relative;">
+  <label for="name">가게 이름 *</label>
+  <input id="name" required placeholder="예: ○○ 이자카야" autocomplete="off"/>
+  <div id="nameSuggestions" style="display:none; position:absolute; top:100%; left:0; right:0; background:white; border:1px solid #ddd; border-radius:8px; z-index:1000; max-height:220px; overflow-y:auto; color:#222;"></div>
+</div>
+
     <div class="field"><label for="area">동네 / 역</label><input id="area" placeholder="예: 시조오미야"/></div>
     <div class="field"><label for="rating">내 별점</label><select id="rating"><option value="5">★★★★★ · 5</option><option value="4">★★★★☆ · 4</option><option value="3">★★★☆☆ · 3</option><option value="2">★★☆☆☆ · 2</option><option value="1">★☆☆☆☆ · 1</option></select></div>
     <div class="field"><label for="category">분위기 / 종류</label><input id="category" placeholder="예: 가성비, 해산물, 특이한 메뉴"/></div>
