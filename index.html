@@ -62,6 +62,13 @@ main{display:grid;grid-template-columns:minmax(280px,350px) 1fr;min-height:calc(
   <button type="button" id="adminLogoutBtn" style="display:none;">로그아웃</button>
   <p id="adminStatus">리뷰를 추가하거나 수정하려면 로그인해 주세요.</p>
 </div>
+  <button
+  type="button"
+  id="addPlaceBtn"
+  style="display:none; width:100%; margin-bottom:14px;"
+>
+  ＋ 가게 추가
+</button>
   <input class="search" id="search" placeholder="가게 이름, 동네, 리뷰 검색…"/>
   <div class="stats"><div class="stat"><strong id="count">0</strong><span>PLACES VISITED</span></div><div class="stat"><strong id="avg">—</strong><span>MY AVG. RATING</span></div></div>
   <div class="section-title"><span>나의 술집 기록</span><span id="resultCount">0곳</span></div>
@@ -132,6 +139,8 @@ async function loadPlaces() {
 async function updateAdminUI() {
   const { data: { session } } = await supabaseClient.auth.getSession();
   const loggedIn = !!session;
+ document.getElementById('addPlaceBtn').style.display =
+  loggedIn ? 'block' : 'none';
 
   document.getElementById('adminLoginBtn').style.display =
     loggedIn ? 'none' : 'inline-block';
@@ -198,11 +207,34 @@ supabaseClient.auth.onAuthStateChange(() => {
 
 updateAdminUI();
 const map = L.map('map', { zoomControl: true }).setView([35.0116, 135.7681], 13);
+document.getElementById('addPlaceBtn').addEventListener('click', () => {
+  document.getElementById('placeForm').reset();
+  document.getElementById('placeId').value = '';
+  document.getElementById('modalTitle').textContent = '새로운 술집 기록';
+  document.getElementById('deleteBtn').style.display = 'none';
+  document.getElementById('modalBackdrop').classList.add('show');
+});
 
+document.getElementById('cancelBtn').addEventListener('click', () => {
+  document.getElementById('modalBackdrop').classList.remove('show');
+});
 L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
   maxZoom: 19,
   attribution: '&copy; OpenStreetMap contributors'
 }).addTo(map);
+ map.on('click', function (e) {
+  const latInput = document.getElementById('lat');
+  const lngInput = document.getElementById('lng');
+
+  if (latInput && lngInput) {
+    latInput.value = e.latlng.lat.toFixed(6);
+    lngInput.value = e.latlng.lng.toFixed(6);
+  }
+
+  if (!document.getElementById('modalBackdrop').classList.contains('show')) {
+    return;
+  }
+});
 
 const pin = L.divIcon({
   className: '',
