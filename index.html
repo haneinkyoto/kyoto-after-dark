@@ -111,7 +111,10 @@ async function loadPlaces() {
     .order('created_at', { ascending: false });
 
   if (error) {
-    console.error('가게 데이터 불러오기 실패:', error);
+   console.error(
+  '가게 데이터 불러오기 실패:',
+  JSON.stringify(error, null, 2)
+);
     alert('가게 정보를 불러오지 못했어요. 설정을 확인해 주세요.');
     render();
     return;
