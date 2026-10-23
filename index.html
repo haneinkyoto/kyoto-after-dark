@@ -110,8 +110,29 @@ main{display:grid;grid-template-columns:minmax(280px,350px) 1fr;min-height:calc(
      </p>
      <div id="photoSearchStatus" style="font-size:13px;margin-top:8px;"></div>
      <div id="photoCandidates" style="display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin-top:10px;"></div>
-     <input type="hidden" id="photoUrl" />
-     <input type="hidden" id="photoSource" />
+
+<label for="photoUrl" style="display:block;margin-top:12px;">
+  사진 URL
+</label>
+<input
+  type="url"
+  id="photoUrl"
+  placeholder="https://example.com/photo.jpg"
+  style="width:100%;box-sizing:border-box;padding:10px;margin-top:6px;"
+/>
+
+<label for="photoSource" style="display:block;margin-top:12px;">
+  사진 출처 URL (선택)
+</label>
+<input
+  type="url"
+  id="photoSource"
+  placeholder="사진 원본 페이지 주소"
+  style="width:100%;box-sizing:border-box;padding:10px;margin-top:6px;"
+/>
+
+<div id="manualPhotoPreview" style="margin-top:10px;"></div>
+
    </div>
 
    <div class="hint">
