@@ -490,6 +490,7 @@ function render() {
     : '—';
 }
 
+
 function renderList() {
   const q = document.getElementById('search').value.toLowerCase().trim();
 
@@ -509,10 +510,14 @@ function renderList() {
           <div class="place-name">${esc(p.name)}</div>
           <div class="rating">${stars(p.rating)}</div>
         </div>
-       <div class="place-meta">${esc(p.area || '교토')}${p.visited ? ' · ' + esc(p.visited) : ''}</div>
-${p.photo_url ? `<img src="${esc(p.photo_url)}" alt="${esc(p.name)} 사진" style="width:100%; max-height:220px; object-fit:cover; border-radius:10px; margin:10px 0;" loading="lazy" onerror="this.style.display='none'">` : ''}
-<div class="place-note">${esc(p.review || '')}</div>
+        <div class="place-meta">${esc(p.area || '교토')}${p.visited ? ' · ' + esc(p.visited) : ''}</div>
+        ${p.photo_url ? `<img src="${esc(p.photo_url)}" alt="${esc(p.name)} 사진" style="width:100%; max-height:220px; object-fit:cover; border-radius:10px; margin:10px 0;" loading="lazy" onerror="this.style.display='none'">` : ''}
+        <div class="place-note">${esc(p.review || '')}</div>
         ${p.category ? `<span class="tag">${esc(p.category)}</span>` : ''}
+        <div class="admin-place-actions" style="display:none; gap:8px; margin-top:12px;">
+          <button type="button" class="edit-place-btn">수정</button>
+          <button type="button" class="delete-place-btn">삭제</button>
+        </div>
       </article>
     `).join('')
     : '<div class="empty">아직 일치하는 기록이 없어요.<br>새로운 리뷰가 등록되면 여기에 표시됩니다.</div>';
@@ -532,6 +537,7 @@ ${p.photo_url ? `<img src="${esc(p.photo_url)}" alt="${esc(p.name)} 사진" styl
     });
   });
 }
+
 
 document.getElementById('placeForm').addEventListener('submit', async (e) => {
   e.preventDefault();
