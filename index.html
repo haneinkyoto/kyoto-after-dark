@@ -98,7 +98,25 @@ main{display:grid;grid-template-columns:minmax(280px,350px) 1fr;min-height:calc(
     <div class="field full"><label for="review">나의 리뷰 *</label><textarea id="review" required placeholder="뭐가 맛있었는지, 가격은 어땠는지, 다시 갈 건지…"></textarea></div>
     <div class="field full"><label for="visited">방문일</label><input id="visited" type="date"/></div>
    </div>
-   <div class="hint">좌표 입력이 어려우면 지도를 원하는 위치로 이동한 다음, 지도에서 가게 위치를 클릭하세요. 좌표가 자동으로 채워집니다.</div>
+   <div class="hint">
+  지도에서 직접 가게 위치를 선택할 수 있어요.
+</div>
+
+<div style="margin-top:10px; margin-bottom:14px;">
+  <button
+    type="button"
+    id="pickLocationBtn"
+    class="secondary"
+    style="width:100%;"
+  >
+    📍 지도에서 위치 선택
+  </button>
+
+  <p
+    id="pickLocationStatus"
+    style="font-size:12px; margin-top:8px;"
+  ></p>
+</div>
    <div class="form-actions"><button type="button" class="secondary" id="cancelBtn">취소</button><div class="right-actions"><button type="button" class="secondary" id="deleteBtn" style="display:none">삭제</button><button type="submit">저장하기</button></div></div>
   </form>
  </div>
