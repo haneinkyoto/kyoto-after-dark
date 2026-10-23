@@ -360,7 +360,32 @@ L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
     return;
   }
 });
+let pickingLocation = false;
 
+document.getElementById('pickLocationBtn').addEventListener('click', () => {
+  pickingLocation = true;
+
+  document.getElementById('modalBackdrop').classList.remove('show');
+
+  document.getElementById('pickLocationStatus').textContent =
+    '지도에서 가게가 있는 위치를 클릭해 주세요.';
+
+  alert('지도가 보이면 가게가 있는 위치를 클릭해 주세요.');
+});
+
+map.on('click', function (e) {
+  if (!pickingLocation) return;
+
+  pickingLocation = false;
+
+  document.getElementById('lat').value = e.latlng.lat.toFixed(6);
+  document.getElementById('lng').value = e.latlng.lng.toFixed(6);
+
+  document.getElementById('pickLocationStatus').textContent =
+    '위치를 선택했어요! 위도와 경도가 입력되었습니다.';
+
+  document.getElementById('modalBackdrop').classList.add('show');
+});
 const pin = L.divIcon({
   className: '',
   html: '<div class="custom-pin"></div>',
