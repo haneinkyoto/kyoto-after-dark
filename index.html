@@ -69,6 +69,32 @@ main{display:grid;grid-template-columns:minmax(280px,350px) 1fr;min-height:calc(
 >
   ＋ 가게 추가
 </button>
+  
+<div style="margin-bottom:12px;">
+  <label for="locationSearch" style="display:block;margin-bottom:6px;font-size:13px;">
+    주변 술집 찾기
+  </label>
+  <div style="display:flex;gap:6px;">
+    <input
+      id="locationSearch"
+      type="text"
+      placeholder="호텔·역·주소 검색 (한국어/日本語/English)"
+      style="flex:1;min-width:0;padding:11px;border:1px solid #ddd;border-radius:8px;"
+    />
+    <button
+      type="button"
+      id="locationSearchBtn"
+      style="padding:10px;border-radius:8px;cursor:pointer;"
+    >검색</button>
+  </div>
+  <button
+    type="button"
+    id="currentLocationBtn"
+    style="width:100%;margin-top:7px;padding:10px;border-radius:8px;cursor:pointer;"
+  >📍 내 현재 위치 찾기</button>
+  <p id="locationSearchStatus" style="font-size:12px;color:#888;margin-top:6px;"></p>
+</div>
+
   <input class="search" id="search" placeholder="가게 이름, 동네, 리뷰 검색…"/>
   <div class="stats"><div class="stat"><strong id="count">0</strong><span>PLACES VISITED</span></div><div class="stat"><strong id="avg">—</strong><span>MY AVG. RATING</span></div></div>
   <div class="section-title"><span>나의 술집 기록</span><span id="resultCount">0곳</span></div>
