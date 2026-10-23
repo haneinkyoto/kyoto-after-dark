@@ -709,6 +709,39 @@ document.getElementById('searchPhotosBtn').addEventListener('click', async () =>
 
 document.getElementById('search').addEventListener('input', renderList);
 
+const photoUrlInput = document.getElementById('photoUrl');
+const manualPhotoPreview = document.getElementById('manualPhotoPreview');
+
+photoUrlInput.addEventListener('input', () => {
+  const url = photoUrlInput.value.trim();
+  manualPhotoPreview.innerHTML = '';
+
+  if (!url) return;
+
+  try {
+    const parsedUrl = new URL(url);
+
+    if (!['http:', 'https:'].includes(parsedUrl.protocol)) {
+      throw new Error('Invalid URL');
+    }
+
+    const img = document.createElement('img');
+    img.src = parsedUrl.href;
+    img.alt = '사진 미리보기';
+    img.style.cssText =
+      'width:100%;max-height:220px;object-fit:cover;border-radius:10px;';
+
+    img.onerror = () => {
+      manualPhotoPreview.textContent =
+        '사진을 불러올 수 없어요. 이미지 주소인지 확인해 주세요.';
+    };
+
+    manualPhotoPreview.appendChild(img);
+  } catch {
+    manualPhotoPreview.textContent = '올바른 사진 URL을 입력해 주세요.';
+  }
+});
+
 loadPlaces();
 </script>
 </body>
