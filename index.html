@@ -197,11 +197,13 @@ async function loadPlaces() {
 
   render();
 }
+
 async function updateAdminUI() {
   const { data: { session } } = await supabaseClient.auth.getSession();
   const loggedIn = !!session;
- document.getElementById('addPlaceBtn').style.display =
-  loggedIn ? 'block' : 'none';
+
+  document.getElementById('addPlaceBtn').style.display =
+    loggedIn ? 'block' : 'none';
 
   document.getElementById('adminLoginBtn').style.display =
     loggedIn ? 'none' : 'inline-block';
@@ -223,7 +225,12 @@ async function updateAdminUI() {
   if (form) {
     form.style.display = loggedIn ? '' : 'none';
   }
+
+  document.querySelectorAll('.admin-place-actions').forEach(el => {
+    el.style.display = loggedIn ? 'flex' : 'none';
+  });
 }
+
 
 document.getElementById('adminLoginBtn').addEventListener('click', async () => {
   const email = document.getElementById('adminEmail').value.trim();
@@ -536,12 +543,43 @@ function renderList() {
       }
     });
   });
+
+  document.querySelectorAll('.edit-place-btn').forEach(button => {
+    button.addEventListener('click', event => {
+      event.stopPropagation();
+
+      const card = button.closest('.place-card');
+      const p = places.find(x => String(x.id) === card.dataset.id);
+      if (!p) return;
+
+      document.getElementById('placeId').value = p.id;
+      document.getElementById('name').value = p.name || '';
+      document.getElementById('area').value = p.area || '';
+      document.getElementById('rating').value = p.rating || 5;
+      document.getElementById('category').value = p.category || '';
+      document.getElementById('lat').value = p.lat ?? '';
+      document.getElementById('lng').value = p.lng ?? '';
+      document.getElementById('review').value = p.review || '';
+      document.getElementById('visited').value = p.visited || '';
+      document.getElementById('photoUrl').value = p.photo_url || '';
+      document.getElementById('photoSource').value = p.photo_source || '';
+
+      document.getElementById('photoUrl').dispatchEvent(
+        new Event('input')
+      );
+
+      document.getElementById('modalBackdrop').classList.add('show');
+    });
+  });
+
 }
+
 
 
 document.getElementById('placeForm').addEventListener('submit', async (e) => {
   e.preventDefault();
 
+  const placeId = document.getElementById('placeId').value;
   const name = document.getElementById('name').value.trim();
   const area = document.getElementById('area').value.trim();
   const rating = Number(document.getElementById('rating').value);
@@ -550,6 +588,7 @@ document.getElementById('placeForm').addEventListener('submit', async (e) => {
   const lng = Number(document.getElementById('lng').value);
   const review = document.getElementById('review').value.trim();
   const visited = document.getElementById('visited').value;
+  const photo_url = document.getElementById('photoUrl').value.trim();
 
   if (!name || !review) {
     alert('가게 이름과 리뷰를 입력해 주세요.');
@@ -574,34 +613,67 @@ document.getElementById('placeForm').addEventListener('submit', async (e) => {
     latitude: lat,
     longitude: lng,
     review,
-    rating
+    rating,
+    category,
+    visited: visited || null,
+    photo_url: photo_url || null
   };
 
-  const { data, error } = await supabaseClient
-    .from('places')
-    .insert(row)
-    .select()
-    .single();
+  let result;
+
+  if (placeId) {
+    result = await supabaseClient
+      .from('places')
+      .update(row)
+      .eq('id', placeId)
+      .select()
+      .single();
+  } else {
+    result = await supabaseClient
+      .from('places')
+      .insert(row)
+      .select()
+      .single();
+  }
+
+  const { data, error } = result;
 
   if (error) {
     console.error('저장 실패:', error);
-    alert('저장에 실패했어요. Supabase 권한 설정을 확인해 주세요.');
+    alert('저장에 실패했어요. 로그인 상태와 Supabase 권한 및 테이블 설정을 확인해 주세요.');
     return;
   }
 
-  places.unshift({
+  const savedPlace = {
     ...data,
     lat: data.latitude,
     lng: data.longitude,
     area: data.address || '교토',
-    category,
-    visited
-  });
+    category: data.category || '',
+    visited: data.visited || '',
+    photo_url: data.photo_url || ''
+  };
+
+  if (placeId) {
+    const index = places.findIndex(p => String(p.id) === String(placeId));
+
+    if (index !== -1) {
+      places[index] = savedPlace;
+    }
+  } else {
+    places.unshift(savedPlace);
+  }
+
+  document.getElementById('placeForm').reset();
+  document.getElementById('placeId').value = '';
+  document.getElementById('modalBackdrop').classList.remove('show');
 
   render();
-  document.getElementById('placeForm').reset();
-  alert('가게 리뷰를 저장했어요!');
+  await updateAdminUI();
+
+  alert(placeId ? '리뷰를 수정했어요!' : '새 리뷰를 저장했어요!');
 });
+
 
  
 document.getElementById('searchPhotosBtn').addEventListener('click', async () => {
