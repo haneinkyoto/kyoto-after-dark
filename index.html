@@ -545,6 +545,43 @@ function renderList() {
   });
 
   document.querySelectorAll('.edit-place-btn').forEach(button => {
+   
+  document.querySelectorAll('.delete-place-btn').forEach(button => {
+    button.addEventListener('click', async event => {
+      event.stopPropagation();
+
+      const card = button.closest('.place-card');
+      const placeId = card.dataset.id;
+      const place = places.find(p => String(p.id) === String(placeId));
+
+      if (!place) return;
+
+      if (!confirm(`「${place.name}」 리뷰를 정말 삭제할까요?`)) {
+        return;
+      }
+
+      const { error } = await supabaseClient
+        .from('places')
+        .delete()
+        .eq('id', placeId);
+
+      if (error) {
+        console.error('삭제 실패:', error);
+        alert('삭제에 실패했어요. 관리자 로그인과 Supabase 권한을 확인해 주세요.');
+        return;
+      }
+
+      places = places.filter(p => String(p.id) !== String(placeId));
+
+      if (String(activeId) === String(placeId)) {
+        activeId = null;
+      }
+
+      render();
+      alert('리뷰를 삭제했어요!');
+    });
+  });
+
     button.addEventListener('click', event => {
       event.stopPropagation();
 
