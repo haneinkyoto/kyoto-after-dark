@@ -525,25 +525,81 @@ function render() {
 
 
 function renderList() {
+let currentSearchLocation = null;
+
+function distanceKm(lat1, lng1, lat2, lng2) {
+  const toRad = value => value * Math.PI / 180;
+  const dLat = toRad(lat2 - lat1);
+  const dLng = toRad(lng2 - lng1);
+
+  const a =
+    Math.sin(dLat / 2) ** 2 +
+    Math.cos(toRad(lat1)) *
+    Math.cos(toRad(lat2)) *
+    Math.sin(dLng / 2) ** 2;
+
+  return 6371 * 2 * Math.atan2(
+    Math.sqrt(a),
+    Math.sqrt(1 - a)
+  );
+}
+
+function renderList() {
   const q = document.getElementById('search').value.toLowerCase().trim();
 
-  const list = places.filter(p =>
-    [p.name, p.area, p.category, p.review]
-      .join(' ')
-      .toLowerCase()
-      .includes(q)
-  );
+  const list = places
+    .filter(p =>
+      [p.name, p.area, p.category, p.review]
+        .join(' ')
+        .toLowerCase()
+        .includes(q)
+    )
+    .map(p => {
+      const hasCoords =
+        p.lat !== null && p.lat !== '' &&
+        p.lng !== null && p.lng !== '' &&
+        Number.isFinite(Number(p.lat)) &&
+        Number.isFinite(Number(p.lng));
 
-  document.getElementById('resultCount').textContent = list.length + '곳';
+      const distance = currentSearchLocation && hasCoords
+        ? distanceKm(
+            currentSearchLocation.lat,
+            currentSearchLocation.lng,
+            Number(p.lat),
+            Number(p.lng)
+          )
+        : null;
+
+      return { ...p, distance };
+    });
+
+  if (currentSearchLocation) {
+    list.sort((a, b) => {
+      if (a.distance === null) return 1;
+      if (b.distance === null) return -1;
+      return a.distance - b.distance;
+    });
+  }
+
+  document.getElementById('resultCount').textContent =
+    list.length + '곳' + (currentSearchLocation ? ' · 거리순' : '');
 
   document.getElementById('placeList').innerHTML = list.length
     ? list.map(p => `
-      <article class="place-card ${activeId === p.id ? 'active' : ''}" data-id="${esc(p.id)}">
+      <article class="place-card ${String(activeId) === String(p.id) ? 'active' : ''}" data-id="${esc(p.id)}">
         <div class="place-top">
           <div class="place-name">${esc(p.name)}</div>
           <div class="rating">${stars(p.rating)}</div>
         </div>
-        <div class="place-meta">${esc(p.area || '교토')}${p.visited ? ' · ' + esc(p.visited) : ''}</div>
+        <div class="place-meta">
+          ${esc(p.area || '교토')}
+          ${p.visited ? ' · ' + esc(p.visited) : ''}
+          ${p.distance !== null
+            ? ' · 📍 ' + (p.distance < 1
+                ? Math.round(p.distance * 1000) + 'm'
+                : p.distance.toFixed(1) + 'km')
+            : ''}
+        </div>
         ${p.photo_url ? `<img src="${esc(p.photo_url)}" alt="${esc(p.name)} 사진" style="width:100%; max-height:220px; object-fit:cover; border-radius:10px; margin:10px 0;" loading="lazy" onerror="this.style.display='none'">` : ''}
         <div class="place-note">${esc(p.review || '')}</div>
         ${p.category ? `<span class="tag">${esc(p.category)}</span>` : ''}
@@ -571,43 +627,6 @@ function renderList() {
   });
 
   document.querySelectorAll('.edit-place-btn').forEach(button => {
-   
-  document.querySelectorAll('.delete-place-btn').forEach(button => {
-    button.addEventListener('click', async event => {
-      event.stopPropagation();
-
-      const card = button.closest('.place-card');
-      const placeId = card.dataset.id;
-      const place = places.find(p => String(p.id) === String(placeId));
-
-      if (!place) return;
-
-      if (!confirm(`「${place.name}」 리뷰를 정말 삭제할까요?`)) {
-        return;
-      }
-
-      const { error } = await supabaseClient
-        .from('places')
-        .delete()
-        .eq('id', placeId);
-
-      if (error) {
-        console.error('삭제 실패:', error);
-        alert('삭제에 실패했어요. 관리자 로그인과 Supabase 권한을 확인해 주세요.');
-        return;
-      }
-
-      places = places.filter(p => String(p.id) !== String(placeId));
-
-      if (String(activeId) === String(placeId)) {
-        activeId = null;
-      }
-
-      render();
-      alert('리뷰를 삭제했어요!');
-    });
-  });
-
     button.addEventListener('click', event => {
       event.stopPropagation();
 
@@ -627,18 +646,47 @@ function renderList() {
       document.getElementById('photoUrl').value = p.photo_url || '';
       document.getElementById('photoSource').value = p.photo_source || '';
 
-      document.getElementById('photoUrl').dispatchEvent(
-        new Event('input')
-      );
+      document.getElementById('photoUrl').dispatchEvent(new Event('input'));
 
+      document.getElementById('modalTitle').textContent = '술집 기록 수정';
+      document.getElementById('deleteBtn').style.display = 'none';
       document.getElementById('modalBackdrop').classList.add('show');
     });
   });
 
+  document.querySelectorAll('.delete-place-btn').forEach(button => {
+    button.addEventListener('click', async event => {
+      event.stopPropagation();
+
+      const card = button.closest('.place-card');
+      const placeId = card.dataset.id;
+      const place = places.find(p => String(p.id) === String(placeId));
+      if (!place) return;
+
+      if (!confirm(`「${place.name}」 리뷰를 정말 삭제할까요?`)) return;
+
+      const { error } = await supabaseClient
+        .from('places')
+        .delete()
+        .eq('id', placeId);
+
+      if (error) {
+        console.error('삭제 실패:', error);
+        alert('삭제에 실패했어요. 관리자 로그인과 권한을 확인해 주세요.');
+        return;
+      }
+
+      places = places.filter(p => String(p.id) !== String(placeId));
+
+      if (String(activeId) === String(placeId)) {
+        activeId = null;
+      }
+
+      render();
+      alert('리뷰를 삭제했어요!');
+    });
+  });
 }
-
-
-
 document.getElementById('placeForm').addEventListener('submit', async (e) => {
   e.preventDefault();
 
@@ -921,7 +969,11 @@ async function findLocation(query) {
     const place = results[0];
     const lat = Number(place.lat);
     const lng = Number(place.lon);
-
+currentSearchLocation = {
+  lat: lat,
+  lng: lng,
+  label: query.trim()
+};
     map.setView([lat, lng], 16);
 
     if (userLocationMarker) {
@@ -934,6 +986,7 @@ async function findLocation(query) {
       .openPopup();
 
     status.textContent = '장소를 찾았어요! 지도에서 위치를 확인해 주세요.';
+   renderList();
   } catch (error) {
     console.error('장소 검색 실패:', error);
     status.textContent = '검색에 실패했어요. 잠시 후 다시 시도해 주세요.';
@@ -967,7 +1020,11 @@ document.getElementById('currentLocationBtn').addEventListener('click', () => {
     position => {
       const lat = position.coords.latitude;
       const lng = position.coords.longitude;
-
+currentSearchLocation = {
+  lat: lat,
+  lng: lng,
+  label: '내 현재 위치'
+};
       map.setView([lat, lng], 16);
 
       if (userLocationMarker) {
@@ -980,6 +1037,7 @@ document.getElementById('currentLocationBtn').addEventListener('click', () => {
         .openPopup();
 
       status.textContent = '현재 위치를 찾았어요!';
+     renderList();
     },
     error => {
       status.textContent =
