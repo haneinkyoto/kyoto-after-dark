@@ -38,11 +38,42 @@ main{display:grid;grid-template-columns:minmax(280px,350px) 1fr;min-height:calc(
 <body>
 <header>
  <div class="brand"><small>PERSONAL KYOTO GUIDE · VOL. 01</small><h1>교토, 한 잔의 기록.</h1><div class="subtitle">내가 가고, 마시고, 기억하고 싶은 이자카야 지도</div></div>
+```html
 <div class="header-actions">
   <span class="subtitle">PERSONAL GUIDE TO KYOTO'S NIGHTLIFE</span>
+  <button type="button" id="calendarToggleBtn">📅 교토 체류 달력</button>
 </div>
 </header>
 <main>
+ ```html
+<section id="calendarPanel" style="display:none; padding:24px; max-width:900px; margin:0 auto;">
+  <button type="button" id="calendarBackBtn">← 술집 지도로 돌아가기</button>
+
+  <h2>📅 교토 체류 달력</h2>
+  <p>교토에 있는 날짜를 등록하고, 같은 날 교토에 있는 사람들과 만나 보세요.</p>
+
+  <div style="display:flex; gap:8px; align-items:center; flex-wrap:wrap; margin-bottom:16px;">
+    <button type="button" id="prevMonthBtn">← 이전 달</button>
+    <h3 id="calendarMonth" style="margin:8px;">2026년 10월</h3>
+    <button type="button" id="nextMonthBtn">다음 달 →</button>
+  </div>
+
+  <div id="calendarGrid" style="display:grid; grid-template-columns:repeat(7,minmax(0,1fr)); gap:6px;"></div>
+
+  <div style="margin-top:20px; padding:16px; border:1px solid #ddd; border-radius:12px;">
+    <h3>체류 날짜 등록</h3>
+    <p>달력에서 날짜를 선택하거나 시작일과 종료일을 입력하세요.</p>
+
+    <label for="stayStart">시작일</label>
+    <input type="date" id="stayStart">
+
+    <label for="stayEnd">종료일</label>
+    <input type="date" id="stayEnd">
+
+    <button type="button" id="saveStayBtn">체류 날짜 등록</button>
+    <p id="stayStatus" role="status"></p>
+  </div>
+</section>
  <aside class="sidebar">
     <div id="adminLogin" style="margin-bottom:16px;">
   <h3>관리자 로그인</h3>
