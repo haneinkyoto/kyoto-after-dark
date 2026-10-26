@@ -1728,18 +1728,21 @@ document.getElementById('sendChatBtn').addEventListener('click', async () => {
     return;
   }
 
-  const { error } = await communityClient
-    .from('kyoto_chat_messages')
-   
-.insert({
-  user_id: communityUser.id,
-  stay_date: selectedDate,
-  nickname:
-    communityUser.user_metadata?.nickname ||
-    communityUser.email?.split('@')[0] ||
-    '사용자',
-  message
-});
+ 
+const nickname =
+  communityUser.user_metadata?.nickname ||
+  communityUser.email?.split('@')[0] ||
+  '사용자';
+
+const { error } = await communityClient
+  .from('kyoto_chat_messages')
+  .insert({
+    user_id: communityUser.id,
+    stay_date: selectedDate,
+    message,
+    nickname
+  });
+
 
   if (error) {
     setCommunityStatus('chatStatus', '메시지 전송 실패: ' + error.message);
