@@ -1703,9 +1703,16 @@ async function loadChatMessages() {
       row.nickname ||
       (row.user_id === communityUser?.id ? myNickname : '참여자');
 
-    item.innerHTML =
-      `<small>${communityEscape(nickname)} · ${time}</small>` +
-      `<div>${communityEscape(row.message)}</div>`;
+  
+const displayName =
+  row.user_id === communityUser?.id
+    ? '나 (' + (row.nickname || '사용자') + ')'
+    : (row.nickname || '사용자');
+
+item.innerHTML =
+  `<small>${communityEscape(displayName)} · ${time}</small>` +
+  `<div>${communityEscape(row.message)}</div>`;
+
 
     box.appendChild(item);
   });
