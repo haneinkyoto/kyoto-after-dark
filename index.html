@@ -1658,6 +1658,7 @@ document.getElementById('removeStayBtn').addEventListener('click', async () => {
 });
 
 /* 날짜별 채팅 */
+
 async function loadChatMessages() {
   const heading = document.getElementById('chatHeading');
   const box = document.getElementById('chatMessages');
@@ -1667,7 +1668,7 @@ async function loadChatMessages() {
 
   const { data, error } = await communityClient
     .from('kyoto_chat_messages')
-    .select('id,user_id,message,created_at')
+    .select('id,user_id,nickname,message,created_at')
     .eq('stay_date', selectedDate)
     .order('created_at', { ascending: true })
     .limit(100);
@@ -1683,16 +1684,27 @@ async function loadChatMessages() {
     return;
   }
 
+  const myNickname =
+    communityUser?.user_metadata?.nickname ||
+    communityUser?.email?.split('@')[0] ||
+    '사용자';
+
   data.forEach(row => {
     const item = document.createElement('div');
-    item.style.cssText = 'padding:8px 0;border-bottom:1px solid #eee;overflow-wrap:anywhere;';
+    item.style.cssText =
+      'padding:8px 0;border-bottom:1px solid #eee;overflow-wrap:anywhere;';
+
     const time = new Date(row.created_at).toLocaleTimeString('ko-KR', {
       hour: '2-digit',
       minute: '2-digit'
     });
 
+    const nickname =
+      row.nickname ||
+      (row.user_id === communityUser?.id ? myNickname : '참여자');
+
     item.innerHTML =
-      `<small>${communityEscape(row.user_id === communityUser?.id ? '나' : '참여자')} · ${time}</small>` +
+      `<small>${communityEscape(nickname)} · ${time}</small>` +
       `<div>${communityEscape(row.message)}</div>`;
 
     box.appendChild(item);
@@ -1700,6 +1712,7 @@ async function loadChatMessages() {
 
   box.scrollTop = box.scrollHeight;
 }
+
 
 document.getElementById('sendChatBtn').addEventListener('click', async () => {
   if (!communityUser) {
@@ -1717,11 +1730,16 @@ document.getElementById('sendChatBtn').addEventListener('click', async () => {
 
   const { error } = await communityClient
     .from('kyoto_chat_messages')
-    .insert({
-      user_id: communityUser.id,
-      stay_date: selectedDate,
-      message
-    });
+   
+.insert({
+  user_id: communityUser.id,
+  stay_date: selectedDate,
+  nickname:
+    communityUser.user_metadata?.nickname ||
+    communityUser.email?.split('@')[0] ||
+    '사용자',
+  message
+});
 
   if (error) {
     setCommunityStatus('chatStatus', '메시지 전송 실패: ' + error.message);
