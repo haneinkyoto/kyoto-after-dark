@@ -103,15 +103,57 @@ h1, h2, h3 {
   maxlength="20"
 />
 
-    <input id="communityEmail" type="email" placeholder="이메일" autocomplete="email" style="width:100%;padding:10px;margin:5px 0;box-sizing:border-box;">
-    <input id="communityPassword" type="password" placeholder="비밀번호 (6자 이상)" autocomplete="current-password" style="width:100%;padding:10px;margin:5px 0;box-sizing:border-box;">
-    <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:8px;">
-      <button type="button" id="communitySignupBtn">회원가입</button>
-      <button type="button" id="communityLoginBtn">로그인</button>
-      <button type="button" id="communityLogoutBtn" style="display:none;">로그아웃</button>
-    </div>
-    <p id="communityAuthStatus" role="status">글을 작성하려면 로그인해 주세요. 채팅과 게시글은 누구나 볼 수 있어요.</p>
+ 
+<div id="communityAuthArea">
+  <div id="communityAuthButtons" style="display:flex;gap:8px;flex-wrap:wrap;">
+    <button type="button" id="showSignupBtn">회원가입</button>
+    <button type="button" id="showLoginBtn">로그인</button>
   </div>
+
+  <div id="communityAuthForm" style="display:none;margin-top:12px;">
+    <h3 id="communityAuthTitle">로그인</h3>
+
+    <input
+      id="communityNickname"
+      type="text"
+      placeholder="닉네임 (회원가입 시 입력)"
+      maxlength="20"
+      style="display:none;width:100%;padding:10px;margin:5px 0;box-sizing:border-box;"
+    >
+
+    <input
+      id="communityEmail"
+      type="email"
+      placeholder="이메일"
+      autocomplete="email"
+      style="width:100%;padding:10px;margin:5px 0;box-sizing:border-box;"
+    >
+
+    <input
+      id="communityPassword"
+      type="password"
+      placeholder="비밀번호 (6자 이상)"
+      autocomplete="current-password"
+      style="width:100%;padding:10px;margin:5px 0;box-sizing:border-box;"
+    >
+
+    <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:8px;">
+      <button type="button" id="communitySignupBtn" style="display:none;">가입하기</button>
+      <button type="button" id="communityLoginBtn" style="display:none;">로그인하기</button>
+      <button type="button" id="cancelCommunityAuthBtn">취소</button>
+    </div>
+  </div>
+
+  <div id="communityLoggedIn" style="display:none;">
+    <p id="communityNicknameLabel"></p>
+    <button type="button" id="communityLogoutBtn">로그아웃</button>
+  </div>
+
+  <p id="communityAuthStatus" role="status">
+    글을 작성하려면 로그인해 주세요. 채팅과 게시글은 누구나 볼 수 있어요.
+  </p>
+</div>
+
 
   <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin:16px 0;">
     <button type="button" id="prevMonthBtn">← 이전 달</button>
@@ -1224,46 +1266,35 @@ function setCommunityStatus(id, message) {
 }
 
 
+
 function updateCommunityAuthUI() {
   const loggedIn = Boolean(communityUser);
 
-  const emailInput = document.getElementById('communityEmail');
-  const passwordInput = document.getElementById('communityPassword');
-  const signupBtn = document.getElementById('communitySignupBtn');
-  const loginBtn = document.getElementById('communityLoginBtn');
-  const logoutBtn = document.getElementById('communityLogoutBtn');
-  const status = document.getElementById('communityAuthStatus');
+  document.getElementById('communityAuthButtons').style.display =
+    loggedIn ? 'none' : 'flex';
 
-  // 로그인하면 이메일·비밀번호·회원가입 버튼 숨기기
-  if (emailInput) emailInput.style.display = loggedIn ? 'none' : '';
-  if (passwordInput) passwordInput.style.display = loggedIn ? 'none' : '';
-  if (signupBtn) signupBtn.style.display = loggedIn ? 'none' : '';
-  if (loginBtn) loginBtn.style.display = loggedIn ? 'none' : '';
-  if (logoutBtn) logoutBtn.style.display = loggedIn ? 'inline-block' : 'none';
-
-  // 닉네임 표시 영역
-  let nicknameLabel = document.getElementById('communityNicknameLabel');
-
-  if (!nicknameLabel) {
-    nicknameLabel = document.createElement('p');
-    nicknameLabel.id = 'communityNicknameLabel';
-    logoutBtn?.parentElement?.appendChild(nicknameLabel);
-  }
+  document.getElementById('communityAuthForm').style.display = 'none';
+  document.getElementById('communityLoggedIn').style.display =
+    loggedIn ? 'block' : 'none';
 
   if (loggedIn) {
     const nickname =
       communityUser.user_metadata?.nickname ||
-      communityUser.user_metadata?.full_name ||
       communityUser.email?.split('@')[0] ||
       '사용자';
 
-    nicknameLabel.textContent = `👤 ${nickname}님`;
-    nicknameLabel.style.display = 'block';
-    nicknameLabel.style.color = '#302c28';
-    status.textContent = '로그인했어요. 체류 날짜와 채팅, 모임 글을 등록할 수 있어요.';
+    document.getElementById('communityNicknameLabel').textContent =
+      `👤 ${nickname}님`;
+
+    setCommunityStatus(
+      'communityAuthStatus',
+      '로그인했어요. 체류 날짜와 채팅, 모임 글을 등록할 수 있어요.'
+    );
   } else {
-    nicknameLabel.style.display = 'none';
-    status.textContent = '로그인하면 체류 날짜, 채팅, 모임 글을 등록할 수 있어요.';
+    setCommunityStatus(
+      'communityAuthStatus',
+      '로그인하면 체류 날짜, 채팅, 모임 글을 등록할 수 있어요.'
+    );
   }
 }
 
@@ -1422,6 +1453,45 @@ document.getElementById('calendarBackBtn').addEventListener('click', () => {
   if (window.map && typeof window.map.invalidateSize === 'function') {
     window.map.invalidateSize();
   }
+});
+
+/* 로그인·회원가입 화면 전환 */
+function openCommunityAuth(mode) {
+  const loggedIn = Boolean(communityUser);
+  if (loggedIn) return;
+
+  document.getElementById('communityAuthForm').style.display = 'block';
+  document.getElementById('communityAuthButtons').style.display = 'none';
+
+  const isSignup = mode === 'signup';
+
+  document.getElementById('communityAuthTitle').textContent =
+    isSignup ? '회원가입' : '로그인';
+
+  document.getElementById('communityNickname').style.display =
+    isSignup ? 'block' : 'none';
+
+  document.getElementById('communitySignupBtn').style.display =
+    isSignup ? 'inline-block' : 'none';
+
+  document.getElementById('communityLoginBtn').style.display =
+    isSignup ? 'none' : 'inline-block';
+
+  document.getElementById('communityPassword').autocomplete =
+    isSignup ? 'new-password' : 'current-password';
+}
+
+document.getElementById('showSignupBtn').addEventListener('click', () => {
+  openCommunityAuth('signup');
+});
+
+document.getElementById('showLoginBtn').addEventListener('click', () => {
+  openCommunityAuth('login');
+});
+
+document.getElementById('cancelCommunityAuthBtn').addEventListener('click', () => {
+  document.getElementById('communityAuthForm').style.display = 'none';
+  document.getElementById('communityAuthButtons').style.display = 'flex';
 });
 
 /* 회원가입 */
