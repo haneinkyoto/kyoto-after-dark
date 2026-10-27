@@ -192,6 +192,27 @@ h1, h2, h3 {
     <label for="profileStayEnd">교토 체류 종료일</label>
     <input id="profileStayEnd" type="date" style="display:block;width:100%;box-sizing:border-box;margin:6px 0 12px;">
 
+    
+<div style="margin:16px 0;padding:12px;border:1px solid #ddd;border-radius:10px;">
+  <h4>📍 내 위치</h4>
+  <p>원하는 방법으로 교토에서의 위치를 등록해 주세요.</p>
+
+  <label for="profileLocationLabel">지역명 직접 입력</label>
+  <input id="profileLocationLabel" type="text" maxlength="100"
+    placeholder="예: 시조오미야, 가와라마치"
+    style="display:block;width:100%;box-sizing:border-box;margin:6px 0 12px;">
+
+  <button type="button" id="profileGpsBtn">GPS로 현재 위치 가져오기</button>
+  <button type="button" id="profileMapPickBtn" style="margin-left:6px;">지도에서 위치 선택</button>
+
+  <p id="profileLocationStatus" role="status">
+    아직 위치를 등록하지 않았어요.
+  </p>
+</div>
+<label style="display:flex;gap:8px;align-items:center;margin:12px 0;">
+  <input id="profileLocationPublic" type="checkbox">
+  내 위치를 다른 사용자에게 공개하기
+</label>
     <label style="display:flex;gap:8px;align-items:center;margin:12px 0;">
       <input id="profileIsPublic" type="checkbox">
       다른 사용자에게 내 프로필 공개하기
