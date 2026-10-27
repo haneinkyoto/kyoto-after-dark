@@ -1455,18 +1455,25 @@ document.getElementById('profileSaveBtn')?.addEventListener('click', async () =>
 
   status.textContent = '저장 중...';
 
-  const profile = {
-    user_id: communityUser.id,
-    nickname,
-    age,
-    gender: document.getElementById('profileGender').value || null,
-    drinking_level: document.getElementById('profileDrinking').value || null,
-    favorite_drinks: document.getElementById('profileDrinks').value.trim(),
-    stay_start: stayStart,
-    stay_end: stayEnd,
-    is_public: document.getElementById('profileIsPublic').checked,
-    updated_at: new Date().toISOString()
-  };
+  
+const profile = {
+  user_id: communityUser.id,
+  nickname,
+  age,
+  gender: document.getElementById('profileGender').value || null,
+  drinking_level: document.getElementById('profileDrinking').value || null,
+  favorite_drinks: document.getElementById('profileDrinks').value.trim(),
+  stay_start: stayStart,
+  stay_end: stayEnd,
+  is_public: document.getElementById('profileIsPublic').checked,
+
+  location_method: window.profileLocationMethod || 'manual',
+  location_label: document.getElementById('profileLocationLabel').value.trim() || null,
+  latitude: window.profileLatitude ?? null,
+  longitude: window.profileLongitude ?? null,
+  updated_at: new Date().toISOString()
+};
+
 
   const { error } = await communityClient
     .from('kyoto_profiles')
