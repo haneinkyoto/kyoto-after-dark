@@ -1387,6 +1387,55 @@ document.getElementById('profileToggleBtn')?.addEventListener('click', () => {
   }
 });
 
+let profileLocationMethod = 'manual';
+let profileLatitude = null;
+let profileLongitude = null;
+
+// GPS로 현재 위치 가져오기
+document.getElementById('profileGpsBtn')?.addEventListener('click', () => {
+  const status = document.getElementById('profileLocationStatus');
+
+  if (!navigator.geolocation) {
+    status.textContent = '이 브라우저에서는 GPS를 사용할 수 없어요.';
+    return;
+  }
+
+  status.textContent = '위치 정보를 가져오는 중...';
+
+  navigator.geolocation.getCurrentPosition(
+    (position) => {
+      profileLatitude = position.coords.latitude;
+      profileLongitude = position.coords.longitude;
+      profileLocationMethod = 'gps';
+
+      status.textContent = 'GPS 위치를 가져왔어요. 위치 공개 여부를 선택해 주세요.';
+    },
+    (error) => {
+      status.textContent =
+        error.code === 1
+          ? '위치 권한이 거부됐어요. 브라우저 설정을 확인하거나 지역명을 직접 입력해 주세요.'
+          : '위치를 가져오지 못했어요. 지역명을 직접 입력해 주세요.';
+    },
+    { enableHighAccuracy: false, timeout: 10000, maximumAge: 60000 }
+  );
+});
+
+// 지역명을 직접 수정하면 수동 입력 방식으로 전환
+document.getElementById('profileLocationLabel')?.addEventListener('input', () => {
+  profileLocationMethod = 'manual';
+  profileLatitude = null;
+  profileLongitude = null;
+
+  const status = document.getElementById('profileLocationStatus');
+  if (status) status.textContent = '지역명을 직접 입력하는 방식이에요.';
+});
+
+// 지도 선택 버튼은 다음 단계에서 연결
+document.getElementById('profileMapPickBtn')?.addEventListener('click', () => {
+  document.getElementById('profileLocationStatus').textContent =
+    '지도 선택 기능은 다음 단계에서 연결할게요.';
+});
+
 // 프로필 불러오기
 async function loadMyProfile() {
   const status = document.getElementById('profileStatus');
@@ -1456,6 +1505,7 @@ document.getElementById('profileSaveBtn')?.addEventListener('click', async () =>
   status.textContent = '저장 중...';
 
   
+
 const profile = {
   user_id: communityUser.id,
   nickname,
@@ -1466,11 +1516,11 @@ const profile = {
   stay_start: stayStart,
   stay_end: stayEnd,
   is_public: document.getElementById('profileIsPublic').checked,
-
-  location_method: window.profileLocationMethod || 'manual',
+  location_method: profileLocationMethod,
   location_label: document.getElementById('profileLocationLabel').value.trim() || null,
-  latitude: window.profileLatitude ?? null,
-  longitude: window.profileLongitude ?? null,
+  latitude: profileLatitude,
+  longitude: profileLongitude,
+  is_location_public: document.getElementById('profileLocationPublic').checked,
   updated_at: new Date().toISOString()
 };
 
