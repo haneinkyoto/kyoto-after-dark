@@ -153,7 +153,54 @@ h1, h2, h3 {
     글을 작성하려면 로그인해 주세요. 채팅과 게시글은 누구나 볼 수 있어요.
   </p>
 </div>
+<div id="profileSection" style="margin:16px 0;padding:16px;border:1px solid #ddd;border-radius:12px;">
+  <h3>👤 내 프로필</h3>
+  <p>교토에서 만날 사람들에게 나를 소개해 보세요.</p>
 
+  <button type="button" id="profileToggleBtn">프로필 작성 / 수정</button>
+
+  <div id="profileFormWrap" style="display:none;margin-top:16px;">
+    <label for="profileNickname">닉네임</label>
+    <input id="profileNickname" type="text" maxlength="30" placeholder="사용할 닉네임" style="display:block;width:100%;box-sizing:border-box;margin:6px 0 12px;">
+
+    <label for="profileAge">나이</label>
+    <input id="profileAge" type="number" min="18" max="120" placeholder="만 18세 이상" style="display:block;width:100%;box-sizing:border-box;margin:6px 0 12px;">
+
+    <label for="profileGender">성별</label>
+    <select id="profileGender" style="display:block;width:100%;margin:6px 0 12px;">
+      <option value="">선택 안 함</option>
+      <option value="남성">남성</option>
+      <option value="여성">여성</option>
+      <option value="기타">기타</option>
+    </select>
+
+    <label for="profileDrinking">주량 / 음주 스타일</label>
+    <select id="profileDrinking" style="display:block;width:100%;margin:6px 0 12px;">
+      <option value="">선택 안 함</option>
+      <option value="거의 안 마심">거의 안 마심</option>
+      <option value="가볍게 한두 잔">가볍게 한두 잔</option>
+      <option value="보통">보통</option>
+      <option value="잘 마시는 편">잘 마시는 편</option>
+    </select>
+
+    <label for="profileDrinks">좋아하는 술</label>
+    <input id="profileDrinks" type="text" maxlength="200" placeholder="예: 맥주, 하이볼, 사케" style="display:block;width:100%;box-sizing:border-box;margin:6px 0 12px;">
+
+    <label for="profileStayStart">교토 체류 시작일</label>
+    <input id="profileStayStart" type="date" style="display:block;width:100%;box-sizing:border-box;margin:6px 0 12px;">
+
+    <label for="profileStayEnd">교토 체류 종료일</label>
+    <input id="profileStayEnd" type="date" style="display:block;width:100%;box-sizing:border-box;margin:6px 0 12px;">
+
+    <label style="display:flex;gap:8px;align-items:center;margin:12px 0;">
+      <input id="profileIsPublic" type="checkbox">
+      다른 사용자에게 내 프로필 공개하기
+    </label>
+
+    <button type="button" id="profileSaveBtn">프로필 저장</button>
+    <p id="profileStatus" role="status"></p>
+  </div>
+</div>
 
   <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin:16px 0;">
     <button type="button" id="prevMonthBtn">← 이전 달</button>
