@@ -1357,6 +1357,106 @@ console.log('닉네임:', communityUser?.user_metadata?.nickname);
   await loadChatMessages();
   await loadMeetups();
 }
+// 프로필 입력 영역 열기 / 닫기
+document.getElementById('profileToggleBtn')?.addEventListener('click', () => {
+  const wrap = document.getElementById('profileFormWrap');
+  if (wrap) {
+    wrap.style.display = wrap.style.display === 'none' ? 'block' : 'none';
+  }
+});
+
+// 프로필 불러오기
+async function loadMyProfile() {
+  const status = document.getElementById('profileStatus');
+
+  if (!communityUser) {
+    if (status) status.textContent = '프로필을 작성하려면 로그인해 주세요.';
+    return;
+  }
+
+  const { data, error } = await communityClient
+    .from('kyoto_profiles')
+    .select('*')
+    .eq('user_id', communityUser.id)
+    .maybeSingle();
+
+  if (error) {
+    if (status) status.textContent = '프로필을 불러오지 못했어요: ' + error.message;
+    return;
+  }
+
+  if (!data) {
+    document.getElementById('profileNickname').value =
+      communityUser.user_metadata?.nickname || '';
+    return;
+  }
+
+  document.getElementById('profileNickname').value = data.nickname || '';
+  document.getElementById('profileAge').value = data.age ?? '';
+  document.getElementById('profileGender').value = data.gender || '';
+  document.getElementById('profileDrinking').value = data.drinking_level || '';
+  document.getElementById('profileDrinks').value = data.favorite_drinks || '';
+  document.getElementById('profileStayStart').value = data.stay_start || '';
+  document.getElementById('profileStayEnd').value = data.stay_end || '';
+  document.getElementById('profileIsPublic').checked = data.is_public || false;
+}
+
+// 프로필 저장
+document.getElementById('profileSaveBtn')?.addEventListener('click', async () => {
+  const status = document.getElementById('profileStatus');
+
+  if (!communityUser) {
+    status.textContent = '먼저 로그인해 주세요.';
+    return;
+  }
+
+  const nickname = document.getElementById('profileNickname').value.trim();
+  const ageValue = document.getElementById('profileAge').value;
+  const age = ageValue ? Number(ageValue) : null;
+  const stayStart = document.getElementById('profileStayStart').value || null;
+  const stayEnd = document.getElementById('profileStayEnd').value || null;
+
+  if (!nickname) {
+    status.textContent = '닉네임을 입력해 주세요.';
+    return;
+  }
+
+  if (age !== null && (!Number.isInteger(age) || age < 18 || age > 120)) {
+    status.textContent = '나이는 만 18세 이상으로 입력해 주세요.';
+    return;
+  }
+
+  if (stayStart && stayEnd && stayEnd < stayStart) {
+    status.textContent = '체류 종료일은 시작일 이후로 선택해 주세요.';
+    return;
+  }
+
+  status.textContent = '저장 중...';
+
+  const profile = {
+    user_id: communityUser.id,
+    nickname,
+    age,
+    gender: document.getElementById('profileGender').value || null,
+    drinking_level: document.getElementById('profileDrinking').value || null,
+    favorite_drinks: document.getElementById('profileDrinks').value.trim(),
+    stay_start: stayStart,
+    stay_end: stayEnd,
+    is_public: document.getElementById('profileIsPublic').checked,
+    updated_at: new Date().toISOString()
+  };
+
+  const { error } = await communityClient
+    .from('kyoto_profiles')
+    .upsert(profile, { onConflict: 'user_id' });
+
+  if (error) {
+    status.textContent = '저장 실패: ' + error.message;
+    return;
+  }
+
+  status.textContent = '프로필을 저장했어요!';
+});
 
 async function loadMyStays() {
   myStayDates = new Set();
