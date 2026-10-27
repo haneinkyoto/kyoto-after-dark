@@ -1302,6 +1302,8 @@ function updateCommunityAuthUI() {
 async function refreshCommunityUser() {
   const { data, error } = await communityClient.auth.getUser();
   communityUser = error ? null : data.user;
+  console.log('현재 로그인 사용자:', communityUser);
+console.log('저장된 닉네임:', communityUser?.user_metadata?.nickname);
   updateCommunityAuthUI();
   await loadMyStays();
   await loadChatMessages();
