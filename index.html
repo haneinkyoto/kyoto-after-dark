@@ -751,6 +751,68 @@ function render() {
 }
 
 
+let userMarkers = [];
+
+// 공개 프로필을 지도에 표시
+async function renderUserMarkers() {
+  // 이전 사용자 마커만 제거 (술집 마커는 유지)
+  userMarkers.forEach(marker => map.removeLayer(marker));
+  userMarkers = [];
+
+  const { data, error } = await communityClient
+    .from('kyoto_profiles')
+    .select('user_id, nickname, age, gender, drinking_level, favorite_drinks, stay_start, stay_end, location_label, latitude, longitude, is_public, is_location_public')
+    .eq('is_public', true)
+    .eq('is_location_public', true);
+
+  if (error) {
+    console.error('공개 프로필 불러오기 실패:', error);
+    return;
+  }
+
+  (data || []).forEach(profile => {
+    let lat = Number(profile.latitude);
+    let lng = Number(profile.longitude);
+
+    // GPS 좌표 대신 지역명만 입력한 경우에는 아직 지도에 표시하지 않음
+    if (!Number.isFinite(lat) || !Number.isFinite(lng) ||
+        profile.latitude == null || profile.longitude == null) {
+      return;
+    }
+
+    // 좌표를 소수점 2자리로 줄여 대략적인 위치만 표시
+    lat = Math.round(lat * 100) / 100;
+    lng = Math.round(lng * 100) / 100;
+
+    const marker = L.marker([lat, lng]).addTo(map);
+
+    const popupContent = document.createElement('div');
+    const name = document.createElement('strong');
+    name.textContent = profile.nickname || '사용자';
+    popupContent.appendChild(name);
+
+    const details = document.createElement('p');
+    details.textContent = [
+      profile.age ? `${profile.age}세` : '',
+      profile.drinking_level || '',
+      profile.favorite_drinks || '',
+      profile.location_label || ''
+    ].filter(Boolean).join(' · ');
+
+    popupContent.appendChild(details);
+
+    if (profile.stay_start || profile.stay_end) {
+      const dates = document.createElement('p');
+      dates.textContent =
+        `${profile.stay_start || '?'} ~ ${profile.stay_end || '?'}`;
+      popupContent.appendChild(dates);
+    }
+
+    marker.bindPopup(popupContent);
+    userMarkers.push(marker);
+  });
+}
+
 
 let currentSearchLocation = null;
 
@@ -2151,6 +2213,7 @@ renderCalendar();
 refreshCommunityUser();
 
 loadPlaces();
+renderUserMarkers();
 </script>
 </body>
 </html>
