@@ -1356,6 +1356,7 @@ console.log('닉네임:', communityUser?.user_metadata?.nickname);
   await loadMyStays();
   await loadChatMessages();
   await loadMeetups();
+  await loadMyProfile();
 }
 // 프로필 입력 영역 열기 / 닫기
 document.getElementById('profileToggleBtn')?.addEventListener('click', () => {
