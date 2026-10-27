@@ -1739,15 +1739,25 @@ document.getElementById('sendChatBtn').addEventListener('click', async () => {
   }
 
  
+const { data: userData, error: userError } =
+  await communityClient.auth.getUser();
+
+if (userError || !userData.user) {
+  setCommunityStatus('chatStatus', '로그인 정보를 확인할 수 없어요. 다시 로그인해 주세요.');
+  return;
+}
+
+const currentUser = userData.user;
+
 const nickname =
-  communityUser.user_metadata?.nickname ||
-  communityUser.email?.split('@')[0] ||
+  currentUser.user_metadata?.nickname ||
+  currentUser.email?.split('@')[0] ||
   '사용자';
 
 const { error } = await communityClient
   .from('kyoto_chat_messages')
   .insert({
-    user_id: communityUser.id,
+    user_id: currentUser.id,
     stay_date: selectedDate,
     message,
     nickname
