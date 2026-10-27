@@ -1754,6 +1754,8 @@ const nickname =
   currentUser.email?.split('@')[0] ||
   '사용자';
 
+console.log('메시지에 저장할 닉네임:', nickname);
+  
 const { error } = await communityClient
   .from('kyoto_chat_messages')
   .insert({
