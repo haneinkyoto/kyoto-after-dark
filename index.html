@@ -1470,6 +1470,29 @@ async function loadMyProfile() {
   document.getElementById('profileStayStart').value = data.stay_start || '';
   document.getElementById('profileStayEnd').value = data.stay_end || '';
   document.getElementById('profileIsPublic').checked = data.is_public || false;
+
+  // 저장된 위치 정보 불러오기
+  document.getElementById('profileLocationLabel').value =
+    data.location_label || '';
+
+  document.getElementById('profileLocationPublic').checked =
+    data.is_location_public || false;
+
+  profileLocationMethod = data.location_method || 'manual';
+  profileLatitude = data.latitude ?? null;
+  profileLongitude = data.longitude ?? null;
+
+  const locationStatus = document.getElementById('profileLocationStatus');
+
+  if (locationStatus) {
+    if (data.location_label) {
+      locationStatus.textContent = '등록된 지역: ' + data.location_label;
+    } else if (data.latitude != null && data.longitude != null) {
+      locationStatus.textContent = 'GPS 위치가 저장되어 있어요.';
+    } else {
+      locationStatus.textContent = '아직 위치를 등록하지 않았어요.';
+    }
+  }
 }
 
 // 프로필 저장
