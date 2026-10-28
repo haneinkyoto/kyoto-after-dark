@@ -68,6 +68,436 @@ h1, h2, h3 {
   font-size: 10px;
 }
 
+/* =========================================
+   KYOTO AFTER DARK — DESIGN REFRESH
+   기존 기능을 유지하는 디자인 오버라이드
+========================================= */
+
+:root {
+  --ink: #25231f;
+  --muted: #817b73;
+  --paper: #f6f3ed;
+  --card: #fffefa;
+  --accent: #a64032;
+  --line: #e7e0d6;
+  --green: #68745b;
+  --shadow: 0 12px 32px rgba(37, 35, 31, 0.06);
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  background: var(--paper);
+  color: var(--ink);
+  font-family: "Noto Sans KR", "Noto Sans JP", sans-serif;
+  letter-spacing: -0.015em;
+  line-height: 1.65;
+}
+
+/* 상단 브랜드 영역 */
+header {
+  position: relative;
+  padding: 30px clamp(18px, 4vw, 56px);
+  background: var(--paper);
+  border-bottom: 1px solid var(--line);
+}
+
+.brand small {
+  color: var(--accent);
+  font-size: 10px;
+  letter-spacing: 0.2em;
+}
+
+h1 {
+  font-size: clamp(27px, 3.5vw, 42px);
+  line-height: 1.25;
+  letter-spacing: -0.055em;
+}
+
+.subtitle {
+  color: var(--muted);
+  line-height: 1.6;
+}
+
+.header-actions {
+  align-items: center;
+  gap: 12px;
+}
+
+/* 버튼: 통일된 모양과 확실한 클릭 영역 */
+button,
+.button {
+  min-height: 42px;
+  padding: 10px 16px;
+  border: 1px solid var(--ink);
+  border-radius: 999px;
+  background: var(--ink);
+  color: #fffefa;
+  font-family: inherit;
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.01em;
+  transition: background 0.2s ease,
+              color 0.2s ease,
+              border-color 0.2s ease,
+              transform 0.2s ease;
+}
+
+button:hover,
+.button:hover {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: white;
+}
+
+button:active {
+  transform: scale(0.98);
+}
+
+button:focus-visible,
+input:focus-visible,
+select:focus-visible,
+textarea:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 3px;
+}
+
+button.secondary {
+  background: transparent;
+  color: var(--ink);
+  border-color: var(--line);
+}
+
+button.secondary:hover {
+  background: #eee8df;
+  border-color: #cfc4b7;
+}
+
+/* 지도와 왼쪽 목록 */
+main {
+  background: var(--paper);
+}
+
+.sidebar {
+  padding: 24px;
+  background: var(--paper);
+  border-right: 1px solid var(--line);
+}
+
+.search {
+  min-height: 48px;
+  padding: 14px 16px;
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  background: var(--card);
+  font: inherit;
+  font-size: 13px;
+  box-shadow: none;
+  transition: border-color 0.2s ease,
+              box-shadow 0.2s ease;
+}
+
+.search:focus {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px rgba(166, 64, 50, 0.08);
+  outline: none;
+}
+
+.section-title {
+  margin: 26px 0 12px;
+  color: var(--muted);
+  font-size: 10px;
+  letter-spacing: 0.15em;
+}
+
+.stats {
+  gap: 10px;
+}
+
+.stat {
+  padding: 16px;
+  border: 1px solid var(--line);
+  border-radius: 16px;
+  background: var(--card);
+}
+
+.stat strong {
+  font-size: 27px;
+}
+
+.stat span {
+  letter-spacing: 0.02em;
+}
+
+.place-list {
+  gap: 12px;
+}
+
+.place-card {
+  padding: 17px;
+  border: 1px solid var(--line);
+  border-radius: 16px;
+  background: var(--card);
+  transition: transform 0.2s ease,
+              border-color 0.2s ease,
+              box-shadow 0.2s ease;
+}
+
+.place-card:hover,
+.place-card.active {
+  transform: translateY(-2px);
+  border-color: rgba(166, 64, 50, 0.55);
+  box-shadow: var(--shadow);
+}
+
+.place-name {
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+.place-meta {
+  line-height: 1.7;
+}
+
+.place-note {
+  line-height: 1.75;
+}
+
+.tag {
+  padding: 4px 9px;
+  border: 1px solid #dce0d4;
+  border-radius: 999px;
+  background: #f1f2eb;
+  color: var(--green);
+}
+
+/* 지도 위 안내 */
+.map-wrap {
+  background: #eeebe3;
+}
+
+.map-note {
+  padding: 13px 16px;
+  border: 1px solid rgba(231, 224, 214, 0.9);
+  border-radius: 14px;
+  background: rgba(255, 254, 250, 0.96);
+  box-shadow: var(--shadow);
+  line-height: 1.7;
+}
+
+/* 모달과 입력 폼 */
+.modal-backdrop {
+  background: rgba(25, 23, 20, 0.58);
+  backdrop-filter: blur(5px);
+}
+
+.modal {
+  padding: clamp(20px, 4vw, 32px);
+  border: 1px solid var(--line);
+  border-radius: 22px;
+  background: var(--card);
+  box-shadow: 0 24px 80px rgba(0, 0, 0, 0.16);
+}
+
+.modal h2 {
+  font-size: 28px;
+  line-height: 1.35;
+}
+
+.field {
+  gap: 8px;
+  margin-bottom: 15px;
+}
+
+.field label {
+  color: var(--muted);
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.field input,
+.field textarea,
+.field select {
+  min-height: 44px;
+  padding: 12px 14px;
+  border: 1px solid var(--line);
+  border-radius: 11px;
+  background: #fff;
+  font-family: inherit;
+  transition: border-color 0.2s ease;
+}
+
+.field input:focus,
+.field textarea:focus,
+.field select:focus {
+  border-color: var(--accent);
+  outline: none;
+}
+
+.field textarea {
+  line-height: 1.7;
+}
+
+.empty {
+  padding: 26px 16px;
+  border: 1px dashed #d8cec0;
+  border-radius: 14px;
+  line-height: 1.8;
+}
+
+/* 체류 달력과 커뮤니티 패널 */
+#calendarPanel {
+  width: 100%;
+  max-width: 980px !important;
+  padding: clamp(18px, 4vw, 40px) !important;
+}
+
+#calendarPanel > h2 {
+  margin-top: 24px;
+  font-size: clamp(25px, 4vw, 34px);
+  letter-spacing: -0.04em;
+}
+
+#calendarPanel > p {
+  color: var(--muted);
+  line-height: 1.8;
+}
+
+/* 기존 인라인 스타일의 패널도 같은 디자인으로 통일 */
+#calendarPanel > div[style*="border:1px solid #ddd"],
+#profileSection,
+#profileSection > div[style*="border:1px solid #ddd"] {
+  border: 1px solid var(--line) !important;
+  border-radius: 18px !important;
+  background: var(--card);
+  box-shadow: 0 4px 18px rgba(37, 35, 31, 0.025);
+}
+
+#calendarGrid {
+  gap: 7px !important;
+}
+
+#calendarGrid button {
+  min-width: 0;
+  min-height: 66px;
+  padding: 7px 2px;
+  border: 1px solid var(--line) !important;
+  border-radius: 12px;
+  background: var(--card) !important;
+  color: var(--ink) !important;
+  overflow-wrap: anywhere;
+}
+
+#calendarGrid button:hover {
+  border-color: var(--accent) !important;
+  background: #f7eee9 !important;
+  color: var(--ink) !important;
+}
+
+#calendarGrid button strong {
+  color: var(--ink) !important;
+  font-size: 15px;
+}
+
+#calendarGrid button small {
+  color: var(--muted) !important;
+  font-size: 10px;
+}
+
+/* 커뮤니티 폼의 입력창 */
+#calendarPanel input:not([type="checkbox"]),
+#calendarPanel select,
+#calendarPanel textarea {
+  max-width: 100%;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  font: inherit;
+}
+
+#calendarPanel input:not([type="checkbox"]),
+#calendarPanel select {
+  min-height: 42px;
+  padding: 10px 12px;
+}
+
+#calendarPanel textarea {
+  padding: 12px;
+  line-height: 1.7;
+}
+
+#calendarPanel input[type="checkbox"] {
+  accent-color: var(--accent);
+}
+
+/* 프로필 위치 지도 */
+#profileLocationMap {
+  border: 1px solid var(--line) !important;
+  border-radius: 14px !important;
+}
+
+/* 작은 화면 */
+@media (max-width: 800px) {
+  header {
+    padding: 22px 18px;
+    gap: 18px;
+  }
+
+  .header-actions {
+    align-items: flex-start;
+  }
+
+  .header-actions .subtitle {
+    display: none;
+  }
+
+  .sidebar {
+    padding: 18px;
+  }
+
+  .place-card {
+    padding: 15px;
+  }
+
+  #calendarPanel {
+    padding: 18px !important;
+  }
+
+  #calendarGrid {
+    gap: 4px !important;
+  }
+
+  #calendarGrid button {
+    min-height: 56px;
+    padding: 5px 1px;
+    font-size: 11px;
+  }
+
+  #calendarPanel > div[style*="display:flex"] {
+    gap: 8px;
+  }
+
+  #calendarPanel button {
+    max-width: 100%;
+  }
+
+  .form-actions {
+    flex-wrap: wrap;
+  }
+}
+
+/* 모션 최소화 설정을 사용하는 방문자 배려 */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    scroll-behavior: auto !important;
+    transition-duration: 0.01ms !important;
+    animation-duration: 0.01ms !important;
+  }
+}
+
 </style>
  
 <link rel="preconnect" href="https://fonts.googleapis.com">
