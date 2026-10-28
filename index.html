@@ -498,6 +498,107 @@ main {
   }
 }
 
+/* KYOTO AFTER DARK — editorial intro */
+.night-intro {
+  position: relative;
+  overflow: hidden;
+  margin-bottom: 24px;
+  padding: 24px 20px 18px;
+  color: #f8f2e8;
+  background:
+    radial-gradient(ellipse at 100% 0%, #713d3c 0%, transparent 48%),
+    linear-gradient(145deg, #292621 0%, #42342f 100%);
+  border-radius: 18px;
+}
+
+.night-eyebrow {
+  display: inline-block;
+  color: #e8b8a4;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: .2em;
+}
+
+.night-index {
+  margin: 12px 0 20px;
+  color: #c5b8a8;
+  font-size: 9px;
+  letter-spacing: .13em;
+}
+
+.night-intro h2 {
+  margin: 0 0 14px;
+  color: #fff9ef;
+  font-family: "Noto Serif KR", "Noto Serif JP", serif;
+  font-size: clamp(24px, 2.2vw, 31px);
+  font-weight: 500;
+  line-height: 1.5;
+  letter-spacing: -.05em;
+}
+
+.night-description {
+  margin: 0 0 20px;
+  color: #e0d7cb;
+  font-size: 12px;
+  line-height: 1.9;
+  word-break: keep-all;
+}
+
+.night-actions {
+  display: grid;
+  gap: 8px;
+}
+
+.night-actions button {
+  width: 100%;
+  min-height: 44px;
+  border-color: #f2e9dd;
+  background: #f2e9dd;
+  color: #292621;
+}
+
+.night-actions button:hover {
+  border-color: #d8a18e;
+  background: #d8a18e;
+  color: #292621;
+}
+
+.night-actions button.secondary {
+  border-color: #76665b;
+  background: transparent;
+  color: #f8f2e8;
+}
+
+.night-actions button.secondary:hover {
+  background: #50413a;
+}
+
+.night-footer {
+  display: flex;
+  justify-content: space-between;
+  gap: 8px;
+  margin-top: 20px;
+  padding-top: 12px;
+  border-top: 1px solid #5c5047;
+  color: #c5b8a8;
+  font-size: 9px;
+  letter-spacing: .12em;
+}
+
+@media (max-width: 800px) {
+  .night-intro {
+    padding: 22px 18px 16px;
+  }
+
+  .night-intro h2 {
+    font-size: 27px;
+  }
+
+  .night-actions {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
 </style>
  
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -746,6 +847,41 @@ main {
   </div>
 </section>
  <aside class="sidebar">
+   
+<div class="night-intro">
+  <span class="night-eyebrow">KYOTO AFTER DARK</span>
+  <p class="night-index">YOUR LOCAL NIGHTLIFE GUIDE · 001</p>
+
+  <h2>교토의 밤을,<br>나만의 방식으로.</h2>
+
+  <p class="night-description">
+    골목 안 작은 이자카야부터 새로운 만남까지.<br>
+    직접 발견하고, 기록하고, 함께 즐기는 교토의 밤.
+  </p>
+
+  <div class="night-actions">
+    <button
+      type="button"
+      onclick="document.querySelector('.search').scrollIntoView({behavior:'smooth',block:'center'}); document.querySelector('.search').focus()"
+    >
+      술집 둘러보기 ↗
+    </button>
+
+    <button
+      type="button"
+      class="secondary"
+      onclick="document.getElementById('calendarToggleBtn').click()"
+    >
+      교토 체류 등록
+    </button>
+  </div>
+
+  <div class="night-footer">
+    <span>FIND YOUR KYOTO</span>
+    <span>街 · 酒 · 人</span>
+  </div>
+</div>
+
     <div id="adminLogin" style="margin-bottom:16px;">
   <h3>관리자 로그인</h3>
   <input
