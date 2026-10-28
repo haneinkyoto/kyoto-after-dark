@@ -173,6 +173,28 @@ h1, h2, h3 {
       <option value="여성">여성</option>
       <option value="기타">기타</option>
     </select>
+    
+<label for="profileMbti">MBTI</label>
+<select id="profileMbti" style="display:block;width:100%;margin:6px 0 12px;">
+  <option value="">선택 안 함</option>
+  <option value="INTJ">INTJ</option>
+  <option value="INTP">INTP</option>
+  <option value="ENTJ">ENTJ</option>
+  <option value="ENTP">ENTP</option>
+  <option value="INFJ">INFJ</option>
+  <option value="INFP">INFP</option>
+  <option value="ENFJ">ENFJ</option>
+  <option value="ENFP">ENFP</option>
+  <option value="ISTJ">ISTJ</option>
+  <option value="ISFJ">ISFJ</option>
+  <option value="ESTJ">ESTJ</option>
+  <option value="ESFJ">ESFJ</option>
+  <option value="ISTP">ISTP</option>
+  <option value="ISFP">ISFP</option>
+  <option value="ESTP">ESTP</option>
+  <option value="ESFP">ESFP</option>
+</select>
+
 
     <label for="profileDrinking">주량 / 음주 스타일</label>
     <select id="profileDrinking" style="display:block;width:100%;margin:6px 0 12px;">
@@ -751,48 +773,93 @@ function render() {
 }
 
 
+
 let userMarkers = [];
 
-// 공개에 동의한 사용자의 정확한 GPS 위치 표시
 async function renderUserMarkers() {
-  // 기존 사용자 마커만 제거하고 술집 마커는 유지
   userMarkers.forEach(marker => map.removeLayer(marker));
   userMarkers = [];
 
-  const { data, error } = await communityClient
-    .from('kyoto_public_locations')
-    .select('user_id, nickname, latitude, longitude');
+  const { data: locations, error: locationError } =
+    await communityClient
+      .from('kyoto_public_locations')
+      .select('user_id, nickname, latitude, longitude');
 
-  if (error) {
-    console.error('공개 위치 불러오기 실패:', error);
+  if (locationError) {
+    console.error('공개 위치 불러오기 실패:', locationError);
     return;
   }
 
-  (data || []).forEach(profile => {
-    const lat = Number(profile.latitude);
-    const lng = Number(profile.longitude);
+  const userIds = (locations || []).map(p => p.user_id);
+  if (userIds.length === 0) return;
+
+  const { data: profiles, error: profileError } =
+    await communityClient
+      .from('kyoto_profiles')
+      .select(
+        'user_id, nickname, age, gender, mbti, drinking_level, favorite_drinks, stay_start, stay_end, is_public'
+      )
+      .in('user_id', userIds)
+      .eq('is_public', true);
+
+  if (profileError) {
+    console.error('공개 프로필 불러오기 실패:', profileError);
+    return;
+  }
+
+  const profileById = {};
+  (profiles || []).forEach(p => {
+    profileById[p.user_id] = p;
+  });
+
+  (locations || []).forEach(location => {
+    const profile = profileById[location.user_id];
+    if (!profile) return;
+
+    const lat = Number(location.latitude);
+    const lng = Number(location.longitude);
 
     if (
       !Number.isFinite(lat) ||
       !Number.isFinite(lng) ||
       lat < -90 || lat > 90 ||
       lng < -180 || lng > 180
-    ) {
-      return;
-    }
+    ) return;
 
-    // 반올림하지 않고 저장된 GPS 좌표 그대로 표시
     const marker = L.marker([lat, lng]).addTo(map);
 
     const popup = document.createElement('div');
-    const name = document.createElement('strong');
+    popup.style.minWidth = '190px';
 
-    name.textContent = profile.nickname || '사용자';
+    const name = document.createElement('strong');
+    name.textContent = profile.nickname || location.nickname || '사용자';
+    name.style.fontSize = '16px';
     popup.appendChild(name);
 
-    const detail = document.createElement('p');
-    detail.textContent = 'GPS 위치 공개 중';
-    popup.appendChild(detail);
+    const addDetail = (label, value) => {
+      if (value === null || value === undefined || String(value).trim() === '') {
+        return;
+      }
+
+      const row = document.createElement('p');
+      row.style.margin = '7px 0';
+      row.textContent = label + ': ' + value;
+      popup.appendChild(row);
+    };
+
+    addDetail('나이', profile.age ? profile.age + '세' : '');
+    addDetail('성별', profile.gender);
+    addDetail('MBTI', profile.mbti);
+    addDetail('음주 빈도', profile.drinking_level);
+    addDetail('좋아하는 술', profile.favorite_drinks);
+    addDetail('체류 시작일', profile.stay_start);
+    addDetail('체류 종료일', profile.stay_end);
+
+    const locationNote = document.createElement('p');
+    locationNote.textContent = 'GPS 위치 공개 중';
+    locationNote.style.color = '#777';
+    locationNote.style.fontSize = '12px';
+    popup.appendChild(locationNote);
 
     marker.bindPopup(popup);
     userMarkers.push(marker);
@@ -1512,6 +1579,7 @@ async function loadMyProfile() {
   document.getElementById('profileNickname').value = data.nickname || '';
   document.getElementById('profileAge').value = data.age ?? '';
   document.getElementById('profileGender').value = data.gender || '';
+  document.getElementById('profileMbti').value = data.mbti || '';
   document.getElementById('profileDrinking').value = data.drinking_level || '';
   document.getElementById('profileDrinks').value = data.favorite_drinks || '';
   document.getElementById('profileStayStart').value = data.stay_start || '';
@@ -1581,6 +1649,7 @@ const profile = {
   nickname,
   age,
   gender: document.getElementById('profileGender').value || null,
+  mbti: document.getElementById('profileMbti').value || null,
   drinking_level: document.getElementById('profileDrinking').value || null,
   favorite_drinks: document.getElementById('profileDrinks').value.trim(),
   stay_start: stayStart,
