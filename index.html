@@ -874,6 +874,35 @@ input.search:focus {
   }
 }
 
+/* SEARCH — ivory editorial style */
+.sidebar .search,
+input.search {
+  width: 100%;
+  min-height: 46px;
+  padding: 12px 15px;
+  border: 1px solid #e5e3da;
+  border-radius: 5px;
+  background: #fffefa;
+  color: #262720;
+  font-family: inherit;
+  font-size: 13px;
+  box-shadow: none;
+  transition: border-color .2s ease,
+              box-shadow .2s ease;
+}
+
+.sidebar .search::placeholder,
+input.search::placeholder {
+  color: #969387;
+}
+
+.sidebar .search:focus,
+input.search:focus {
+  border-color: #929b6c;
+  outline: none;
+  box-shadow: 0 0 0 3px #929b6c18;
+}
+
 
 </style>
  
