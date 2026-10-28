@@ -223,9 +223,20 @@ h1, h2, h3 {
   <input id="profileLocationLabel" type="text" maxlength="100"
     placeholder="예: 시조오미야, 가와라마치"
     style="display:block;width:100%;box-sizing:border-box;margin:6px 0 12px;">
+  
+<button type="button" id="profileLocationSearchBtn">
+  지역 검색
+</button>
+
 
   <button type="button" id="profileGpsBtn">GPS로 현재 위치 가져오기</button>
   <button type="button" id="profileMapPickBtn" style="margin-left:6px;">지도에서 위치 선택</button>
+  
+<div id="profileLocationMap" style="display:none; height:280px; width:100%; margin:12px 0; border:1px solid #ddd; border-radius:10px; overflow:hidden;"></div>
+<p id="profileMapHelp" style="display:none; font-size:13px; color:#666;">
+  지도를 움직여 원하는 위치를 찾은 다음, 지도에서 해당 지점을 눌러 주세요.
+</p>
+
 
   <p id="profileLocationStatus" role="status">
     아직 위치를 등록하지 않았어요.
@@ -1535,18 +1546,78 @@ document.getElementById('profileGpsBtn')?.addEventListener('click', () => {
 });
 
 
-let profileMapPicking = false;
-let profileMapMarker = null;
 
-// 지역명을 검색해 위치 등록
+let profileLocationMapInstance = null;
+let profileLocationMarker = null;
+
+// 프로필 설정 안에서 지도 열기
+document.getElementById('profileMapPickBtn')
+  ?.addEventListener('click', () => {
+    const mapContainer = document.getElementById('profileLocationMap');
+    const help = document.getElementById('profileMapHelp');
+    const status = document.getElementById('profileLocationStatus');
+
+    mapContainer.style.display = 'block';
+    help.style.display = 'block';
+
+    if (!profileLocationMapInstance) {
+      const initialLat = Number.isFinite(Number(profileLatitude))
+        && profileLatitude != null
+        ? Number(profileLatitude)
+        : 35.0116;
+
+      const initialLng = Number.isFinite(Number(profileLongitude))
+        && profileLongitude != null
+        ? Number(profileLongitude)
+        : 135.7681;
+
+      profileLocationMapInstance = L.map('profileLocationMap')
+        .setView([initialLat, initialLng], 15);
+
+      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        maxZoom: 19,
+        attribution: '&copy; OpenStreetMap contributors'
+      }).addTo(profileLocationMapInstance);
+
+      profileLocationMapInstance.on('click', event => {
+        profileLatitude = event.latlng.lat;
+        profileLongitude = event.latlng.lng;
+        profileLocationMethod = 'map';
+
+        if (profileLocationMarker) {
+          profileLocationMarker.setLatLng(event.latlng);
+        } else {
+          profileLocationMarker = L.marker(event.latlng)
+            .addTo(profileLocationMapInstance);
+        }
+
+        const label = document.getElementById('profileLocationLabel');
+
+        if (!label.value.trim()) {
+          label.value = '지도에서 선택한 위치';
+        }
+
+        status.textContent =
+          '지도에서 위치를 선택했어요! 프로필 저장을 눌러 주세요.';
+      });
+    }
+
+    setTimeout(() => {
+      profileLocationMapInstance.invalidateSize();
+    }, 200);
+
+    status.textContent =
+      '지도에서 원하는 위치를 클릭해 주세요.';
+  });
+
+
 async function searchProfileLocation() {
   const input = document.getElementById('profileLocationLabel');
   const status = document.getElementById('profileLocationStatus');
   const query = input.value.trim();
 
   if (!query) {
-    status.textContent = '예: 四条大宮, 河原町, 京都駅처럼 입력해 주세요.';
-    input.focus();
+    status.textContent = '지역명을 먼저 입력해 주세요.';
     return;
   }
 
@@ -1564,59 +1635,84 @@ async function searchProfileLocation() {
       'https://nominatim.openstreetmap.org/search?' + params
     );
 
-    if (!response.ok) throw new Error('검색 실패');
+    if (!response.ok) throw new Error('검색 요청 실패');
 
     const results = await response.json();
 
     if (!results.length) {
       status.textContent =
-        '장소를 찾지 못했어요. 일본어 역 이름이나 다른 지역명을 입력해 주세요.';
+        '장소를 찾지 못했어요. 다른 지역명으로 입력해 주세요.';
       return;
     }
 
     const place = results[0];
-    profileLatitude = Number(place.lat);
-    profileLongitude = Number(place.lon);
+    const lat = Number(place.lat);
+    const lng = Number(place.lon);
+
+    if (!Number.isFinite(lat) || !Number.isFinite(lng)) {
+      throw new Error('올바르지 않은 좌표');
+    }
+
+    profileLatitude = lat;
+    profileLongitude = lng;
     profileLocationMethod = 'manual';
 
-    input.value = query;
+    const mapContainer = document.getElementById('profileLocationMap');
+    const help = document.getElementById('profileMapHelp');
+
+    mapContainer.style.display = 'block';
+    help.style.display = 'block';
+
+    if (!profileLocationMapInstance) {
+      profileLocationMapInstance = L.map('profileLocationMap')
+        .setView([lat, lng], 16);
+
+      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        maxZoom: 19,
+        attribution: '&copy; OpenStreetMap contributors'
+      }).addTo(profileLocationMapInstance);
+
+      profileLocationMapInstance.on('click', event => {
+        profileLatitude = event.latlng.lat;
+        profileLongitude = event.latlng.lng;
+        profileLocationMethod = 'map';
+
+        if (profileLocationMarker) {
+          profileLocationMarker.setLatLng(event.latlng);
+        } else {
+          profileLocationMarker = L.marker(event.latlng)
+            .addTo(profileLocationMapInstance);
+        }
+
+        status.textContent =
+          '위치를 선택했어요! 프로필 저장을 눌러 주세요.';
+      });
+    } else {
+      profileLocationMapInstance.setView([lat, lng], 16);
+    }
+
+    if (profileLocationMarker) {
+      profileLocationMarker.setLatLng([lat, lng]);
+    } else {
+      profileLocationMarker = L.marker([lat, lng])
+        .addTo(profileLocationMapInstance);
+    }
+
+    setTimeout(() => {
+      profileLocationMapInstance.invalidateSize();
+    }, 200);
+
     status.textContent =
-      '위치를 찾았어요! ' + place.display_name +
-      ' — 맞다면 프로필 저장을 눌러 주세요.';
+      '지역을 찾았어요! 지도에서 위치를 확인한 뒤 프로필을 저장해 주세요.';
   } catch (error) {
-    console.error(error);
+    console.error('프로필 지역 검색 실패:', error);
     status.textContent =
       '검색에 실패했어요. 잠시 후 다시 시도해 주세요.';
   }
 }
 
-// 지역명 입력 후 검색할 수 있도록 연결
 document.getElementById('profileLocationLabel')
   ?.addEventListener('change', searchProfileLocation);
-
-// 지도에서 위치 선택 모드
-document.getElementById('profileMapPickBtn')
-  ?.addEventListener('click', () => {
-    profileMapPicking = true;
-    document.getElementById('profileLocationStatus').textContent =
-      '지도에서 원하는 지점을 클릭해 주세요. 선택하면 위치가 등록돼요.';
-
-    const mapElement = document.getElementById('map');
-    mapElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
-  });
-
-// 지도 클릭 시 선택한 위치 등록
-map.on('click', event => {
-  if (!profileMapPicking) return;
-
-  profileLatitude = event.latlng.lat;
-  profileLongitude = event.latlng.lng;
-  profileLocationMethod = 'map';
-  profileMapPicking = false;
-
-  document.getElementById('profileLocationStatus').textContent =
-    '지도에서 위치를 선택했어요! 프로필 저장을 눌러 주세요.';
-});
 
 // 프로필 불러오기
 async function loadMyProfile() {
