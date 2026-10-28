@@ -1894,7 +1894,32 @@ async function renderUserMarkers() {
     locationNote.style.color = '#777';
     locationNote.style.fontSize = '12px';
     popup.appendChild(locationNote);
+    const messageButton = document.createElement('button');
+    messageButton.type = 'button';
+    messageButton.textContent = '💬 개인 메시지 보내기';
+    messageButton.style.cssText =
+      'display:block;width:100%;margin-top:12px;padding:10px;background:#39FF14;color:#151515;border:0;border-radius:8px;font-weight:bold;cursor:pointer;';
 
+    messageButton.addEventListener('click', async () => {
+      if (!communityUser) {
+        alert('개인 메시지를 보내려면 먼저 로그인해 주세요.');
+        return;
+      }
+
+      if (location.user_id === communityUser.id) {
+        alert('자기 자신에게는 메시지를 보낼 수 없어요.');
+        return;
+      }
+
+      document.getElementById('directChatPanel').style.display = 'block';
+      document.getElementById('directThread').style.display = 'block';
+      document.getElementById('directThreadTitle').textContent =
+        (profile.nickname || location.nickname || '사용자') + '님과의 대화';
+
+      await openDirectConversation(location.user_id);
+    });
+
+    popup.appendChild(messageButton);
     marker.bindPopup(popup);
     userMarkers.push(marker);
   });
