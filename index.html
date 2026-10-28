@@ -598,6 +598,176 @@ main {
     grid-template-columns: 1fr 1fr;
   }
 }
+  
+/* KYOTO AFTER DARK — Y2K / STREET EDITORIAL */
+:root {
+  --night-accent: #c8ff3d;
+  --night-ink: #20221d;
+  --night-paper: #f7f6f0;
+}
+
+/* 페이지 전체 */
+body {
+  background: var(--night-paper);
+  color: var(--night-ink);
+}
+
+/* 브랜드 헤더 */
+header {
+  padding-top: 24px;
+  padding-bottom: 22px;
+}
+
+.brand small {
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: .18em;
+}
+
+.brand h1 {
+  font-size: clamp(27px, 4vw, 43px);
+  font-weight: 900;
+  letter-spacing: -.075em;
+  line-height: 1.2;
+}
+
+.brand .subtitle {
+  font-size: 12px;
+  letter-spacing: -.02em;
+}
+
+/* 소개 영역: 차분한 매거진에서 스트리트 에디토리얼로 */
+.night-intro {
+  background:
+    radial-gradient(ellipse at 100% 0%, #514b3d 0%, transparent 45%),
+    #20221d;
+  border: 1px solid #34372d;
+  border-radius: 5px;
+  box-shadow: 5px 5px 0 var(--night-accent);
+}
+
+.night-eyebrow {
+  color: var(--night-accent);
+  font-weight: 900;
+  letter-spacing: .22em;
+}
+
+.night-index {
+  color: #c8c9bf;
+}
+
+.night-intro h2 {
+  font-family: sans-serif;
+  font-weight: 900;
+  letter-spacing: -.075em;
+  line-height: 1.35;
+}
+
+.night-description {
+  color: #d5d7cd;
+}
+
+.night-footer {
+  border-color: #505349;
+  color: var(--night-accent);
+  font-weight: 700;
+}
+
+/* 버튼: 둥글고 무난한 느낌 대신 선명하게 */
+button {
+  border-radius: 4px;
+  font-weight: 750;
+  transition: background .18s ease, color .18s ease,
+              transform .18s ease;
+}
+
+button:hover {
+  transform: translateY(-2px);
+}
+
+.night-actions button:not(.secondary) {
+  border-color: var(--night-accent);
+  background: var(--night-accent);
+  color: var(--night-ink);
+  font-weight: 900;
+}
+
+.night-actions button.secondary {
+  border-color: #77796e;
+}
+
+/* 검색창 */
+.sidebar .search,
+input.search {
+  min-height: 46px;
+  border: 1px solid #d6d7ce;
+  border-radius: 4px;
+  background: #fff;
+  font-size: 13px;
+}
+
+.sidebar .search:focus,
+input.search:focus {
+  outline: 2px solid var(--night-accent);
+  outline-offset: 1px;
+  border-color: var(--night-ink);
+}
+
+/* 통계 숫자 */
+.stats {
+  gap: 10px;
+}
+
+.stat {
+  border-radius: 4px;
+  background: #eceee4;
+  padding: 14px;
+}
+
+.stat strong {
+  font-size: 25px;
+  font-weight: 900;
+  letter-spacing: -.06em;
+}
+
+.stat span {
+  font-size: 9px;
+  font-weight: 800;
+  letter-spacing: .08em;
+}
+
+/* 섹션 제목 */
+.section-title {
+  font-weight: 850;
+  letter-spacing: -.03em;
+}
+
+/* 지도 */
+.map-wrap {
+  border-radius: 5px;
+  overflow: hidden;
+}
+
+.map-note {
+  border-radius: 4px;
+}
+
+/* 모바일에서도 답답하지 않게 */
+@media (max-width: 600px) {
+  header {
+    padding-top: 18px;
+    padding-bottom: 16px;
+  }
+
+  .brand h1 {
+    font-size: 29px;
+  }
+
+  .night-intro {
+    box-shadow: 3px 3px 0 var(--night-accent);
+  }
+}
+
 
 </style>
  
