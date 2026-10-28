@@ -902,7 +902,38 @@ input.search:focus {
   outline: none;
   box-shadow: 0 0 0 3px #929b6c18;
 }
+/* Place filters — ivory editorial style */
+.place-filters {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+  margin: 0 0 16px;
+}
 
+.place-filters select {
+  width: 100%;
+  min-width: 0;
+  padding: 11px 9px;
+  border: 1px solid #e5e3da;
+  border-radius: 5px;
+  background: #fffefa;
+  color: #39392f;
+  font-family: inherit;
+  font-size: 12px;
+  cursor: pointer;
+}
+
+.place-filters select:focus {
+  outline: none;
+  border-color: #929b6c;
+  box-shadow: 0 0 0 3px #929b6c18;
+}
+
+@media (max-width: 380px) {
+  .place-filters {
+    grid-template-columns: 1fr;
+  }
+}
 
 </style>
  
@@ -1239,6 +1270,15 @@ input.search:focus {
 </div>
 
   <input class="search" id="search" placeholder="가게 이름, 동네, 리뷰 검색…"/>
+   <div class="place-filters">
+  <select id="areaFilter" aria-label="동네별 필터">
+    <option value="">모든 동네</option>
+  </select>
+
+  <select id="categoryFilter" aria-label="분위기 및 종류별 필터">
+    <option value="">모든 분위기·종류</option>
+  </select>
+</div>
   <div class="stats"><div class="stat"><strong id="count">0</strong><span>PLACES VISITED</span></div><div class="stat"><strong id="avg">—</strong><span>MY AVG. RATING</span></div></div>
   <div class="section-title"><span>나의 술집 기록</span><span id="resultCount">0곳</span></div>
   <div class="place-list" id="placeList"></div>
@@ -1782,12 +1822,54 @@ function distanceKm(lat1, lng1, lat2, lng2) {
 function renderList() {
   const q = document.getElementById('search').value.toLowerCase().trim();
 
+  const areaSelect = document.getElementById('areaFilter');
+  const categorySelect = document.getElementById('categoryFilter');
+
+  const previousArea = areaSelect.value;
+  const previousCategory = categorySelect.value;
+
+  const areas = [...new Set(
+    places.map(p => String(p.area || '교토').trim()).filter(Boolean)
+  )].sort((a, b) => a.localeCompare(b, 'ko'));
+
+  const categories = [...new Set(
+    places.map(p => String(p.category || '').trim()).filter(Boolean)
+  )].sort((a, b) => a.localeCompare(b, 'ko'));
+
+  areaSelect.innerHTML =
+    '<option value="">모든 동네</option>' +
+    areas.map(area =>
+      `<option value="${esc(area)}">${esc(area)}</option>`
+    ).join('');
+
+  categorySelect.innerHTML =
+    '<option value="">모든 분위기·종류</option>' +
+    categories.map(category =>
+      `<option value="${esc(category)}">${esc(category)}</option>`
+    ).join('');
+
+  areaSelect.value = areas.includes(previousArea) ? previousArea : '';
+  categorySelect.value = categories.includes(previousCategory)
+    ? previousCategory
+    : '';
+
+  const selectedArea = areaSelect.value;
+  const selectedCategory = categorySelect.value;
+
   const list = places
     .filter(p =>
       [p.name, p.area, p.category, p.review]
         .join(' ')
         .toLowerCase()
         .includes(q)
+    )
+    .filter(p =>
+      !selectedArea ||
+      String(p.area || '교토').trim() === selectedArea
+    )
+    .filter(p =>
+      !selectedCategory ||
+      String(p.category || '').trim() === selectedCategory
     )
     .map(p => {
       const hasCoords =
@@ -2132,6 +2214,11 @@ document.getElementById('searchPhotosBtn').addEventListener('click', async () =>
 });
 
 document.getElementById('search').addEventListener('input', renderList);
+  document.getElementById('areaFilter')
+  .addEventListener('change', renderList);
+
+document.getElementById('categoryFilter')
+  .addEventListener('change', renderList);
 
 const photoUrlInput = document.getElementById('photoUrl');
 const manualPhotoPreview = document.getElementById('manualPhotoPreview');
