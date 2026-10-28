@@ -1906,17 +1906,12 @@ async function renderUserMarkers() {
         return;
       }
 
-      if (location.user_id === communityUser.id) {
-        alert('자기 자신에게는 메시지를 보낼 수 없어요.');
-        return;
-      }
+            document.getElementById('directChatPanel').style.display = 'block';
 
-      document.getElementById('directChatPanel').style.display = 'block';
-      document.getElementById('directThread').style.display = 'block';
-      document.getElementById('directThreadTitle').textContent =
-        (profile.nickname || location.nickname || '사용자') + '님과의 대화';
-
-      await openDirectConversation(location.user_id);
+      await openDirectConversation(
+        location.user_id,
+        profile.nickname || location.nickname || '사용자'
+      );
     });
 
     popup.appendChild(messageButton);
@@ -3673,6 +3668,7 @@ async function sendDirectMessage() {
     setDirectStatus('먼저 로그인해 주세요.');
     return;
   }
+
   if (!activeDirectConversationId) {
     setDirectStatus('먼저 대화 상대를 선택해 주세요.');
     return;
@@ -3680,16 +3676,16 @@ async function sendDirectMessage() {
 
   const input = document.getElementById('directMessageInput');
   const message = input.value.trim();
+
   if (!message) return;
 
   const { error } = await communityClient
     .from('kyoto_direct_messages')
     .insert({
-  conversation_id: activeDirectConversationId,
-  sender_id: communityUser.id,
-  content: message
-});
-  
+      conversation_id: activeDirectConversationId,
+      sender_id: communityUser.id,
+      content: message
+    });
 
   if (error) {
     setDirectStatus('메시지를 보내지 못했어요: ' + error.message);
@@ -3698,7 +3694,6 @@ async function sendDirectMessage() {
 
   input.value = '';
   await loadDirectMessages();
-  await loadDirectInbox();
   setDirectStatus('메시지를 보냈어요.');
 }
 
