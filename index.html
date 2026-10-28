@@ -1233,8 +1233,20 @@ h4 {
 
     
 
-<div id="directChatPanel" style="border:1px solid #e8dfd2;border-radius:12px;padding:16px;margin:20px 0;background:#faf7f0;color:#352e28;">
-  <h3>💌 개인 메시지</h3>
+<button type="button" id="openDirectChatBtn"
+  aria-label="채팅 열기"
+  style="position:fixed;top:16px;right:16px;z-index:99998;background:#151515;color:#39FF14;border:2px solid #39FF14;border-radius:50%;width:54px;height:54px;font-size:25px;cursor:pointer;box-shadow:0 0 12px rgba(57,255,20,0.45);">
+  💬
+</button>
+
+<div id="directChatPanel" style="display:none;position:fixed;top:0;right:0;width:min(420px,100vw);height:100vh;overflow-y:auto;box-sizing:border-box;z-index:99999;border-left:1px solid #e8dfd2;padding:20px;background:#151515;color:#f5f5f5;;color:#352e28;box-shadow:-8px 0 30px rgba(0,0,0,0.12);">
+<div style="display:flex;align-items:center;justify-content:space-between;gap:12px;">
+  <h3 style="margin:0;color:#39FF14;">💬 개인 메시지</h3>
+  <button type="button" id="closeDirectChatBtn" aria-label="채팅 닫기"
+    style="background:transparent;border:1px solid #39FF14;color:#39FF14;border-radius:8px;padding:6px 12px;cursor:pointer;">
+    ✕
+  </button>
+</div>
   <p>교토에서 만난 사람과 1:1로 대화해 보세요.</p>
 
   <button type="button" id="directInboxRefreshBtn">받은 메시지 새로고침</button>
@@ -3788,6 +3800,22 @@ document.getElementById('directInboxRefreshBtn')
 
 document.getElementById('directSendBtn')
   ?.addEventListener('click', sendDirectMessage);
+
+  
+/* 채팅 패널 열기 및 닫기 */
+document.getElementById('openDirectChatBtn')?.addEventListener('click', async () => {
+  const panel = document.getElementById('directChatPanel');
+  if (panel) {
+    panel.style.display = 'block';
+    await loadDirectInbox();
+    await loadDateStayUsers();
+  }
+});
+
+document.getElementById('closeDirectChatBtn')?.addEventListener('click', () => {
+  const panel = document.getElementById('directChatPanel');
+  if (panel) panel.style.display = 'none';
+});
 
 /* 커뮤니티 로그인 상태 변경 */
 communityClient.auth.onAuthStateChange(() => {
