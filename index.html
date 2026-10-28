@@ -768,6 +768,112 @@ input.search:focus {
   }
 }
 
+/* IZAKAYA CARDS — calm editorial style */
+.place-list {
+  gap: 10px;
+}
+
+.place-card {
+  padding: 16px;
+  background: #fffefa;
+  border: 1px solid #e5e3da;
+  border-radius: 5px;
+  box-shadow: 0 2px 5px #25251d05;
+  transition: border-color .2s ease, transform .2s ease,
+              box-shadow .2s ease;
+}
+
+.place-card:hover {
+  border-color: #aeb58f;
+  background: #fffefa;
+  transform: translateY(-2px);
+  box-shadow: 0 5px 14px #25251d0c;
+}
+
+.place-card.active {
+  border-color: #929b6c;
+  box-shadow: inset 3px 0 0 #929b6c;
+}
+
+.place-top {
+  align-items: flex-start;
+  gap: 12px;
+}
+
+.place-name {
+  color: #262720;
+  font-size: 15px;
+  font-weight: 800;
+  letter-spacing: -.035em;
+  line-height: 1.5;
+}
+
+.rating {
+  color: #777d58;
+  font-size: 12px;
+  white-space: nowrap;
+}
+
+.place-meta {
+  margin-top: 5px;
+  color: #858478;
+  font-size: 11px;
+  line-height: 1.7;
+}
+
+.place-note {
+  margin-top: 11px;
+  color: #55564d;
+  font-size: 12px;
+  line-height: 1.8;
+}
+
+.place-card img {
+  border-radius: 3px !important;
+  margin: 12px 0 !important;
+}
+
+.tag {
+  padding: 4px 7px;
+  border: 1px solid #e1e2d7;
+  border-radius: 3px;
+  background: #f0f1e9;
+  color: #555c42;
+  font-size: 10px;
+}
+
+.section-title {
+  color: #77786c;
+  font-size: 11px;
+  letter-spacing: .06em;
+}
+
+.empty {
+  border-color: #dcded2;
+  border-radius: 5px;
+  background: #fffefa;
+}
+
+/* 지도 팝업도 카드와 통일 */
+.leaflet-popup-content-wrapper {
+  border: 1px solid #e5e3da;
+  box-shadow: 0 5px 20px #25251d12;
+}
+
+.popup-rating {
+  color: #777d58;
+}
+
+@media (max-width: 600px) {
+  .place-card {
+    padding: 14px;
+  }
+
+  .place-name {
+    font-size: 14px;
+  }
+}
+
 
 </style>
  
