@@ -1619,6 +1619,55 @@ const profile = {
     return;
   }
 
+  const locationPublic =
+    document.getElementById('profileIsPublic').checked &&
+    document.getElementById('profileLocationPublic').checked;
+
+  if (locationPublic) {
+    if (
+      profileLatitude == null ||
+      profileLongitude == null ||
+      !Number.isFinite(Number(profileLatitude)) ||
+      !Number.isFinite(Number(profileLongitude))
+    ) {
+      status.textContent =
+        '프로필은 저장됐어요. GPS 위치를 공개하려면 먼저 GPS 위치를 가져와 주세요.';
+      return;
+    }
+
+    const { error: locationError } = await communityClient
+      .from('kyoto_public_locations')
+      .upsert({
+        user_id: communityUser.id,
+        nickname,
+        latitude: Number(profileLatitude),
+        longitude: Number(profileLongitude),
+        updated_at: new Date().toISOString()
+      }, { onConflict: 'user_id' });
+
+    if (locationError) {
+      status.textContent =
+        '프로필은 저장됐지만 공개 위치 저장에 실패했어요: ' +
+        locationError.message;
+      return;
+    }
+  } else {
+    const { error: deleteError } = await communityClient
+      .from('kyoto_public_locations')
+      .delete()
+      .eq('user_id', communityUser.id);
+
+    if (deleteError) {
+      status.textContent =
+        '프로필은 저장됐지만 공개 위치 삭제에 실패했어요: ' +
+        deleteError.message;
+      return;
+    }
+  }
+
+  status.textContent = '프로필과 공개 위치 설정을 저장했어요!';
+});
+
   status.textContent = '프로필을 저장했어요!';
 });
 
