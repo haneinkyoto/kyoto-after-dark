@@ -2465,6 +2465,17 @@ h4 {
 #map .leaflet-tile-pane {
   filter: sepia(18%) saturate(78%) brightness(1.02);
 }
+ /* 오늘의 술 운세 결과 표시 수정 */
+.sake-fortune-card.is-revealed .fortune-rank,
+.sake-fortune-card.is-revealed .fortune-message,
+.sake-fortune-card.is-revealed .fortune-detail,
+.sake-fortune-card.is-revealed .fortune-mission,
+.sake-fortune-card.is-revealed .fortune-footer {
+  opacity: 1 !important;
+  filter: blur(0) !important;
+  transform: translateY(0) !important;
+  animation: inkAppear 1.2s ease forwards !important;
+}
 </style>
 
  
