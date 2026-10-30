@@ -2476,6 +2476,148 @@ h4 {
   transform: translateY(0) !important;
   animation: inkAppear 1.2s ease forwards !important;
 }
+ 
+/* =================================
+   KYOTO AFTER DARK - WASHI OMikuji
+================================= */
+
+.sake-fortune-card {
+  position: relative;
+  overflow: hidden;
+  background-color: #eee5ce !important;
+
+  background-image:
+    radial-gradient(ellipse at 15% 20%, rgba(160, 116, 67, 0.13), transparent 38%),
+    radial-gradient(ellipse at 85% 75%, rgba(170, 95, 70, 0.10), transparent 42%),
+    radial-gradient(ellipse at 50% 50%, rgba(255, 255, 240, 0.45), transparent 70%),
+    repeating-linear-gradient(
+      3deg,
+      rgba(110, 82, 48, 0.035) 0px,
+      rgba(110, 82, 48, 0.035) 1px,
+      transparent 1px,
+      transparent 4px
+    ),
+    repeating-linear-gradient(
+      91deg,
+      rgba(120, 92, 60, 0.025) 0px,
+      transparent 1px,
+      transparent 5px
+    ) !important;
+
+  border: 1px solid rgba(130, 99, 62, 0.35) !important;
+  box-shadow:
+    0 18px 45px rgba(42, 30, 18, 0.22),
+    inset 0 0 35px rgba(143, 106, 64, 0.12),
+    inset 0 0 3px rgba(255, 255, 255, 0.8) !important;
+}
+
+/* 먹물이 번지는 듯한 결과 표시 */
+@keyframes inkAppear {
+  0% {
+    opacity: 0;
+    filter: blur(12px);
+    transform: translateY(8px);
+  }
+  45% {
+    opacity: 0.65;
+    filter: blur(4px);
+  }
+  100% {
+    opacity: 1;
+    filter: blur(0);
+    transform: translateY(0);
+  }
+}
+
+/* 운세 글씨 */
+.sake-fortune-card .fortune-rank {
+  color: #9e3029 !important;
+  text-shadow: 0 1px 2px rgba(117, 42, 30, 0.16);
+  letter-spacing: 0.12em;
+}
+
+/* 본문과 세부 결과 */
+.sake-fortune-card .fortune-message,
+.sake-fortune-card .fortune-detail,
+.sake-fortune-card .fortune-mission {
+  color: #40372d !important;
+}
+
+/* 붉은 인주 느낌의 장식 */
+.sake-fortune-card .fortune-deco {
+  color: #a34436 !important;
+  opacity: 0.85;
+}
+
+/* 결과가 나타날 때 잉크처럼 번지는 효과 */
+.sake-fortune-card.is-revealed .fortune-rank {
+  animation: inkAppear 1.5s ease both !important;
+}
+
+.sake-fortune-card.is-revealed .fortune-message {
+  animation: inkAppear 1.8s ease 0.15s both !important;
+}
+
+.sake-fortune-card.is-revealed .fortune-detail {
+  animation: inkAppear 1.8s ease 0.3s both !important;
+}
+
+.sake-fortune-card.is-revealed .fortune-mission {
+  animation: inkAppear 2s ease 0.45s both !important;
+}
+
+/* 수채화 얼룩이 종이에 스며드는 효과 */
+.sake-fortune-card::before {
+  content: "";
+  position: absolute;
+  inset: -15%;
+  pointer-events: none;
+  z-index: 0;
+  opacity: 0;
+  background:
+    radial-gradient(ellipse at 25% 30%,
+      rgba(166, 65, 48, 0.20) 0%,
+      rgba(166, 65, 48, 0.09) 18%,
+      transparent 42%),
+    radial-gradient(ellipse at 78% 65%,
+      rgba(65, 91, 75, 0.14) 0%,
+      rgba(65, 91, 75, 0.07) 20%,
+      transparent 45%),
+    radial-gradient(ellipse at 50% 90%,
+      rgba(183, 139, 75, 0.17) 0%,
+      transparent 38%);
+  filter: blur(12px);
+  transform: scale(0.7);
+}
+
+.sake-fortune-card.is-revealed::before {
+  animation: watercolorSpread 2.8s ease-out forwards;
+}
+
+@keyframes watercolorSpread {
+  0% {
+    opacity: 0;
+    transform: scale(0.7);
+    filter: blur(22px);
+  }
+  45% {
+    opacity: 0.85;
+    transform: scale(1.05);
+    filter: blur(15px);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1);
+    filter: blur(12px);
+  }
+}
+
+/* 내용은 물감 레이어 위에 표시 */
+.sake-fortune-card > * {
+  position: relative;
+  z-index: 1;
+}
+
 </style>
 
  
@@ -8643,16 +8785,55 @@ const sakeFortuneBtn = document.getElementById('sakeFortuneBtn');
 const closeSakeFortune = document.getElementById('closeSakeFortune');
 const drawSakeFortune = document.getElementById('drawSakeFortune');
 const sakeFortuneCard = document.querySelector('.sake-fortune-card');
+ // 오늘 날짜 기준으로 운세 저장
+function getSakeFortuneKey() {
+  const today = new Intl.DateTimeFormat('en-CA', {
+    timeZone: 'Asia/Tokyo'
+  }).format(new Date());
+
+  return 'kyotoSakeFortune-' + today;
+}
+
+// 오늘 이미 뽑은 운세가 있는지 확인
+function restoreSakeFortune() {
+  const saved = localStorage.getItem(getSakeFortuneKey());
+
+  if (!saved) return false;
+
+  try {
+    const result = JSON.parse(saved);
+
+    document.getElementById('fortuneRank').textContent = result.rank;
+    document.getElementById('fortuneMessage').textContent = result.message;
+    document.getElementById('fortunePlace').textContent = result.place;
+    document.getElementById('fortuneDrink').textContent = result.drink;
+    document.getElementById('fortuneCompanion').textContent = result.companion;
+    document.getElementById('fortuneLastTrain').textContent = result.train;
+    document.getElementById('fortuneMission').textContent = result.mission;
+
+    sakeFortuneCard.classList.add('is-revealed');
+
+    if (drawSakeFortune) {
+      drawSakeFortune.style.display = 'none';
+    }
+
+    return true;
+  } catch (error) {
+    console.error('운세 불러오기 오류:', error);
+    return false;
+  }
+}
 
 if (sakeFortuneBtn && sakeFortuneModal && sakeFortuneCard) {
   sakeFortuneBtn.addEventListener('click', () => {
     sakeFortuneModal.classList.add('is-open');
     sakeFortuneCard.classList.remove('is-revealed');
 
-    if (drawSakeFortune) {
-      drawSakeFortune.style.display = 'inline-block';
-    }
+   if (drawSakeFortune) {
+  drawSakeFortune.style.display = 'inline-block';
+}
 
+restoreSakeFortune();
     const dateElement = document.getElementById('fortuneDate');
 
     if (dateElement) {
@@ -8785,6 +8966,21 @@ if (drawSakeFortune && sakeFortuneCard) {
 
     document.getElementById('fortuneMission').textContent =
       missions[Math.floor(Math.random() * missions.length)];
+   // 오늘의 운세 결과 저장
+const todayFortune = {
+  rank: fortune.rank,
+  message: fortune.message,
+  place: place ? place.name : '아직 등록된 술집이 없어요',
+  drink: document.getElementById('fortuneDrink').textContent,
+  companion: document.getElementById('fortuneCompanion').textContent,
+  train: document.getElementById('fortuneLastTrain').textContent,
+  mission: document.getElementById('fortuneMission').textContent
+};
+
+localStorage.setItem(
+  getSakeFortuneKey(),
+  JSON.stringify(todayFortune)
+);
 
     sakeFortuneCard.classList.remove('is-revealed');
 
