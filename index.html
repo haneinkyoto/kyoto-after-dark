@@ -1,3861 +1,8185 @@
 <!DOCTYPE html>
+
 <html lang="ko">
+
 <head>
+
 <meta charset="UTF-8">
+
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
 <title>교토 술집 지도 | My Kyoto Izakaya Map</title>
+
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" crossorigin=""/>
+
 <link rel="preconnect" href="https://fonts.googleapis.com">
+
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+
 <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700&family=Noto+Sans+JP:wght@400;500;600;700&family=Noto+Sans+KR:wght@400;500;600;700&display=swap" rel="stylesheet">
+
 <style>
+
 :root{--ink:#26251f;--muted:#77766f;--paper:#f7f5ef;--card:#fffdf8;--accent:#a34532;--line:#e4e0d6;--green:#5f7058}
+
 *{box-sizing:border-box}body{margin:0;background:var(--paper);color:var(--ink);font-family:ui-sans-serif,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}
+
 header{padding:23px 28px 17px;border-bottom:1px solid var(--line);display:flex;align-items:center;justify-content:space-between;gap:18px;background:#fbfaf6}
+
 .brand small{display:block;letter-spacing:.18em;text-transform:uppercase;font-size:10px;color:var(--accent);font-weight:700;margin-bottom:5px}
+
 h1{font-family:Georgia,serif;font-size:clamp(23px,3vw,34px);font-weight:500;margin:0;letter-spacing:-.04em}
+
 .subtitle{font-size:12px;color:var(--muted);margin-top:7px}
+
 .header-actions{display:flex;gap:8px;flex-wrap:wrap}
+
 button,.button{border:1px solid var(--ink);background:var(--ink);color:white;border-radius:4px;padding:10px 13px;font-size:12px;cursor:pointer}
+
 button.secondary{background:transparent;color:var(--ink);border-color:var(--line)}
+
 main{display:grid;grid-template-columns:minmax(280px,350px) 1fr;min-height:calc(100vh - 100px)}
+
 .sidebar{padding:20px;border-right:1px solid var(--line);background:#fbfaf6;overflow:auto;max-height:calc(100vh - 100px)}
+
 .search{width:100%;padding:12px 12px;border:1px solid var(--line);border-radius:4px;background:white;font-size:13px;margin-bottom:13px}
+
 .stats{display:flex;gap:9px;margin:0 0 20px}.stat{flex:1;border:1px solid var(--line);padding:12px;background:var(--card)}.stat strong{display:block;font-family:Georgia,serif;font-size:24px;font-weight:500}.stat span{font-size:10px;color:var(--muted);letter-spacing:.06em}
+
 .section-title{display:flex;justify-content:space-between;align-items:center;font-size:11px;text-transform:uppercase;letter-spacing:.12em;color:var(--muted);margin:18px 0 10px}
+
 .place-list{display:grid;gap:8px}
+
 .place-card{background:var(--card);border:1px solid var(--line);padding:13px;cursor:pointer;transition:.15s}
+
 .place-card:hover,.place-card.active{border-color:var(--accent);transform:translateY(-1px)}
+
 .place-top{display:flex;justify-content:space-between;gap:8px}.place-name{font-size:14px;font-weight:650}.rating{font-size:12px;color:var(--accent);white-space:nowrap}
+
 .place-meta{font-size:11px;color:var(--muted);margin-top:5px}.place-note{font-size:12px;line-height:1.55;margin-top:8px;color:#4e4b43;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+
 .tag{display:inline-block;font-size:10px;border:1px solid var(--line);padding:3px 6px;margin:7px 4px 0 0;color:var(--green)}
+
 .map-wrap{position:relative;min-height:520px}#map{width:100%;height:100%;min-height:calc(100vh - 100px);background:#e9e7df}
+
 .map-note{position:absolute;z-index:500;left:16px;top:16px;background:rgba(255,253,248,.94);border:1px solid var(--line);padding:10px 12px;font-size:11px;color:var(--muted);max-width:230px;box-shadow:0 3px 12px #0000000a}
+
 .empty{padding:22px 10px;color:var(--muted);font-size:12px;line-height:1.7;text-align:center;border:1px dashed var(--line)}
+
 .leaflet-popup-content-wrapper{border-radius:5px;background:var(--card)}.leaflet-popup-content{font-family:inherit;min-width:180px}.popup-name{font-weight:700;font-size:14px}.popup-rating{color:var(--accent);font-size:12px;margin:5px 0}.popup-review{font-size:12px;line-height:1.5;color:#555}
+
 .custom-pin{background:var(--accent);border:2px solid #fffaf1;border-radius:50% 50% 50% 0;width:23px;height:23px;transform:rotate(-45deg);box-shadow:0 2px 6px #0003}.custom-pin:after{content:"";display:block;background:#fffaf1;width:6px;height:6px;border-radius:50%;position:absolute;top:6.5px;left:6.5px}
+
 .modal-backdrop{position:fixed;inset:0;background:#18171188;z-index:2000;display:none;align-items:center;justify-content:center;padding:18px}.modal-backdrop.show{display:flex}.modal{background:var(--card);width:min(560px,100%);max-height:92vh;overflow:auto;padding:23px;border:1px solid var(--line);box-shadow:0 15px 50px #0002}.modal h2{font-family:Georgia,serif;font-weight:500;margin:0 0 5px;font-size:26px}.modal p{font-size:12px;color:var(--muted);margin:0 0 18px}.form-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}.field{display:flex;flex-direction:column;gap:6px;margin-bottom:12px}.field.full{grid-column:1/-1}.field label{font-size:11px;color:var(--muted);letter-spacing:.05em}.field input,.field textarea,.field select{width:100%;border:1px solid var(--line);padding:10px;background:white;font:inherit;font-size:13px;border-radius:3px}.field textarea{min-height:100px;resize:vertical}.form-actions{display:flex;justify-content:space-between;gap:8px;margin-top:10px}.right-actions{display:flex;gap:8px}.hint{font-size:10px;color:var(--muted);line-height:1.6;margin-top:12px}
+
 @media(max-width:800px){header{padding:18px;align-items:flex-start;flex-direction:column}.header-actions{width:100%}main{grid-template-columns:1fr}.sidebar{max-height:none;border-right:0;border-bottom:1px solid var(--line);order:2}.map-wrap{order:1;min-height:55vh}#map{min-height:55vh;height:55vh}.stats{max-width:420px}.form-grid{grid-template-columns:1fr}.field.full{grid-column:auto}}
 
+ 
+
 /* 전체 사이트의 기본 타이포그래피 */
+
 body {
+
   font-family: 'Noto Sans KR', 'Noto Sans JP', sans-serif;
+
   color: #302c28;
+
   letter-spacing: 0.015em;
+
 }
+
+ 
 
 /* 제목은 감성적인 명조체 */
+
 h1, h2, h3 {
+
   font-family: 'Noto Serif KR', 'Noto Serif JP', serif;
+
   font-weight: 500;
+
   letter-spacing: 0.035em;
+
 }
+
+ 
 
 /* 달력의 흰 글씨 문제 해결 */
+
 #calendarGrid button {
+
   color: #302c28 !important;
+
   background-color: #fffdf9 !important;
+
   font-family: 'Noto Sans KR', 'Noto Sans JP', sans-serif;
+
   font-size: 13px;
+
 }
+
+ 
 
 /* 달력 날짜 숫자 */
+
 #calendarGrid button strong {
+
   color: #302c28 !important;
+
   font-size: 15px;
+
 }
+
+ 
 
 /* 달력의 인원수와 보조 문구 */
+
 #calendarGrid button small {
+
   color: #71675e !important;
+
   font-size: 10px;
+
 }
+
+ 
 
 /* =========================================
+
    KYOTO AFTER DARK — DESIGN REFRESH
+
    기존 기능을 유지하는 디자인 오버라이드
+
 ========================================= */
 
+ 
+
 :root {
+
   --ink: #25231f;
+
   --muted: #817b73;
+
   --paper: #f6f3ed;
+
   --card: #fffefa;
+
   --accent: #a64032;
+
   --line: #e7e0d6;
+
   --green: #68745b;
+
   --shadow: 0 12px 32px rgba(37, 35, 31, 0.06);
+
 }
+
+ 
 
 * {
+
   box-sizing: border-box;
+
 }
 
+ 
+
 body {
+
   background: var(--paper);
+
   color: var(--ink);
+
   font-family: "Noto Sans KR", "Noto Sans JP", sans-serif;
+
   letter-spacing: -0.015em;
+
   line-height: 1.65;
+
 }
+
+ 
 
 /* 상단 브랜드 영역 */
+
 header {
+
   position: relative;
+
   padding: 30px clamp(18px, 4vw, 56px);
+
   background: var(--paper);
+
   border-bottom: 1px solid var(--line);
+
 }
 
+ 
+
 .brand small {
+
   color: var(--accent);
+
   font-size: 10px;
+
   letter-spacing: 0.2em;
+
 }
+
+ 
 
 h1 {
+
   font-size: clamp(27px, 3.5vw, 42px);
+
   line-height: 1.25;
+
   letter-spacing: -0.055em;
+
 }
+
+ 
 
 .subtitle {
+
   color: var(--muted);
+
   line-height: 1.6;
+
 }
 
+ 
+
 .header-actions {
+
   align-items: center;
+
   gap: 12px;
+
 }
+
+ 
 
 /* 버튼: 통일된 모양과 확실한 클릭 영역 */
+
 button,
+
 .button {
+
   min-height: 42px;
+
   padding: 10px 16px;
+
   border: 1px solid var(--ink);
+
   border-radius: 999px;
+
   background: var(--ink);
+
   color: #fffefa;
+
   font-family: inherit;
+
   font-size: 12px;
+
   font-weight: 600;
+
   letter-spacing: 0.01em;
+
   transition: background 0.2s ease,
+
               color 0.2s ease,
+
               border-color 0.2s ease,
+
               transform 0.2s ease;
+
 }
+
+ 
 
 button:hover,
+
 .button:hover {
+
   background: var(--accent);
+
   border-color: var(--accent);
+
   color: white;
+
 }
+
+ 
 
 button:active {
+
   transform: scale(0.98);
+
 }
+
+ 
 
 button:focus-visible,
+
 input:focus-visible,
+
 select:focus-visible,
+
 textarea:focus-visible {
+
   outline: 2px solid var(--accent);
+
   outline-offset: 3px;
+
 }
+
+ 
 
 button.secondary {
+
   background: transparent;
+
   color: var(--ink);
+
   border-color: var(--line);
+
 }
+
+ 
 
 button.secondary:hover {
+
   background: #eee8df;
+
   border-color: #cfc4b7;
+
 }
+
+ 
 
 /* 지도와 왼쪽 목록 */
+
 main {
+
   background: var(--paper);
+
 }
+
+ 
 
 .sidebar {
+
   padding: 24px;
+
   background: var(--paper);
+
   border-right: 1px solid var(--line);
+
 }
+
+ 
 
 .search {
+
   min-height: 48px;
+
   padding: 14px 16px;
+
   border: 1px solid var(--line);
+
   border-radius: 14px;
+
   background: var(--card);
+
   font: inherit;
+
   font-size: 13px;
+
   box-shadow: none;
+
   transition: border-color 0.2s ease,
+
               box-shadow 0.2s ease;
+
 }
+
+ 
 
 .search:focus {
+
   border-color: var(--accent);
+
   box-shadow: 0 0 0 3px rgba(166, 64, 50, 0.08);
+
   outline: none;
+
 }
+
+ 
 
 .section-title {
+
   margin: 26px 0 12px;
+
   color: var(--muted);
+
   font-size: 10px;
+
   letter-spacing: 0.15em;
+
 }
+
+ 
 
 .stats {
+
   gap: 10px;
+
 }
+
+ 
 
 .stat {
+
   padding: 16px;
+
   border: 1px solid var(--line);
+
   border-radius: 16px;
+
   background: var(--card);
+
 }
+
+ 
 
 .stat strong {
+
   font-size: 27px;
+
 }
+
+ 
 
 .stat span {
+
   letter-spacing: 0.02em;
+
 }
+
+ 
 
 .place-list {
+
   gap: 12px;
+
 }
 
+ 
+
 .place-card {
+
   padding: 17px;
+
   border: 1px solid var(--line);
+
   border-radius: 16px;
+
   background: var(--card);
+
   transition: transform 0.2s ease,
+
               border-color 0.2s ease,
+
               box-shadow 0.2s ease;
+
 }
+
+ 
 
 .place-card:hover,
+
 .place-card.active {
+
   transform: translateY(-2px);
+
   border-color: rgba(166, 64, 50, 0.55);
+
   box-shadow: var(--shadow);
+
 }
+
+ 
 
 .place-name {
+
   font-size: 14px;
+
   line-height: 1.5;
+
 }
+
+ 
 
 .place-meta {
+
   line-height: 1.7;
+
 }
+
+ 
 
 .place-note {
+
   line-height: 1.75;
+
 }
 
+ 
+
 .tag {
+
   padding: 4px 9px;
+
   border: 1px solid #dce0d4;
+
   border-radius: 999px;
+
   background: #f1f2eb;
+
   color: var(--green);
+
 }
+
+ 
 
 /* 지도 위 안내 */
+
 .map-wrap {
+
   background: #eeebe3;
+
 }
 
+ 
+
 .map-note {
+
   padding: 13px 16px;
+
   border: 1px solid rgba(231, 224, 214, 0.9);
+
   border-radius: 14px;
+
   background: rgba(255, 254, 250, 0.96);
+
   box-shadow: var(--shadow);
+
   line-height: 1.7;
+
 }
+
+ 
 
 /* 모달과 입력 폼 */
+
 .modal-backdrop {
+
   background: rgba(25, 23, 20, 0.58);
+
   backdrop-filter: blur(5px);
+
 }
+
+ 
 
 .modal {
+
   padding: clamp(20px, 4vw, 32px);
+
   border: 1px solid var(--line);
+
   border-radius: 22px;
+
   background: var(--card);
+
   box-shadow: 0 24px 80px rgba(0, 0, 0, 0.16);
+
 }
+
+ 
 
 .modal h2 {
+
   font-size: 28px;
+
   line-height: 1.35;
+
 }
+
+ 
 
 .field {
+
   gap: 8px;
+
   margin-bottom: 15px;
+
 }
+
+ 
 
 .field label {
+
   color: var(--muted);
+
   font-size: 12px;
+
   font-weight: 600;
+
 }
+
+ 
 
 .field input,
+
 .field textarea,
+
 .field select {
+
   min-height: 44px;
+
   padding: 12px 14px;
+
   border: 1px solid var(--line);
+
   border-radius: 11px;
+
   background: #fff;
+
   font-family: inherit;
+
   transition: border-color 0.2s ease;
+
 }
+
+ 
 
 .field input:focus,
+
 .field textarea:focus,
+
 .field select:focus {
+
   border-color: var(--accent);
+
   outline: none;
+
 }
+
+ 
 
 .field textarea {
+
   line-height: 1.7;
+
 }
 
+ 
+
 .empty {
+
   padding: 26px 16px;
+
   border: 1px dashed #d8cec0;
+
   border-radius: 14px;
+
   line-height: 1.8;
+
 }
+
+ 
 
 /* 체류 달력과 커뮤니티 패널 */
+
 #calendarPanel {
+
   width: 100%;
+
   max-width: 980px !important;
+
   padding: clamp(18px, 4vw, 40px) !important;
+
 }
+
+ 
 
 #calendarPanel > h2 {
+
   margin-top: 24px;
+
   font-size: clamp(25px, 4vw, 34px);
+
   letter-spacing: -0.04em;
+
 }
+
+ 
 
 #calendarPanel > p {
+
   color: var(--muted);
+
   line-height: 1.8;
+
 }
+
+ 
 
 /* 기존 인라인 스타일의 패널도 같은 디자인으로 통일 */
+
 #calendarPanel > div[style*="border:1px solid #ddd"],
+
 #profileSection,
+
 #profileSection > div[style*="border:1px solid #ddd"] {
+
   border: 1px solid var(--line) !important;
+
   border-radius: 18px !important;
+
   background: var(--card);
+
   box-shadow: 0 4px 18px rgba(37, 35, 31, 0.025);
+
 }
+
+ 
 
 #calendarGrid {
+
   gap: 7px !important;
+
 }
+
+ 
 
 #calendarGrid button {
+
   min-width: 0;
+
   min-height: 66px;
+
   padding: 7px 2px;
+
   border: 1px solid var(--line) !important;
+
   border-radius: 12px;
+
   background: var(--card) !important;
+
   color: var(--ink) !important;
+
   overflow-wrap: anywhere;
+
 }
+
+ 
 
 #calendarGrid button:hover {
+
   border-color: var(--accent) !important;
+
   background: #f7eee9 !important;
+
   color: var(--ink) !important;
+
 }
+
+ 
 
 #calendarGrid button strong {
+
   color: var(--ink) !important;
+
   font-size: 15px;
+
 }
+
+ 
 
 #calendarGrid button small {
+
   color: var(--muted) !important;
+
   font-size: 10px;
+
 }
+
+ 
 
 /* 커뮤니티 폼의 입력창 */
+
 #calendarPanel input:not([type="checkbox"]),
+
 #calendarPanel select,
+
 #calendarPanel textarea {
+
   max-width: 100%;
+
   border: 1px solid var(--line);
+
   border-radius: 10px;
+
   font: inherit;
+
 }
+
+ 
 
 #calendarPanel input:not([type="checkbox"]),
+
 #calendarPanel select {
+
   min-height: 42px;
+
   padding: 10px 12px;
+
 }
 
+ 
+
 #calendarPanel textarea {
+
   padding: 12px;
+
   line-height: 1.7;
+
 }
+
+ 
 
 #calendarPanel input[type="checkbox"] {
+
   accent-color: var(--accent);
+
 }
+
+ 
 
 /* 프로필 위치 지도 */
+
 #profileLocationMap {
+
   border: 1px solid var(--line) !important;
+
   border-radius: 14px !important;
+
 }
+
+ 
 
 /* 작은 화면 */
+
 @media (max-width: 800px) {
+
   header {
+
     padding: 22px 18px;
+
     gap: 18px;
+
   }
+
+ 
 
   .header-actions {
+
     align-items: flex-start;
+
   }
+
+ 
 
   .header-actions .subtitle {
+
     display: none;
+
   }
+
+ 
 
   .sidebar {
+
     padding: 18px;
+
   }
 
+ 
+
   .place-card {
+
     padding: 15px;
+
   }
+
+ 
 
   #calendarPanel {
+
     padding: 18px !important;
+
   }
+
+ 
 
   #calendarGrid {
+
     gap: 4px !important;
+
   }
+
+ 
 
   #calendarGrid button {
+
     min-height: 56px;
+
     padding: 5px 1px;
+
     font-size: 11px;
+
   }
+
+ 
 
   #calendarPanel > div[style*="display:flex"] {
+
     gap: 8px;
+
   }
+
+ 
 
   #calendarPanel button {
+
     max-width: 100%;
+
   }
+
+ 
 
   .form-actions {
+
     flex-wrap: wrap;
+
   }
+
 }
+
+ 
 
 /* 모션 최소화 설정을 사용하는 방문자 배려 */
+
 @media (prefers-reduced-motion: reduce) {
+
   *,
+
   *::before,
+
   *::after {
+
     scroll-behavior: auto !important;
+
     transition-duration: 0.01ms !important;
+
     animation-duration: 0.01ms !important;
+
   }
+
 }
+
+ 
 
 /* KYOTO AFTER DARK — editorial intro */
+
 .night-intro {
+
   position: relative;
+
   overflow: hidden;
+
   margin-bottom: 24px;
+
   padding: 24px 20px 18px;
+
   color: #f8f2e8;
+
   background:
+
     radial-gradient(ellipse at 100% 0%, #713d3c 0%, transparent 48%),
+
     linear-gradient(145deg, #292621 0%, #42342f 100%);
+
   border-radius: 18px;
+
 }
+
+ 
 
 .night-eyebrow {
+
   display: inline-block;
+
   color: #e8b8a4;
+
   font-size: 10px;
+
   font-weight: 700;
+
   letter-spacing: .2em;
+
 }
+
+ 
 
 .night-index {
+
   margin: 12px 0 20px;
+
   color: #c5b8a8;
+
   font-size: 9px;
+
   letter-spacing: .13em;
+
 }
+
+ 
 
 .night-intro h2 {
+
   margin: 0 0 14px;
+
   color: #fff9ef;
+
   font-family: "Noto Serif KR", "Noto Serif JP", serif;
+
   font-size: clamp(24px, 2.2vw, 31px);
+
   font-weight: 500;
+
   line-height: 1.5;
+
   letter-spacing: -.05em;
+
 }
 
+ 
+
 .night-description {
+
   margin: 0 0 20px;
+
   color: #e0d7cb;
+
   font-size: 12px;
+
   line-height: 1.9;
+
   word-break: keep-all;
+
 }
+
+ 
 
 .night-actions {
+
   display: grid;
+
   gap: 8px;
+
 }
+
+ 
 
 .night-actions button {
+
   width: 100%;
+
   min-height: 44px;
+
   border-color: #f2e9dd;
+
   background: #f2e9dd;
+
   color: #292621;
+
 }
+
+ 
 
 .night-actions button:hover {
+
   border-color: #d8a18e;
+
   background: #d8a18e;
+
   color: #292621;
+
 }
 
+ 
+
 .night-actions button.secondary {
+
   border-color: #76665b;
+
   background: transparent;
+
   color: #f8f2e8;
+
 }
+
+ 
 
 .night-actions button.secondary:hover {
+
   background: #50413a;
+
 }
 
+ 
+
 .night-footer {
+
   display: flex;
+
   justify-content: space-between;
+
   gap: 8px;
+
   margin-top: 20px;
+
   padding-top: 12px;
+
   border-top: 1px solid #5c5047;
+
   color: #c5b8a8;
+
   font-size: 9px;
+
   letter-spacing: .12em;
+
 }
+
+ 
 
 @media (max-width: 800px) {
+
   .night-intro {
+
     padding: 22px 18px 16px;
+
   }
+
+ 
 
   .night-intro h2 {
+
     font-size: 27px;
+
   }
+
+ 
 
   .night-actions {
+
     grid-template-columns: 1fr 1fr;
+
   }
+
 }
+
   
+
 /* KYOTO AFTER DARK — Y2K / STREET EDITORIAL */
+
 :root {
+
   --night-accent: #c8ff3d;
+
   --night-ink: #20221d;
+
   --night-paper: #f7f6f0;
+
 }
+
+ 
 
 /* 페이지 전체 */
+
 body {
+
   background: var(--night-paper);
+
   color: var(--night-ink);
+
 }
+
+ 
 
 /* 브랜드 헤더 */
+
 header {
+
   padding-top: 24px;
+
   padding-bottom: 22px;
+
 }
+
+ 
 
 .brand small {
+
   font-size: 10px;
+
   font-weight: 800;
+
   letter-spacing: .18em;
+
 }
+
+ 
 
 .brand h1 {
+
   font-size: clamp(27px, 4vw, 43px);
+
   font-weight: 900;
+
   letter-spacing: -.075em;
+
   line-height: 1.2;
+
 }
+
+ 
 
 .brand .subtitle {
+
   font-size: 12px;
+
   letter-spacing: -.02em;
+
 }
+
+ 
 
 /* 소개 영역: 차분한 매거진에서 스트리트 에디토리얼로 */
+
 .night-intro {
+
   background:
+
     radial-gradient(ellipse at 100% 0%, #514b3d 0%, transparent 45%),
+
     #20221d;
+
   border: 1px solid #34372d;
+
   border-radius: 5px;
+
   box-shadow: 5px 5px 0 var(--night-accent);
+
 }
+
+ 
 
 .night-eyebrow {
+
   color: var(--night-accent);
+
   font-weight: 900;
+
   letter-spacing: .22em;
+
 }
+
+ 
 
 .night-index {
+
   color: #c8c9bf;
+
 }
+
+ 
 
 .night-intro h2 {
+
   font-family: sans-serif;
+
   font-weight: 900;
+
   letter-spacing: -.075em;
+
   line-height: 1.35;
+
 }
+
+ 
 
 .night-description {
+
   color: #d5d7cd;
+
 }
+
+ 
 
 .night-footer {
+
   border-color: #505349;
+
   color: var(--night-accent);
+
   font-weight: 700;
+
 }
+
+ 
 
 /* 버튼: 둥글고 무난한 느낌 대신 선명하게 */
+
 button {
+
   border-radius: 4px;
+
   font-weight: 750;
+
   transition: background .18s ease, color .18s ease,
+
               transform .18s ease;
+
 }
+
+ 
 
 button:hover {
+
   transform: translateY(-2px);
+
 }
+
+ 
 
 .night-actions button:not(.secondary) {
+
   border-color: var(--night-accent);
+
   background: var(--night-accent);
+
   color: var(--night-ink);
+
   font-weight: 900;
+
 }
+
+ 
 
 .night-actions button.secondary {
+
   border-color: #77796e;
+
 }
+
+ 
 
 /* 검색창 */
+
 .sidebar .search,
+
 input.search {
+
   min-height: 46px;
+
   border: 1px solid #d6d7ce;
+
   border-radius: 4px;
+
   background: #fff;
+
   font-size: 13px;
+
 }
 
+ 
+
 .sidebar .search:focus,
+
 input.search:focus {
+
   outline: 2px solid var(--night-accent);
+
   outline-offset: 1px;
+
   border-color: var(--night-ink);
+
 }
+
+ 
 
 /* 통계 숫자 */
+
 .stats {
+
   gap: 10px;
+
 }
+
+ 
 
 .stat {
+
   border-radius: 4px;
+
   background: #eceee4;
+
   padding: 14px;
+
 }
+
+ 
 
 .stat strong {
+
   font-size: 25px;
+
   font-weight: 900;
+
   letter-spacing: -.06em;
+
 }
+
+ 
 
 .stat span {
+
   font-size: 9px;
+
   font-weight: 800;
+
   letter-spacing: .08em;
+
 }
+
+ 
 
 /* 섹션 제목 */
+
 .section-title {
+
   font-weight: 850;
+
   letter-spacing: -.03em;
+
 }
+
+ 
 
 /* 지도 */
+
 .map-wrap {
+
   border-radius: 5px;
+
   overflow: hidden;
+
 }
+
+ 
 
 .map-note {
+
   border-radius: 4px;
+
 }
+
+ 
 
 /* 모바일에서도 답답하지 않게 */
+
 @media (max-width: 600px) {
+
   header {
+
     padding-top: 18px;
+
     padding-bottom: 16px;
+
   }
+
+ 
 
   .brand h1 {
+
     font-size: 29px;
+
   }
+
+ 
 
   .night-intro {
+
     box-shadow: 3px 3px 0 var(--night-accent);
+
   }
+
 }
+
+ 
 
 /* IZAKAYA CARDS — calm editorial style */
+
 .place-list {
+
   gap: 10px;
+
 }
+
+ 
 
 .place-card {
+
   padding: 16px;
+
   background: #fffefa;
+
   border: 1px solid #e5e3da;
+
   border-radius: 5px;
+
   box-shadow: 0 2px 5px #25251d05;
+
   transition: border-color .2s ease, transform .2s ease,
+
               box-shadow .2s ease;
+
 }
+
+ 
 
 .place-card:hover {
+
   border-color: #aeb58f;
+
   background: #fffefa;
+
   transform: translateY(-2px);
+
   box-shadow: 0 5px 14px #25251d0c;
+
 }
+
+ 
 
 .place-card.active {
+
   border-color: #929b6c;
+
   box-shadow: inset 3px 0 0 #929b6c;
+
 }
+
+ 
 
 .place-top {
+
   align-items: flex-start;
+
   gap: 12px;
+
 }
+
+ 
 
 .place-name {
+
   color: #262720;
+
   font-size: 15px;
+
   font-weight: 800;
+
   letter-spacing: -.035em;
+
   line-height: 1.5;
+
 }
+
+ 
 
 .rating {
+
   color: #777d58;
+
   font-size: 12px;
+
   white-space: nowrap;
+
 }
+
+ 
 
 .place-meta {
+
   margin-top: 5px;
+
   color: #858478;
+
   font-size: 11px;
+
   line-height: 1.7;
+
 }
+
+ 
 
 .place-note {
+
   margin-top: 11px;
+
   color: #55564d;
+
   font-size: 12px;
+
   line-height: 1.8;
+
 }
+
+ 
 
 .place-card img {
+
   border-radius: 3px !important;
+
   margin: 12px 0 !important;
+
 }
+
+ 
 
 .tag {
+
   padding: 4px 7px;
+
   border: 1px solid #e1e2d7;
+
   border-radius: 3px;
+
   background: #f0f1e9;
+
   color: #555c42;
+
   font-size: 10px;
+
 }
+
+ 
 
 .section-title {
+
   color: #77786c;
+
   font-size: 11px;
+
   letter-spacing: .06em;
+
 }
+
+ 
 
 .empty {
+
   border-color: #dcded2;
+
   border-radius: 5px;
+
   background: #fffefa;
+
 }
+
+ 
 
 /* 지도 팝업도 카드와 통일 */
+
 .leaflet-popup-content-wrapper {
+
   border: 1px solid #e5e3da;
+
   box-shadow: 0 5px 20px #25251d12;
+
 }
+
+ 
 
 .popup-rating {
+
   color: #777d58;
+
 }
+
+ 
 
 @media (max-width: 600px) {
+
   .place-card {
+
     padding: 14px;
+
   }
+
+ 
 
   .place-name {
+
     font-size: 14px;
+
   }
+
 }
+
+ 
 
 /* SEARCH — ivory editorial style */
+
 .sidebar .search,
+
 input.search {
+
   width: 100%;
+
   min-height: 46px;
+
   padding: 12px 15px;
+
   border: 1px solid #e5e3da;
+
   border-radius: 5px;
+
   background: #fffefa;
+
   color: #262720;
+
   font-family: inherit;
+
   font-size: 13px;
+
   box-shadow: none;
+
   transition: border-color .2s ease,
+
               box-shadow .2s ease;
+
 }
+
+ 
 
 .sidebar .search::placeholder,
+
 input.search::placeholder {
+
   color: #969387;
+
 }
+
+ 
 
 .sidebar .search:focus,
+
 input.search:focus {
+
   border-color: #929b6c;
+
   outline: none;
+
   box-shadow: 0 0 0 3px #929b6c18;
-}
-/* Place filters — ivory editorial style */
-.place-filters {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 8px;
-  margin: 0 0 16px;
+
 }
 
-.place-filters select {
-  width: 100%;
-  min-width: 0;
-  padding: 11px 9px;
-  border: 1px solid #e5e3da;
-  border-radius: 5px;
-  background: #fffefa;
-  color: #39392f;
-  font-family: inherit;
-  font-size: 12px;
-  cursor: pointer;
+/* Place filters — ivory editorial style */
+
+.place-filters {
+
+  display: grid;
+
+  grid-template-columns: 1fr 1fr;
+
+  gap: 8px;
+
+  margin: 0 0 16px;
+
 }
+
+ 
+
+.place-filters select {
+
+  width: 100%;
+
+  min-width: 0;
+
+  padding: 11px 9px;
+
+  border: 1px solid #e5e3da;
+
+  border-radius: 5px;
+
+  background: #fffefa;
+
+  color: #39392f;
+
+  font-family: inherit;
+
+  font-size: 12px;
+
+  cursor: pointer;
+
+}
+
+ 
 
 .place-filters select:focus {
+
   outline: none;
+
   border-color: #929b6c;
+
   box-shadow: 0 0 0 3px #929b6c18;
+
 }
+
+ 
 
 @media (max-width: 380px) {
+
   .place-filters {
+
     grid-template-columns: 1fr;
+
   }
+
 }
+
 /* 세련된 모던 타이포그래피 */
+
 body,
+
 button,
+
 input,
+
 select,
+
 textarea {
+
   font-family: "Manrope", "Noto Sans KR", "Noto Sans JP", sans-serif;
+
 }
+
+ 
 
 h1,
+
 h2,
+
 h3,
+
 h4 {
+
   font-family: "Manrope", "Noto Sans KR", "Noto Sans JP", sans-serif;
+
   font-weight: 600;
+
   letter-spacing: -0.035em;
+
 }
+
 /* 인터페이스 중앙 정렬 */
+
 .search,
+
 #areaFilter,
+
 #categoryFilter {
+
   text-align: center;
+
   text-align-last: center;
+
 }
+
+ 
 
 .search::placeholder {
+
   text-align: center;
+
 }
+
+ 
 
 .place-filters {
+
   justify-items: center;
+
 }
+
+ 
 
 .place-filters select {
+
   width: 100%;
+
 }
+
+ 
 
 .stats {
+
   justify-content: center;
+
   text-align: center;
+
 }
+
+ 
 
 .header-actions {
+
   justify-content: center;
+
 }
+
+ 
 
 #calendarPanel {
+
   text-align: center;
+
 }
+
+ 
 
 #calendarPanel input,
+
 #calendarPanel select,
+
 #calendarPanel textarea {
+
   text-align: center;
+
 }
+
+ 
 
 #calendarPanel button {
+
   margin-left: auto;
+
   margin-right: auto;
+
 }
 
-</style>
  
+
+ 
+
+ 
+
+/* =========================================
+
+   DIRECT MESSAGES — warm, readable chat UI
+
+   Inspired by familiar messenger patterns
+
+========================================= */
+
+.dm-launcher,
+
+.dm-launcher:hover,
+
+.dm-launcher:focus {
+
+  position: fixed; right: 24px; bottom: 24px; z-index: 99998;
+
+  display: flex; align-items: center; justify-content: center; gap: 9px;
+
+  min-height: 54px; padding: 0 20px; border: 1px solid #28251f;
+
+  border-radius: 999px; background: #28251f; color: #fffdf8;
+
+  box-shadow: 0 10px 28px rgba(38,35,30,.22); font-size: 13px; font-weight: 700;
+
+}
+
+.dm-launcher > span:first-child { font-size: 21px; line-height: 1; }
+
+.dm-launcher:hover { background: #a34532; border-color: #a34532; transform: translateY(-2px); }
+
+.dm-drawer {
+
+  --dm-ink: #292720; --dm-muted: #837c72; --dm-paper: #f7f4ee;
+
+  --dm-card: #fffdf9; --dm-line: #e8e1d7; --dm-accent: #a34532;
+
+  position: fixed; inset: 0 0 0 auto; z-index: 99999;
+
+  display: flex; flex-direction: column; width: min(440px, 100vw); height: 100dvh;
+
+  background: var(--dm-paper); color: var(--dm-ink); border-left: 1px solid var(--dm-line);
+
+  box-shadow: -18px 0 55px rgba(37,32,25,.16); transform: translateX(105%);
+
+  visibility: hidden; transition: transform .28s ease, visibility .28s ease;
+
+  font-family: 'Noto Sans KR','Noto Sans JP',sans-serif; line-height: 1.5;
+
+}
+
+.dm-drawer.is-open { transform: translateX(0); visibility: visible; }
+
+.dm-header { display:flex; align-items:center; gap:13px; padding:22px 20px 18px; background:var(--dm-card); border-bottom:1px solid var(--dm-line); flex-shrink:0; }
+
+.dm-brand-mark { display:grid; place-items:center; width:44px; height:44px; flex:0 0 44px; border-radius:14px; background:#eee6da; color:var(--dm-accent); font-family:Georgia,serif; font-size:23px; }
+
+.dm-header-copy { min-width:0; flex:1; }
+
+.dm-eyebrow,.dm-section-kicker { margin:0 0 3px; color:var(--dm-accent); font-size:9px; letter-spacing:.16em; font-weight:800; }
+
+.dm-header-copy h3 { margin:0; color:var(--dm-ink); font-family:Georgia,'Noto Serif KR',serif; font-size:25px; font-weight:500; line-height:1.2; letter-spacing:-.04em; }
+
+.dm-header-subtitle { margin:5px 0 0; color:var(--dm-muted); font-size:11px; }
+
+.dm-close,.dm-close:hover { display:grid; place-items:center; width:36px; min-height:36px; padding:0; border:1px solid var(--dm-line); border-radius:50%; background:transparent; color:var(--dm-ink); font-size:24px; font-weight:400; }
+
+.dm-drawer-content { overflow:auto; flex:1; padding:18px 16px 28px; }
+
+.dm-section { padding:0 0 19px; }
+
+.dm-section-heading { display:flex; justify-content:space-between; align-items:center; gap:12px; margin-bottom:10px; }
+
+.dm-section-heading h4 { margin:0; color:var(--dm-ink); font-size:15px; font-weight:750; }
+
+.dm-refresh { min-height:31px; padding:5px 10px; background:transparent; color:var(--dm-muted); border:1px solid var(--dm-line); border-radius:999px; font-size:10px; white-space:nowrap; }
+
+.dm-refresh:hover { background:#eee7dd; border-color:#d9cdbf; color:var(--dm-ink); }
+
+.dm-inbox { display:grid; gap:7px; }
+
+.dm-conversation { display:flex; align-items:center; gap:11px; width:100%; min-height:72px; padding:12px; text-align:left; background:var(--dm-card); color:var(--dm-ink); border:1px solid var(--dm-line); border-radius:14px; box-shadow:0 2px 8px rgba(38,35,30,.025); }
+
+.dm-conversation:hover,.dm-conversation.is-active { background:#fffaf2; border-color:#cbb9a6; color:var(--dm-ink); }
+
+.dm-avatar { display:grid; place-items:center; width:43px; height:43px; flex:0 0 43px; border-radius:50%; background:#e8d9c9; color:#65483b; font-weight:800; font-size:15px; }
+
+.dm-conversation-copy { min-width:0; flex:1; }
+
+.dm-conversation-top { display:flex; align-items:center; justify-content:space-between; gap:8px; }
+
+.dm-conversation-name { overflow:hidden; color:var(--dm-ink); font-size:13px; font-weight:750; text-overflow:ellipsis; white-space:nowrap; }
+
+.dm-conversation-time { color:var(--dm-muted); font-size:9px; white-space:nowrap; }
+
+.dm-conversation-preview { overflow:hidden; margin-top:4px; color:var(--dm-muted); font-size:11px; text-overflow:ellipsis; white-space:nowrap; }
+
+.dm-empty { display:flex; flex-direction:column; align-items:center; padding:23px 17px; border:1px dashed #dcd2c5; border-radius:14px; text-align:center; background:rgba(255,253,249,.55); }
+
+.dm-empty-icon { display:grid; place-items:center; width:42px; height:42px; margin-bottom:9px; border-radius:50%; background:#eee6da; color:var(--dm-accent); font-size:21px; }
+
+.dm-empty strong { color:var(--dm-ink); font-size:12px; }
+
+.dm-empty p { max-width:260px; margin:5px 0 0; color:var(--dm-muted); font-size:11px; line-height:1.7; }
+
+.dm-thread { overflow:hidden; display:flex; flex-direction:column; margin:0 0 20px; border:1px solid var(--dm-line); border-radius:16px; background:var(--dm-card); box-shadow:0 5px 18px rgba(38,35,30,.045); }
+
+.dm-thread-header { display:flex; align-items:center; gap:10px; padding:12px; border-bottom:1px solid var(--dm-line); background:#fffaf4; }
+
+.dm-back,.dm-back:hover { display:grid; place-items:center; min-height:32px; width:32px; padding:0; border:0; border-radius:50%; background:transparent; color:var(--dm-ink); font-size:19px; }
+
+.dm-thread-avatar { width:38px; height:38px; flex-basis:38px; }
+
+.dm-thread-heading-copy { min-width:0; }
+
+.dm-thread-heading-copy h4 { overflow:hidden; margin:0; color:var(--dm-ink); font-size:13px; text-overflow:ellipsis; white-space:nowrap; }
+
+.dm-thread-heading-copy p { margin:2px 0 0; color:var(--dm-muted); font-size:10px; }
+
+.dm-messages { display:flex; flex-direction:column; gap:10px; min-height:130px; max-height:320px; overflow-y:auto; padding:15px 12px; background:#f9f6f0; overflow-wrap:anywhere; }
+
+.dm-message-row { display:flex; flex-direction:column; align-items:flex-start; max-width:88%; }
+
+.dm-message-row.is-mine { align-self:flex-end; align-items:flex-end; }
+
+.dm-message-sender { margin:0 0 4px 3px; color:var(--dm-muted); font-size:9px; }
+
+.dm-message-bubble { padding:10px 12px; border:1px solid #e8e0d5; border-radius:4px 15px 15px 15px; background:#fffdf9; color:#302c27; font-size:12px; line-height:1.65; white-space:pre-wrap; overflow-wrap:anywhere; box-shadow:0 1px 2px rgba(40,30,20,.03); }
+
+.dm-message-row.is-mine .dm-message-bubble { border-color:#e7cfc2; border-radius:15px 4px 15px 15px; background:#f2dfd4; color:#382923; }
+
+.dm-message-time { margin:4px 3px 0; color:#968d82; font-size:9px; }
+
+.dm-no-messages { margin:auto; padding:25px 10px; color:var(--dm-muted); font-size:11px; text-align:center; }
+
+.dm-composer { display:flex; align-items:flex-end; gap:8px; padding:11px; border-top:1px solid var(--dm-line); background:var(--dm-card); }
+
+.dm-composer textarea { display:block; flex:1; min-width:0; min-height:42px; max-height:120px; resize:vertical; padding:11px 13px; border:1px solid #ded5c9; border-radius:16px; outline:none; background:#f8f5ef; color:#292720; font:inherit; font-size:12px; line-height:1.5; }
+
+.dm-composer textarea::placeholder { color:#9a9186; }
+
+.dm-composer textarea:focus { border-color:#b98b78; box-shadow:0 0 0 3px rgba(163,69,50,.08); }
+
+.dm-composer button,.dm-composer button:hover { display:flex; align-items:center; justify-content:center; gap:6px; min-height:42px; padding:0 13px; border:0; border-radius:14px; background:#292720; color:#fffdf8; font-size:11px; font-weight:750; white-space:nowrap; }
+
+.dm-composer button span:last-child { display:grid; place-items:center; width:20px; height:20px; border-radius:50%; background:#fffdf8; color:#292720; font-size:14px; }
+
+.dm-composer-hint { margin:0; padding:0 12px 10px; color:#a0988e; background:var(--dm-card); font-size:9px; }
+
+.dm-people-section { padding-top:17px; border-top:1px solid var(--dm-line); }
+
+.dm-section-description { margin:-4px 0 10px; color:var(--dm-muted); font-size:11px; line-height:1.65; }
+
+.dm-people-list { display:grid; gap:7px; }
+
+.dm-person-row { display:flex; align-items:center; gap:10px; padding:10px; border:1px solid var(--dm-line); border-radius:12px; background:var(--dm-card); }
+
+.dm-person-copy { flex:1; min-width:0; }
+
+.dm-person-name { display:block; overflow:hidden; color:var(--dm-ink); font-size:12px; font-weight:750; text-overflow:ellipsis; white-space:nowrap; }
+
+.dm-person-caption { display:block; margin-top:2px; color:var(--dm-muted); font-size:10px; }
+
+.dm-person-message,.dm-person-message:hover { min-height:32px; padding:6px 10px; border:1px solid #d8c7b8; border-radius:999px; background:#fffaf4; color:#65483b; font-size:10px; white-space:nowrap; }
+
+.dm-status { min-height:16px; margin:8px 2px 0; color:#746b61; font-size:10px; line-height:1.5; overflow-wrap:anywhere; }
+
+.dm-status:empty { display:none; }
+
+.dm-inbox .dm-empty:not(:first-child) { display:none; }
+
+.dm-drawer button:focus-visible,.dm-drawer textarea:focus-visible,.dm-launcher:focus-visible { outline:2px solid #a34532; outline-offset:3px; }
+
+@media (max-width:600px) {
+
+  .dm-launcher { right:16px; bottom:16px; min-height:50px; padding:0 16px; }
+
+  .dm-drawer { width:100vw; border-left:0; }
+
+  .dm-header { padding:17px 16px 14px; }
+
+  .dm-drawer-content { padding:14px 12px 22px; }
+
+  .dm-messages { max-height:36vh; }
+
+}
+
+@media (prefers-reduced-motion: reduce) { .dm-drawer { transition:none; } }
+
+ 
+
+ 
+
+ 
+
+/* 날짜별 공개 채팅도 같은 따뜻한 색상 체계로 통일 */
+
+#chatMessages {
+
+  min-height:120px; max-height:340px !important; overflow-y:auto;
+
+  padding:14px !important; border:1px solid #e8e1d7 !important;
+
+  border-radius:14px !important; background:#f9f6f0 !important; color:#302c27;
+
+}
+
+#chatMessages > div { padding:9px 10px !important; margin:7px 0; border:1px solid #e8e0d5; border-radius:12px; background:#fffdf9; color:#302c27; }
+
+#chatMessages > div small { display:block; margin-bottom:4px; color:#887d70; font-size:10px; }
+
+#chatInput { border:1px solid #ded5c9 !important; border-radius:12px !important; background:#fffdf9 !important; color:#292720 !important; font:inherit; font-size:12px; line-height:1.6; }
+
+#chatInput::placeholder { color:#9a9186; }
+
+#sendChatBtn { margin-top:8px; }
+
+ 
+
+</style>
+
+ 
+
 <link rel="preconnect" href="https://fonts.googleapis.com">
+
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+
 <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;600;700&family=Noto+Sans+KR:wght@400;500;600;700&family=Noto+Serif+JP:wght@400;500;600&family=Noto+Serif+KR:wght@400;500;600&display=swap" rel="stylesheet">
 
+ 
+
 </head>
+
 <body>
+
 <header>
+
  <div class="brand"><small>PERSONAL KYOTO GUIDE · VOL. 01</small><h1>교토, 한 잔의 기록.</h1><div class="subtitle">내가 가고, 마시고, 기억하고 싶은 이자카야 지도</div></div>
 
+ 
+
+ 
 
 <div class="header-actions">
+
   
+
 <button
+
   type="button"
+
   class="secondary"
+
   onclick="document.getElementById('calendarBackBtn').click()"
+
 >
+
   🍶 술집 찾기
+
 </button>
 
+ 
+
   <button type="button" id="calendarToggleBtn">
+
     👥 프로필 등록 · 체류 날짜 · 술친구 찾기
+
   </button>
+
 </div>
 
+ 
+
 </header>
+
 <main>
 
+ 
+
+ 
 
 <section id="calendarPanel" style="display:none; padding:24px; max-width:900px; margin:0 auto;">
+
   <button type="button" id="calendarBackBtn">← 술집 지도로 돌아가기</button>
 
+ 
+
   <h2>📅 교토 체류 달력</h2>
+
   <p>교토에 있는 날짜를 등록하고, 같은 날 머무는 사람들과 이야기해 보세요.</p>
 
+ 
+
   <div style="border:1px solid #ddd;border-radius:12px;padding:16px;margin:20px 0;">
+
     <h3>커뮤니티 로그인</h3>
+
     
+
 <input
+
   type="text"
+
   id="communityNickname"
+
   maxlength="20"
+
 />
 
  
+
+ 
+
 <div id="communityAuthArea">
+
   <div id="communityAuthButtons" style="display:flex;gap:8px;flex-wrap:wrap;">
+
     <button type="button" id="showSignupBtn">회원가입</button>
+
     <button type="button" id="showLoginBtn">로그인</button>
+
   </div>
+
+ 
 
   <div id="communityAuthForm" style="display:none;margin-top:12px;">
+
     <h3 id="communityAuthTitle">로그인</h3>
 
+ 
+
     <input
+
       id="communityNickname"
+
       type="text"
+
       placeholder="닉네임 (회원가입 시 입력)"
+
       maxlength="20"
+
       style="display:none;width:100%;padding:10px;margin:5px 0;box-sizing:border-box;"
+
     >
 
+ 
+
     <input
+
       id="communityEmail"
+
       type="email"
+
       placeholder="이메일"
+
       autocomplete="email"
+
       style="width:100%;padding:10px;margin:5px 0;box-sizing:border-box;"
+
     >
 
+ 
+
     <input
+
       id="communityPassword"
+
       type="password"
+
       placeholder="비밀번호 (6자 이상)"
+
       autocomplete="current-password"
+
       style="width:100%;padding:10px;margin:5px 0;box-sizing:border-box;"
+
     >
+
+ 
 
     <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:8px;">
+
       <button type="button" id="communitySignupBtn" style="display:none;">가입하기</button>
+
       <button type="button" id="communityLoginBtn" style="display:none;">로그인하기</button>
+
       <button type="button" id="cancelCommunityAuthBtn">취소</button>
+
     </div>
+
   </div>
+
+ 
 
   <div id="communityLoggedIn" style="display:none;">
+
     <p id="communityNicknameLabel"></p>
+
     <button type="button" id="communityLogoutBtn">로그아웃</button>
+
   </div>
 
+ 
+
   <p id="communityAuthStatus" role="status">
+
     글을 작성하려면 로그인해 주세요. 채팅과 게시글은 누구나 볼 수 있어요.
+
   </p>
+
 </div>
+
 <div id="profileSection" style="margin:16px 0;padding:16px;border:1px solid #ddd;border-radius:12px;">
+
   <h3>👤 내 프로필</h3>
+
   <p>교토에서 만날 사람들에게 나를 소개해 보세요.</p>
+
+ 
 
   <button type="button" id="profileToggleBtn">프로필 작성 / 수정</button>
 
+ 
+
   <div id="profileFormWrap" style="display:none;margin-top:16px;">
+
     <label for="profileNickname">닉네임</label>
+
     <input id="profileNickname" type="text" maxlength="30" placeholder="사용할 닉네임" style="display:block;width:100%;box-sizing:border-box;margin:6px 0 12px;">
 
+ 
+
     <label for="profileAge">나이</label>
+
     <input id="profileAge" type="number" min="18" max="120" placeholder="만 18세 이상" style="display:block;width:100%;box-sizing:border-box;margin:6px 0 12px;">
 
+ 
+
     <label for="profileGender">성별</label>
+
     <select id="profileGender" style="display:block;width:100%;margin:6px 0 12px;">
+
       <option value="">선택 안 함</option>
+
       <option value="남성">남성</option>
+
       <option value="여성">여성</option>
+
       <option value="기타">기타</option>
+
     </select>
+
     
+
 <label for="profileMbti">MBTI</label>
+
 <select id="profileMbti" style="display:block;width:100%;margin:6px 0 12px;">
+
   <option value="">선택 안 함</option>
+
   <option value="INTJ">INTJ</option>
+
   <option value="INTP">INTP</option>
+
   <option value="ENTJ">ENTJ</option>
+
   <option value="ENTP">ENTP</option>
+
   <option value="INFJ">INFJ</option>
+
   <option value="INFP">INFP</option>
+
   <option value="ENFJ">ENFJ</option>
+
   <option value="ENFP">ENFP</option>
+
   <option value="ISTJ">ISTJ</option>
+
   <option value="ISFJ">ISFJ</option>
+
   <option value="ESTJ">ESTJ</option>
+
   <option value="ESFJ">ESFJ</option>
+
   <option value="ISTP">ISTP</option>
+
   <option value="ISFP">ISFP</option>
+
   <option value="ESTP">ESTP</option>
+
   <option value="ESFP">ESFP</option>
+
 </select>
 
+ 
+
+ 
 
     <label for="profileDrinking">주량 / 음주 스타일</label>
+
     <select id="profileDrinking" style="display:block;width:100%;margin:6px 0 12px;">
+
       <option value="">선택 안 함</option>
+
       <option value="거의 안 마심">거의 안 마심</option>
+
       <option value="가볍게 한두 잔">가볍게 한두 잔</option>
+
       <option value="보통">보통</option>
+
       <option value="잘 마시는 편">잘 마시는 편</option>
+
     </select>
 
+ 
+
     <label for="profileDrinks">좋아하는 술</label>
+
     <input id="profileDrinks" type="text" maxlength="200" placeholder="예: 맥주, 하이볼, 사케" style="display:block;width:100%;box-sizing:border-box;margin:6px 0 12px;">
 
+ 
+
     <label for="profileStayStart">교토 체류 시작일</label>
+
     <input id="profileStayStart" type="date" style="display:block;width:100%;box-sizing:border-box;margin:6px 0 12px;">
 
+ 
+
     <label for="profileStayEnd">교토 체류 종료일</label>
+
     <input id="profileStayEnd" type="date" style="display:block;width:100%;box-sizing:border-box;margin:6px 0 12px;">
 
+ 
+
     
+
 <div style="margin:16px 0;padding:12px;border:1px solid #ddd;border-radius:10px;">
+
   <h4>📍 내 위치</h4>
+
   <p>원하는 방법으로 교토에서의 위치를 등록해 주세요.</p>
 
+ 
+
   <label for="profileLocationLabel">지역명 직접 입력</label>
+
   <input id="profileLocationLabel" type="text" maxlength="100"
+
     placeholder="예: 시조오미야, 가와라마치"
+
     style="display:block;width:100%;box-sizing:border-box;margin:6px 0 12px;">
+
   
+
 <button type="button" id="profileLocationSearchBtn">
+
   지역 검색
+
 </button>
 
+ 
+
+ 
 
   <button type="button" id="profileGpsBtn">GPS로 현재 위치 가져오기</button>
+
   <button type="button" id="profileMapPickBtn" style="margin-left:6px;">지도에서 위치 선택</button>
+
   
+
 <div id="profileLocationMap" style="display:none; height:280px; width:100%; margin:12px 0; border:1px solid #ddd; border-radius:10px; overflow:hidden;"></div>
+
 <p id="profileMapHelp" style="display:none; font-size:13px; color:#666;">
+
   지도를 움직여 원하는 위치를 찾은 다음, 지도에서 해당 지점을 눌러 주세요.
+
 </p>
 
+ 
+
+ 
 
   <p id="profileLocationStatus" role="status">
+
     아직 위치를 등록하지 않았어요.
+
   </p>
+
 </div>
+
 <label style="display:flex;gap:8px;align-items:center;margin:12px 0;">
+
   <input id="profileLocationPublic" type="checkbox">
+
   내 위치를 다른 사용자에게 공개하기
+
 </label>
+
     <label style="display:flex;gap:8px;align-items:center;margin:12px 0;">
+
       <input id="profileIsPublic" type="checkbox">
+
       다른 사용자에게 내 프로필 공개하기
+
     </label>
 
+ 
+
     <button type="button" id="profileSaveBtn">프로필 저장</button>
+
     <p id="profileStatus" role="status"></p>
+
   </div>
+
 </div>
+
+ 
 
   <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin:16px 0;">
+
     <button type="button" id="prevMonthBtn">← 이전 달</button>
+
     <h3 id="calendarMonth" style="margin:8px;">달력</h3>
+
     <button type="button" id="nextMonthBtn">다음 달 →</button>
+
   </div>
+
+ 
 
   <div style="display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:6px;text-align:center;margin-bottom:6px;">
+
     <div>일</div><div>월</div><div>화</div><div>수</div><div>목</div><div>금</div><div>토</div>
+
   </div>
+
   <div id="calendarGrid" style="display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:6px;"></div>
+
   <p id="selectedDateLabel">선택한 날짜: 없음</p>
+
   <p id="stayCountLabel">날짜별 체류 인원을 불러오는 중...</p>
 
-  <div style="border:1px solid #ddd;border-radius:12px;padding:16px;margin:20px 0;">
-    <h3>내 체류 날짜 등록</h3>
-    <p>달력에서 날짜를 선택하거나 기간을 입력할 수 있어요.</p>
-    <label for="stayStart">시작일</label>
-    <input type="date" id="stayStart" style="display:block;padding:8px;margin:6px 0 12px;">
-    <label for="stayEnd">종료일</label>
-    <input type="date" id="stayEnd" style="display:block;padding:8px;margin:6px 0 12px;">
-    <button type="button" id="saveStayBtn">선택한 날짜 등록</button>
-    <button type="button" id="removeStayBtn">선택한 날짜 등록 취소</button>
-    <p id="stayStatus" role="status"></p>
-  </div>
+ 
 
   <div style="border:1px solid #ddd;border-radius:12px;padding:16px;margin:20px 0;">
-    <h3 id="chatHeading">💬 오늘의 교토 채팅</h3>
-    <p>달력에서 날짜를 선택하면 해당 날짜의 채팅을 볼 수 있어요.</p>
-    <div id="chatMessages" style="max-height:300px;overflow:auto;border:1px solid #eee;padding:12px;border-radius:8px;overflow-wrap:anywhere;"></div>
-    <textarea id="chatInput" maxlength="500" rows="3" placeholder="이 날짜에 교토에 있는 사람들에게 메시지를 남겨 보세요." style="width:100%;box-sizing:border-box;margin-top:10px;padding:10px;"></textarea>
-    <button type="button" id="sendChatBtn">메시지 보내기</button>
-    <p id="chatStatus" role="status"></p>
+
+    <h3>내 체류 날짜 등록</h3>
+
+    <p>달력에서 날짜를 선택하거나 기간을 입력할 수 있어요.</p>
+
+    <label for="stayStart">시작일</label>
+
+    <input type="date" id="stayStart" style="display:block;padding:8px;margin:6px 0 12px;">
+
+    <label for="stayEnd">종료일</label>
+
+    <input type="date" id="stayEnd" style="display:block;padding:8px;margin:6px 0 12px;">
+
+    <button type="button" id="saveStayBtn">선택한 날짜 등록</button>
+
+    <button type="button" id="removeStayBtn">선택한 날짜 등록 취소</button>
+
+    <p id="stayStatus" role="status"></p>
+
   </div>
+
+ 
+
+  <div style="border:1px solid #ddd;border-radius:12px;padding:16px;margin:20px 0;">
+
+    <h3 id="chatHeading">💬 오늘의 교토 채팅</h3>
+
+    <p>달력에서 날짜를 선택하면 해당 날짜의 채팅을 볼 수 있어요.</p>
+
+    <div id="chatMessages" style="max-height:300px;overflow:auto;border:1px solid #eee;padding:12px;border-radius:8px;overflow-wrap:anywhere;"></div>
+
+    <textarea id="chatInput" maxlength="500" rows="3" placeholder="이 날짜에 교토에 있는 사람들에게 메시지를 남겨 보세요." style="width:100%;box-sizing:border-box;margin-top:10px;padding:10px;"></textarea>
+
+    <button type="button" id="sendChatBtn">메시지 보내기</button>
+
+    <p id="chatStatus" role="status"></p>
+
+  </div>
+
+ 
 
     
 
-<button type="button" id="openDirectChatBtn"
-  aria-label="채팅 열기"
-  style="position:fixed;top:16px;right:16px;z-index:99998;background:#151515;color:#39FF14;border:2px solid #39FF14;border-radius:50%;width:54px;height:54px;font-size:25px;cursor:pointer;box-shadow:0 0 12px rgba(57,255,20,0.45);">
-  💬
+ 
+
+ 
+
+ 
+
+  <div style="border:1px solid #ddd;border-radius:12px;padding:16px;margin:20px 0;">
+
+    <h3>🍻 오늘 술친구 할까요</h3>
+
+    <p>같이 한잔할 사람을 찾아보세요. 만날 장소는 구체적인 집 주소 대신 지역이나 가게 이름 정도로 적어 주세요.</p>
+
+    <input id="meetupTitle" maxlength="100" placeholder="제목 (예: 오늘 가와라마치에서 한잔!)" style="width:100%;box-sizing:border-box;padding:10px;margin:6px 0;">
+
+    <label for="meetupDate">모임 날짜</label>
+
+    <input type="date" id="meetupDate" style="display:block;padding:8px;margin:6px 0 12px;">
+
+    <input id="meetupArea" maxlength="100" placeholder="지역 (예: 가와라마치)" style="width:100%;box-sizing:border-box;padding:10px;margin:6px 0;">
+
+    <textarea id="meetupDescription" maxlength="1000" rows="3" placeholder="시간, 분위기, 하고 싶은 이야기 등" style="width:100%;box-sizing:border-box;padding:10px;margin:6px 0;"></textarea>
+
+    <button type="button" id="createMeetupBtn">모임 글 올리기</button>
+
+    <p id="meetupStatus" role="status"></p>
+
+    <div id="meetupList" style="margin-top:16px;"></div>
+
+  </div>
+
+</section>
+
+ 
+
+<!-- 개인 메시지: 지도 화면에서도 언제든 열 수 있도록 calendarPanel 바깥에 배치 -->
+
+<button type="button" id="openDirectChatBtn" class="dm-launcher" aria-label="메시지 열기" title="메시지">
+
+  <span aria-hidden="true">✉</span><span class="dm-launcher-label">메시지</span>
+
 </button>
 
+ 
 
-<div id="directChatPanel" style="display:none;position:fixed;top:0;right:0;width:min(420px,100vw);height:100vh;overflow-y:auto;box-sizing:border-box;z-index:99999;border-left:1px solid #39FF14;padding:20px;background:#151515;color:#f5f5f5;box-shadow:-8px 0 30px rgba(0,0,0,0.12);">
-<div style="display:flex;align-items:center;justify-content:space-between;gap:12px;">
-  <h3 style="margin:0;color:#39FF14;">💬 개인 메시지</h3>
-  <button type="button" id="closeDirectChatBtn" aria-label="채팅 닫기"
-    style="background:transparent;border:1px solid #39FF14;color:#39FF14;border-radius:8px;padding:6px 12px;cursor:pointer;">
-    ✕
-  </button>
-</div>
-  <p>교토에서 만난 사람과 1:1로 대화해 보세요.</p>
+<aside id="directChatPanel" class="dm-drawer" aria-label="개인 메시지" aria-hidden="true">
 
-  <button type="button" id="directInboxRefreshBtn">받은 메시지 새로고침</button>
-  <div id="directInbox" style="margin-top:12px;">로그인하면 받은 메시지를 확인할 수 있어요.</div>
+  <div class="dm-header">
 
-  <div id="directThread" style="display:none;margin-top:16px;border-top:1px solid #e8dfd2;padding-top:12px;">
-    <h4 id="directThreadTitle">대화</h4>
-    <div id="directMessages" style="max-height:280px;overflow:auto;border:1px solid #e8dfd2;border-radius:8px;padding:12px;background:white;overflow-wrap:anywhere;"></div>
+    <div class="dm-brand-mark" aria-hidden="true">夜</div>
 
-   
-<textarea id="directMessageInput" maxlength="1000" rows="3" placeholder="메시지를 입력하세요." style="width:100%;box-sizing:border-box;margin-top:10px;padding:10px;background:#222;color:#f5f5f5;border:1px solid #39FF14;border-radius:8px;"></textarea>
-    
-<button type="button" id="directSendBtn" style="width:100%;margin-top:10px;padding:12px;background:#39FF14;color:#151515;border:0;border-radius:8px;font-weight:bold;cursor:pointer;">개인 메시지 보내기</button>
+    <div class="dm-header-copy">
+
+      <p class="dm-eyebrow">KYOTO AFTER DARK</p>
+
+      <h3>메시지</h3>
+
+      <p class="dm-header-subtitle">교토의 밤을 함께할 사람과 대화해요.</p>
+
+    </div>
+
+    <button type="button" id="closeDirectChatBtn" class="dm-close" aria-label="메시지 닫기">×</button>
 
   </div>
 
-  <p id="directChatStatus" role="status"></p>
-  <div id="dateStayUsers" style="margin-top:16px;"></div>
-</div>
+ 
 
+  <div class="dm-drawer-content">
 
-  <div style="border:1px solid #ddd;border-radius:12px;padding:16px;margin:20px 0;">
-    <h3>🍻 오늘 술친구 할까요</h3>
-    <p>같이 한잔할 사람을 찾아보세요. 만날 장소는 구체적인 집 주소 대신 지역이나 가게 이름 정도로 적어 주세요.</p>
-    <input id="meetupTitle" maxlength="100" placeholder="제목 (예: 오늘 가와라마치에서 한잔!)" style="width:100%;box-sizing:border-box;padding:10px;margin:6px 0;">
-    <label for="meetupDate">모임 날짜</label>
-    <input type="date" id="meetupDate" style="display:block;padding:8px;margin:6px 0 12px;">
-    <input id="meetupArea" maxlength="100" placeholder="지역 (예: 가와라마치)" style="width:100%;box-sizing:border-box;padding:10px;margin:6px 0;">
-    <textarea id="meetupDescription" maxlength="1000" rows="3" placeholder="시간, 분위기, 하고 싶은 이야기 등" style="width:100%;box-sizing:border-box;padding:10px;margin:6px 0;"></textarea>
-    <button type="button" id="createMeetupBtn">모임 글 올리기</button>
-    <p id="meetupStatus" role="status"></p>
-    <div id="meetupList" style="margin-top:16px;"></div>
+    <section class="dm-section" aria-labelledby="dmInboxHeading">
+
+      <div class="dm-section-heading">
+
+        <div><span class="dm-section-kicker">YOUR CONVERSATIONS</span><h4 id="dmInboxHeading">대화 목록</h4></div>
+
+        <button type="button" id="directInboxRefreshBtn" class="dm-refresh">새로고침 ↻</button>
+
+      </div>
+
+      <div id="directInbox" class="dm-inbox" aria-live="polite">
+
+        <div class="dm-empty"><span class="dm-empty-icon">✉</span><strong>아직 대화가 없어요</strong><p>프로필이나 체류 날짜 목록에서 마음에 드는 사람에게 먼저 말을 걸어 보세요.</p></div>
+
+      </div>
+
+    </section>
+
+ 
+
+    <section class="dm-thread" id="directThread" style="display:none" aria-label="선택한 대화">
+
+      <div class="dm-thread-header">
+
+        <button type="button" id="directBackBtn" class="dm-back" aria-label="대화 목록으로">←</button>
+
+        <div class="dm-avatar dm-thread-avatar" id="directThreadAvatar" aria-hidden="true">?</div>
+
+        <div class="dm-thread-heading-copy"><h4 id="directThreadTitle">대화</h4><p>개인 대화</p></div>
+
+      </div>
+
+      <div id="directMessages" class="dm-messages" aria-live="polite" aria-label="메시지 내역"></div>
+
+      <form id="directMessageForm" class="dm-composer">
+
+        <textarea id="directMessageInput" maxlength="1000" rows="1" placeholder="메시지를 입력하세요…" aria-label="메시지 입력"></textarea>
+
+        <button type="submit" id="directSendBtn" aria-label="메시지 보내기"><span>보내기</span><span aria-hidden="true">↑</span></button>
+
+      </form>
+
+      <p class="dm-composer-hint">Enter로 전송 · Shift + Enter로 줄바꿈</p>
+
+    </section>
+
+ 
+
+    <section class="dm-section dm-people-section" aria-labelledby="dmPeopleHeading">
+
+      <div class="dm-section-heading">
+
+        <div><span class="dm-section-kicker">IN KYOTO</span><h4 id="dmPeopleHeading">같은 날 교토에 있는 사람</h4></div>
+
+      </div>
+
+      <p class="dm-section-description">선택한 체류 날짜가 같은 사람에게 가볍게 인사해 보세요.</p>
+
+      <div id="dateStayUsers" class="dm-people-list"></div>
+
+    </section>
+
+    <p id="directChatStatus" class="dm-status" role="status" aria-live="polite"></p>
+
   </div>
-</section>
+
+</aside>
+
+ 
+
  <aside class="sidebar">
+
    
+
 <div class="night-intro">
+
   <span class="night-eyebrow">KYOTO AFTER DARK</span>
+
   <p class="night-index">YOUR LOCAL NIGHTLIFE GUIDE · 001</p>
+
+ 
 
   <h2>교토의 밤을,<br>나만의 방식으로.</h2>
 
+ 
+
   <p class="night-description">
+
     골목 안 작은 이자카야부터 새로운 만남까지.<br>
+
     직접 발견하고, 기록하고, 함께 즐기는 교토의 밤.
+
   </p>
 
+ 
+
   <div class="night-actions">
-    <button
-      type="button"
-      onclick="document.querySelector('.search').scrollIntoView({behavior:'smooth',block:'center'}); document.querySelector('.search').focus()"
-    >
-      술집 둘러보기 ↗
-    </button>
 
     <button
+
       type="button"
-      class="secondary"
-      onclick="document.getElementById('calendarToggleBtn').click()"
+
+      onclick="document.querySelector('.search').scrollIntoView({behavior:'smooth',block:'center'}); document.querySelector('.search').focus()"
+
     >
-      교토 체류 등록
+
+      술집 둘러보기 ↗
+
     </button>
+
+ 
+
+    <button
+
+      type="button"
+
+      class="secondary"
+
+      onclick="document.getElementById('calendarToggleBtn').click()"
+
+    >
+
+      교토 체류 등록
+
+    </button>
+
   </div>
+
+ 
 
   <div class="night-footer">
+
     <span>FIND YOUR KYOTO</span>
+
     <span>街 · 酒 · 人</span>
+
   </div>
+
 </div>
+
+ 
 
     <div id="adminLogin" style="margin-bottom:16px;">
+
   <h3>관리자 로그인</h3>
+
   <input
+
     id="adminEmail"
+
     type="email"
+
     placeholder="관리자 이메일"
+
     autocomplete="username"
+
   />
+
   <input
+
     id="adminPassword"
+
     type="password"
+
     placeholder="비밀번호"
+
     autocomplete="current-password"
+
   />
+
   <button type="button" id="adminLoginBtn">로그인</button>
+
   <button type="button" id="adminLogoutBtn" style="display:none;">로그아웃</button>
+
   <p id="adminStatus">리뷰를 추가하거나 수정하려면 로그인해 주세요.</p>
+
 </div>
+
   <button
+
   type="button"
+
   id="addPlaceBtn"
+
   style="display:none; width:100%; margin-bottom:14px;"
+
 >
+
   ＋ 가게 추가
+
 </button>
+
   
+
 <div style="margin-bottom:12px;">
+
   <label for="locationSearch" style="display:block;margin-bottom:6px;font-size:13px;">
+
     주변 술집 찾기
+
   </label>
+
   <div style="display:flex;gap:6px;">
+
     <input
+
       id="locationSearch"
+
       type="text"
+
       placeholder="호텔·역·주소 검색 (한국어/日本語/English)"
+
       style="flex:1;min-width:0;padding:11px;border:1px solid #ddd;border-radius:8px;"
+
     />
+
     <button
+
       type="button"
+
       id="locationSearchBtn"
+
       style="padding:10px;border-radius:8px;cursor:pointer;"
+
     >검색</button>
+
   </div>
+
   <button
+
     type="button"
+
     id="currentLocationBtn"
+
     style="width:100%;margin-top:7px;padding:10px;border-radius:8px;cursor:pointer;"
+
   >📍 내 현재 위치 찾기</button>
+
   <p id="locationSearchStatus" style="font-size:12px;color:#888;margin-top:6px;"></p>
+
 </div>
+
+ 
 
   <input class="search" id="search" placeholder="가게 이름, 동네, 리뷰 검색…"/>
+
    <div class="place-filters">
+
   <select id="areaFilter" aria-label="동네별 필터">
+
     <option value="">모든 동네</option>
+
   </select>
+
+ 
 
   <select id="categoryFilter" aria-label="분위기 및 종류별 필터">
+
     <option value="">모든 분위기·종류</option>
+
   </select>
+
 </div>
+
   <div class="stats"><div class="stat"><strong id="count">0</strong><span>PLACES VISITED</span></div><div class="stat"><strong id="avg">—</strong><span>MY AVG. RATING</span></div></div>
+
   <div class="section-title"><span>나의 술집 기록</span><span id="resultCount">0곳</span></div>
+
   <div class="place-list" id="placeList"></div>
+
  <div class="hint">마커에 마우스를 올리면 리뷰 미리보기가 나와요. 가게를 클릭하면 상세 기록을 볼 수 있습니다. 이 지도는 교토의 술집을 직접 기록하는 개인 가이드입니다.</div>
+
  </aside>
+
  <section class="map-wrap"><div id="map"></div><div class="map-note">KYOTO · JAPAN<br>마커에 커서를 올려 리뷰를 확인해 보세요.</div></section>
+
 </main>
+
 <div class="modal-backdrop" id="modalBackdrop">
+
  <div class="modal">
+
   <h2 id="modalTitle">새로운 술집 기록</h2><p>내 취향으로 기록하는 교토의 밤.</p>
+
   <form id="placeForm">
+
    <input type="hidden" id="placeId"/>
+
    <div class="form-grid">
+
     
+
 <div class="field" style="position:relative;">
+
   <label for="name">가게 이름 *</label>
+
   <input id="name" required placeholder="예: ○○ 이자카야" autocomplete="off"/>
+
   <div id="nameSuggestions" style="display:none; position:absolute; top:100%; left:0; right:0; background:white; border:1px solid #ddd; border-radius:8px; z-index:1000; max-height:220px; overflow-y:auto; color:#222;"></div>
+
 </div>
+
+ 
 
     <div class="field"><label for="area">동네 / 역</label><input id="area" placeholder="예: 시조오미야"/></div>
+
     <div class="field"><label for="rating">내 별점</label><select id="rating"><option value="5">★★★★★ · 5</option><option value="4">★★★★☆ · 4</option><option value="3">★★★☆☆ · 3</option><option value="2">★★☆☆☆ · 2</option><option value="1">★☆☆☆☆ · 1</option></select></div>
+
     <div class="field"><label for="category">분위기 / 종류</label><input id="category" placeholder="예: 가성비, 해산물, 특이한 메뉴"/></div>
+
     <div class="field"><label for="lat">위도 (지도 위치)</label><input id="lat" type="number" step="any" placeholder="지도 클릭으로 자동 입력"/></div>
+
     <div class="field"><label for="lng">경도 (지도 위치)</label><input id="lng" type="number" step="any" placeholder="지도 클릭으로 자동 입력"/></div>
+
     <div class="field full"><label for="review">나의 리뷰 *</label><textarea id="review" required placeholder="뭐가 맛있었는지, 가격은 어땠는지, 다시 갈 건지…"></textarea></div>
+
  
+
 <div class="field full"><label for="visited">방문일</label><input id="visited" type="date"/></div>
+
    </div>
 
+ 
+
    <div class="field full" id="photoSearchSection">
+
      <label>가게 사진</label>
+
      <button type="button" id="searchPhotosBtn" class="secondary" style="width:100%;">
+
        🔎 인터넷에서 사진 후보 검색
+
      </button>
+
      <p style="font-size:12px;color:#888;margin-top:8px;">
+
        검색된 사진은 직접 확인한 뒤 선택할 수 있어요.
+
      </p>
+
      <div id="photoSearchStatus" style="font-size:13px;margin-top:8px;"></div>
+
      <div id="photoCandidates" style="display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin-top:10px;"></div>
 
+ 
+
 <label for="photoUrl" style="display:block;margin-top:12px;">
+
   사진 URL
+
 </label>
+
 <input
+
   type="url"
+
   id="photoUrl"
+
   placeholder="https://example.com/photo.jpg"
+
   style="width:100%;box-sizing:border-box;padding:10px;margin-top:6px;"
+
 />
 
+ 
+
 <label for="photoSource" style="display:block;margin-top:12px;">
+
   사진 출처 URL (선택)
+
 </label>
+
 <input
+
   type="url"
+
   id="photoSource"
+
   placeholder="사진 원본 페이지 주소"
+
   style="width:100%;box-sizing:border-box;padding:10px;margin-top:6px;"
+
 />
+
+ 
 
 <div id="manualPhotoPreview" style="margin-top:10px;"></div>
 
+ 
+
    </div>
+
+ 
 
    <div class="hint">
+
      지도에서 직접 가게 위치를 선택할 수 있어요.
+
    </div>
 
+ 
+
 <div style="margin-top:10px; margin-bottom:14px;">
+
   <button
+
     type="button"
+
     id="pickLocationBtn"
+
     class="secondary"
+
     style="width:100%;"
+
   >
+
     📍 지도에서 위치 선택
+
   </button>
 
+ 
+
   <p
+
     id="pickLocationStatus"
+
     style="font-size:12px; margin-top:8px;"
+
   ></p>
+
 </div>
+
    <div class="form-actions"><button type="button" class="secondary" id="cancelBtn">취소</button><div class="right-actions"><button type="button" class="secondary" id="deleteBtn" style="display:none">삭제</button><button type="submit">저장하기</button></div></div>
+
   </form>
+
  </div>
+
 </div>
+
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" crossorigin=""></script>
+
 <script src="./places.js"></script>
+
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
 <script src="./supabase-config.js"></script>
+
 <script>
+
 let places = Array.isArray(window.KYOTO_PLACES) ? window.KYOTO_PLACES : [];
+
 let markers = {};
+
 let activeId = null;
 
+ 
+
 const supabaseClient = window.supabase.createClient(
+
   window.SUPABASE_URL,
+
   window.SUPABASE_PUBLISHABLE_KEY
+
 );
+
+ 
 
 async function loadPlaces() {
+
   const { data, error } = await supabaseClient
+
     .from('places')
+
     .select('*')
+
     .order('created_at', { ascending: false });
 
+ 
+
   if (error) {
+
    console.error(
+
   '가게 데이터 불러오기 실패:',
+
   JSON.stringify(error, null, 2)
+
 );
+
     alert('가게 정보를 불러오지 못했어요. 설정을 확인해 주세요.');
+
     render();
+
     return;
+
   }
+
+ 
 
   places = data.map(row => ({
+
     ...row,
+
     lat: row.latitude,
+
     lng: row.longitude,
+
     area: row.address || '교토'
+
   }));
 
+ 
+
   render();
+
 }
+
+ 
 
 async function updateAdminUI() {
+
   const { data: { session } } = await supabaseClient.auth.getSession();
+
   const loggedIn = !!session;
 
+ 
+
   document.getElementById('addPlaceBtn').style.display =
+
     loggedIn ? 'block' : 'none';
 
+ 
+
   document.getElementById('adminLoginBtn').style.display =
+
     loggedIn ? 'none' : 'inline-block';
 
+ 
+
   document.getElementById('adminLogoutBtn').style.display =
+
     loggedIn ? 'inline-block' : 'none';
 
+ 
+
   document.getElementById('adminEmail').style.display =
+
     loggedIn ? 'none' : 'block';
+
+ 
 
   document.getElementById('adminPassword').style.display =
+
     loggedIn ? 'none' : 'block';
 
+ 
+
   document.getElementById('adminStatus').textContent = loggedIn
+
     ? '관리자로 로그인했어요.'
+
     : '리뷰를 추가하거나 수정하려면 로그인해 주세요.';
 
+ 
+
   const form = document.getElementById('placeForm');
+
   if (form) {
+
     form.style.display = loggedIn ? '' : 'none';
+
   }
+
+ 
 
   document.querySelectorAll('.admin-place-actions').forEach(el => {
+
     el.style.display = loggedIn ? 'flex' : 'none';
+
   });
+
 }
 
+ 
+
+ 
 
 document.getElementById('adminLoginBtn').addEventListener('click', async () => {
+
   const email = document.getElementById('adminEmail').value.trim();
+
   const password = document.getElementById('adminPassword').value;
 
+ 
+
   if (!email || !password) {
+
     alert('이메일과 비밀번호를 입력해 주세요.');
+
     return;
+
   }
+
+ 
 
   const { error } = await supabaseClient.auth.signInWithPassword({
+
     email,
+
     password
+
   });
 
+ 
+
   if (error) {
+
     alert('로그인 실패: ' + error.message);
+
 console.error('로그인 오류:', error);
+
     console.error(error);
+
     return;
+
   }
+
+ 
 
   document.getElementById('adminPassword').value = '';
+
   await updateAdminUI();
+
 });
+
+ 
 
 document.getElementById('adminLogoutBtn').addEventListener('click', async () => {
+
   const { error } = await supabaseClient.auth.signOut();
 
+ 
+
   if (error) {
+
     alert('로그아웃에 실패했어요.');
+
     console.error(error);
+
     return;
+
   }
 
+ 
+
   await updateAdminUI();
+
 });
+
+ 
 
 supabaseClient.auth.onAuthStateChange(() => {
+
   updateAdminUI();
+
 });
 
-updateAdminUI();
  
+
+updateAdminUI();
+
+ 
+
 const nameInput = document.getElementById('name');
+
 const suggestionsBox = document.getElementById('nameSuggestions');
+
+ 
 
 let searchTimer;
 
+ 
+
 nameInput.addEventListener('input', () => {
+
   clearTimeout(searchTimer);
+
+ 
 
   const query = nameInput.value.trim();
 
+ 
+
   if (query.length < 2) {
+
     suggestionsBox.style.display = 'none';
+
     suggestionsBox.innerHTML = '';
+
     return;
+
   }
+
+ 
 
   searchTimer = setTimeout(async () => {
+
     try {
+
       const url =
+
         'https://photon.komoot.io/api/?' +
+
         new URLSearchParams({
+
           q: query,
+
           limit: '6',
+
           lat: '35.0116',
+
           lon: '135.7681',
+
           lang: 'en'
+
         });
+
+ 
 
       const response = await fetch(url);
+
       if (!response.ok) throw new Error('검색 실패');
 
+ 
+
       const data = await response.json();
+
       suggestionsBox.innerHTML = '';
 
+ 
+
       const results = (data.features || []).filter(feature => {
+
         const p = feature.properties || {};
+
         return p.name && (
+
           p.name ||
+
           p.street ||
+
           p.city
+
         );
+
       });
 
+ 
+
       if (results.length === 0) {
+
         suggestionsBox.innerHTML =
+
           '<div style="padding:12px;">검색 결과가 없어요. 가게 이름을 더 입력해 주세요.</div>';
+
       } else {
+
         results.forEach(feature => {
+
           const p = feature.properties;
+
           const [lng, lat] = feature.geometry.coordinates;
 
+ 
+
           const item = document.createElement('button');
+
           item.type = 'button';
+
           item.style.cssText =
+
             'display:block;width:100%;padding:10px;text-align:left;' +
+
             'border:0;border-bottom:1px solid #eee;background:white;color:#222;cursor:pointer;';
 
+ 
+
           item.textContent = [
+
             p.name,
+
             p.street,
+
             p.city || p.district
+
           ].filter(Boolean).join(' · ');
 
+ 
+
           item.addEventListener('click', () => {
+
             nameInput.value = p.name;
+
             document.getElementById('lat').value = lat.toFixed(6);
+
             document.getElementById('lng').value = lng.toFixed(6);
 
+ 
+
             if (p.street || p.city || p.district) {
+
               document.getElementById('area').value =
+
                 [p.street, p.city || p.district]
+
                   .filter(Boolean).join(', ');
+
             }
 
+ 
+
             suggestionsBox.style.display = 'none';
+
             suggestionsBox.innerHTML = '';
+
           });
 
+ 
+
           suggestionsBox.appendChild(item);
+
         });
+
       }
 
+ 
+
       suggestionsBox.style.display = 'block';
+
     } catch (error) {
+
       suggestionsBox.innerHTML =
+
         '<div style="padding:12px;">검색에 실패했어요. 잠시 후 다시 시도해 주세요.</div>';
+
       suggestionsBox.style.display = 'block';
+
     }
+
   }, 400);
+
 });
+
+ 
 
 document.addEventListener('click', event => {
+
   if (
+
     event.target !== nameInput &&
+
     !suggestionsBox.contains(event.target)
+
   ) {
+
     suggestionsBox.style.display = 'none';
+
   }
+
 });
+
+ 
 
 const map = L.map('map', { zoomControl: true }).setView([35.0116, 135.7681], 13);
+
 document.getElementById('addPlaceBtn').addEventListener('click', () => {
+
   document.getElementById('placeForm').reset();
+
   document.getElementById('placeId').value = '';
+
   document.getElementById('modalTitle').textContent = '새로운 술집 기록';
+
   document.getElementById('deleteBtn').style.display = 'none';
+
   document.getElementById('modalBackdrop').classList.add('show');
+
 });
+
+ 
 
 document.getElementById('cancelBtn').addEventListener('click', () => {
+
   document.getElementById('modalBackdrop').classList.remove('show');
+
 });
+
 L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+
   maxZoom: 19,
+
   attribution: '&copy; OpenStreetMap contributors'
+
 }).addTo(map);
+
  map.on('click', function (e) {
+
   const latInput = document.getElementById('lat');
+
   const lngInput = document.getElementById('lng');
 
+ 
+
   if (latInput && lngInput) {
+
     latInput.value = e.latlng.lat.toFixed(6);
+
     lngInput.value = e.latlng.lng.toFixed(6);
+
   }
+
+ 
 
   if (!document.getElementById('modalBackdrop').classList.contains('show')) {
+
     return;
+
   }
+
 });
+
 let pickingLocation = false;
 
+ 
+
 document.getElementById('pickLocationBtn').addEventListener('click', () => {
+
   pickingLocation = true;
+
+ 
 
   document.getElementById('modalBackdrop').classList.remove('show');
 
+ 
+
   document.getElementById('pickLocationStatus').textContent =
+
     '지도에서 가게가 있는 위치를 클릭해 주세요.';
 
+ 
+
   alert('지도가 보이면 가게가 있는 위치를 클릭해 주세요.');
+
 });
 
+ 
+
 map.on('click', function (e) {
+
   if (!pickingLocation) return;
+
+ 
 
   pickingLocation = false;
 
+ 
+
   document.getElementById('lat').value = e.latlng.lat.toFixed(6);
+
   document.getElementById('lng').value = e.latlng.lng.toFixed(6);
 
+ 
+
   document.getElementById('pickLocationStatus').textContent =
+
     '위치를 선택했어요! 위도와 경도가 입력되었습니다.';
 
+ 
+
   document.getElementById('modalBackdrop').classList.add('show');
+
 });
+
 const pin = L.divIcon({
+
   className: '',
+
   html: '<div class="custom-pin"></div>',
+
   iconSize: [23, 23],
+
   iconAnchor: [11, 22]
+
 });
+
+ 
 
 function esc(s = '') {
+
   return String(s).replace(/[&<>"']/g, c => ({
+
     '&': '&amp;',
+
     '<': '&lt;',
+
     '>': '&gt;',
+
     '"': '&quot;',
+
     "'": '&#39;'
+
   }[c]));
+
 }
+
+ 
 
 function stars(n) {
+
   n = Math.max(0, Math.min(5, Number(n) || 0));
+
   return '★'.repeat(n) + '☆'.repeat(5 - n);
+
 }
+
+ 
 
 function popup(p) {
+
   const review = String(p.review || '');
+
   return `
+
     <div class="popup-name">${esc(p.name)}</div>
+
     <div class="popup-rating">${stars(p.rating)} · ${Number(p.rating) || 0}/5</div>
+
     ${p.photo_url ? `<img src="${esc(p.photo_url)}" alt="${esc(p.name)} 사진" style="width:100%;max-height:180px;object-fit:cover;border-radius:8px;margin:8px 0;" onerror="this.style.display='none'">` : ''}
+
     <div class="popup-review">${esc(review.slice(0, 150))}${review.length > 150 ? '…' : ''}</div>
+
     <div style="font-size:10px;color:#888;margin-top:7px">
+
       ${esc(p.area || '교토')} · 클릭해서 상세 보기
+
     </div>
+
   `;
+
 }
 
+ 
+
 function render() {
+
   Object.values(markers).forEach(m => map.removeLayer(m));
+
   markers = {};
 
+ 
+
   places.forEach(p => {
+
     if (!Number.isFinite(Number(p.lat)) || !Number.isFinite(Number(p.lng))) return;
 
+ 
+
     const m = L.marker([Number(p.lat), Number(p.lng)], { icon: pin }).addTo(map);
+
     m.bindTooltip(popup(p), {
+
       direction: 'top',
+
       offset: [0, -15],
+
       opacity: 1
+
     });
+
     m.bindPopup(popup(p));
 
+ 
+
     m.on('click', () => {
+
       activeId = p.id;
+
       renderList();
+
     });
 
+ 
+
     markers[p.id] = m;
+
   });
+
+ 
 
   renderList();
 
+ 
+
   document.getElementById('count').textContent = places.length;
 
+ 
+
   document.getElementById('avg').textContent = places.length
+
     ? (places.reduce((sum, p) => sum + (Number(p.rating) || 0), 0) / places.length).toFixed(1)
+
     : '—';
+
 }
 
+ 
 
+ 
+
+ 
 
 let userMarkers = [];
 
+ 
+
 async function renderUserMarkers() {
+
   userMarkers.forEach(marker => map.removeLayer(marker));
+
   userMarkers = [];
 
+ 
+
   const { data: locations, error: locationError } =
+
     await communityClient
+
       .from('kyoto_public_locations')
+
       .select('user_id, nickname, latitude, longitude');
 
+ 
+
   if (locationError) {
+
     console.error('공개 위치 불러오기 실패:', locationError);
+
     return;
+
   }
+
+ 
 
   const userIds = (locations || []).map(p => p.user_id);
+
   if (userIds.length === 0) return;
 
+ 
+
   const { data: profiles, error: profileError } =
+
     await communityClient
+
       .from('kyoto_profiles')
+
       .select(
+
         'user_id, nickname, age, gender, mbti, drinking_level, favorite_drinks, stay_start, stay_end, is_public'
+
       )
+
       .in('user_id', userIds)
+
       .eq('is_public', true);
 
+ 
+
   if (profileError) {
+
     console.error('공개 프로필 불러오기 실패:', profileError);
+
     return;
+
   }
 
+ 
+
   const profileById = {};
+
   (profiles || []).forEach(p => {
+
     profileById[p.user_id] = p;
+
   });
 
+ 
+
   (locations || []).forEach(location => {
+
     const profile = profileById[location.user_id];
+
     if (!profile) return;
 
+ 
+
     const lat = Number(location.latitude);
+
     const lng = Number(location.longitude);
 
+ 
+
     if (
+
       !Number.isFinite(lat) ||
+
       !Number.isFinite(lng) ||
+
       lat < -90 || lat > 90 ||
+
       lng < -180 || lng > 180
+
     ) return;
+
+ 
 
     const marker = L.marker([lat, lng]).addTo(map);
 
+ 
+
     const popup = document.createElement('div');
+
     popup.style.minWidth = '190px';
 
+ 
+
     const name = document.createElement('strong');
+
     name.textContent = profile.nickname || location.nickname || '사용자';
+
     name.style.fontSize = '16px';
+
     popup.appendChild(name);
 
+ 
+
     const addDetail = (label, value) => {
+
       if (value === null || value === undefined || String(value).trim() === '') {
+
         return;
+
       }
+
+ 
 
       const row = document.createElement('p');
+
       row.style.margin = '7px 0';
+
       row.textContent = label + ': ' + value;
+
       popup.appendChild(row);
+
     };
 
+ 
+
     addDetail('나이', profile.age ? profile.age + '세' : '');
+
     addDetail('성별', profile.gender);
+
     addDetail('MBTI', profile.mbti);
+
     addDetail('음주 빈도', profile.drinking_level);
+
     addDetail('좋아하는 술', profile.favorite_drinks);
+
     addDetail('체류 시작일', profile.stay_start);
+
     addDetail('체류 종료일', profile.stay_end);
 
+ 
+
     const locationNote = document.createElement('p');
+
     locationNote.textContent = 'GPS 위치 공개 중';
+
     locationNote.style.color = '#777';
+
     locationNote.style.fontSize = '12px';
+
     popup.appendChild(locationNote);
+
     const messageButton = document.createElement('button');
+
     messageButton.type = 'button';
+
     messageButton.textContent = '💬 개인 메시지 보내기';
+
     messageButton.style.cssText =
+
       'display:block;width:100%;margin-top:12px;padding:10px;background:#39FF14;color:#151515;border:0;border-radius:8px;font-weight:bold;cursor:pointer;';
 
+ 
+
     messageButton.addEventListener('click', async () => {
+
       if (!communityUser) {
+
         alert('개인 메시지를 보내려면 먼저 로그인해 주세요.');
+
         return;
+
       }
+
+ 
 
             document.getElementById('directChatPanel').style.display = 'block';
 
+ 
+
       await openDirectConversation(
+
         location.user_id,
+
         profile.nickname || location.nickname || '사용자'
+
       );
+
     });
 
+ 
+
     popup.appendChild(messageButton);
+
     marker.bindPopup(popup);
+
     userMarkers.push(marker);
+
   });
+
 }
+
+ 
 
 let currentSearchLocation = null;
 
+ 
+
 function distanceKm(lat1, lng1, lat2, lng2) {
+
   const toRad = value => value * Math.PI / 180;
+
   const dLat = toRad(lat2 - lat1);
+
   const dLng = toRad(lng2 - lng1);
 
+ 
+
   const a =
+
     Math.sin(dLat / 2) ** 2 +
+
     Math.cos(toRad(lat1)) *
+
     Math.cos(toRad(lat2)) *
+
     Math.sin(dLng / 2) ** 2;
 
+ 
+
   return 6371 * 2 * Math.atan2(
+
     Math.sqrt(a),
+
     Math.sqrt(1 - a)
+
   );
+
 }
 
+ 
+
 function renderList() {
+
   const q = document.getElementById('search').value.toLowerCase().trim();
 
+ 
+
   const areaSelect = document.getElementById('areaFilter');
+
   const categorySelect = document.getElementById('categoryFilter');
 
+ 
+
   const previousArea = areaSelect.value;
+
   const previousCategory = categorySelect.value;
 
+ 
+
   const areas = [...new Set(
+
     places.map(p => String(p.area || '교토').trim()).filter(Boolean)
+
   )].sort((a, b) => a.localeCompare(b, 'ko'));
+
+ 
 
   const categories = [...new Set(
+
     places.map(p => String(p.category || '').trim()).filter(Boolean)
+
   )].sort((a, b) => a.localeCompare(b, 'ko'));
 
+ 
+
   areaSelect.innerHTML =
+
     '<option value="">모든 동네</option>' +
+
     areas.map(area =>
+
       `<option value="${esc(area)}">${esc(area)}</option>`
+
     ).join('');
+
+ 
 
   categorySelect.innerHTML =
+
     '<option value="">모든 분위기·종류</option>' +
+
     categories.map(category =>
+
       `<option value="${esc(category)}">${esc(category)}</option>`
+
     ).join('');
 
+ 
+
   areaSelect.value = areas.includes(previousArea) ? previousArea : '';
+
   categorySelect.value = categories.includes(previousCategory)
+
     ? previousCategory
+
     : '';
 
+ 
+
   const selectedArea = areaSelect.value;
+
   const selectedCategory = categorySelect.value;
 
+ 
+
   const list = places
+
     .filter(p =>
+
       [p.name, p.area, p.category, p.review]
+
         .join(' ')
+
         .toLowerCase()
+
         .includes(q)
+
     )
+
     .filter(p =>
+
       !selectedArea ||
+
       String(p.area || '교토').trim() === selectedArea
+
     )
+
     .filter(p =>
+
       !selectedCategory ||
+
       String(p.category || '').trim() === selectedCategory
+
     )
+
     .map(p => {
+
       const hasCoords =
+
         p.lat !== null && p.lat !== '' &&
+
         p.lng !== null && p.lng !== '' &&
+
         Number.isFinite(Number(p.lat)) &&
+
         Number.isFinite(Number(p.lng));
 
+ 
+
       const distance = currentSearchLocation && hasCoords
+
         ? distanceKm(
+
             currentSearchLocation.lat,
+
             currentSearchLocation.lng,
+
             Number(p.lat),
+
             Number(p.lng)
+
           )
+
         : null;
 
+ 
+
       return { ...p, distance };
+
     });
+
+ 
 
   if (currentSearchLocation) {
+
     list.sort((a, b) => {
+
       if (a.distance === null) return 1;
+
       if (b.distance === null) return -1;
+
       return a.distance - b.distance;
+
     });
+
   }
+
+ 
 
   document.getElementById('resultCount').textContent =
+
     list.length + '곳' + (currentSearchLocation ? ' · 거리순' : '');
+
 // 선택한 필터에 해당하는 가게 마커만 표시
+
 const visibleIds = new Set(list.map(p => String(p.id)));
 
+ 
+
 Object.entries(markers).forEach(([id, marker]) => {
+
   if (visibleIds.has(String(id))) {
+
     if (!map.hasLayer(marker)) {
+
       marker.addTo(map);
+
     }
+
   } else {
+
     if (map.hasLayer(marker)) {
+
       map.removeLayer(marker);
+
     }
+
   }
+
 });
+
   document.getElementById('placeList').innerHTML = list.length
+
     ? list.map(p => `
+
       <article class="place-card ${String(activeId) === String(p.id) ? 'active' : ''}" data-id="${esc(p.id)}">
+
         <div class="place-top">
+
           <div class="place-name">${esc(p.name)}</div>
+
           <div class="rating">${stars(p.rating)}</div>
+
         </div>
+
         <div class="place-meta">
+
           ${esc(p.area || '교토')}
+
           ${p.visited ? ' · ' + esc(p.visited) : ''}
+
           ${p.distance !== null
+
             ? ' · 📍 ' + (p.distance < 1
+
                 ? Math.round(p.distance * 1000) + 'm'
+
                 : p.distance.toFixed(1) + 'km')
+
             : ''}
+
         </div>
+
         ${p.photo_url ? `<img src="${esc(p.photo_url)}" alt="${esc(p.name)} 사진" style="width:100%; max-height:220px; object-fit:cover; border-radius:10px; margin:10px 0;" loading="lazy" onerror="this.style.display='none'">` : ''}
+
         <div class="place-note">${esc(p.review || '')}</div>
+
         ${p.category ? `<span class="tag">${esc(p.category)}</span>` : ''}
+
         <div class="admin-place-actions" style="display:none; gap:8px; margin-top:12px;">
+
           <button type="button" class="edit-place-btn">수정</button>
+
           <button type="button" class="delete-place-btn">삭제</button>
+
         </div>
+
       </article>
+
     `).join('')
+
     : '<div class="empty">아직 일치하는 기록이 없어요.<br>새로운 리뷰가 등록되면 여기에 표시됩니다.</div>';
 
+ 
+
   document.querySelectorAll('.place-card').forEach(el => {
+
     el.addEventListener('click', () => {
+
       const p = places.find(x => String(x.id) === el.dataset.id);
+
       if (!p) return;
+
+ 
 
       activeId = p.id;
+
       renderList();
 
+ 
+
       if (markers[p.id]) {
+
         map.setView(markers[p.id].getLatLng(), 16);
+
         markers[p.id].openPopup();
+
       }
+
     });
+
   });
 
+ 
+
   document.querySelectorAll('.edit-place-btn').forEach(button => {
+
     button.addEventListener('click', event => {
+
       event.stopPropagation();
 
+ 
+
       const card = button.closest('.place-card');
+
       const p = places.find(x => String(x.id) === card.dataset.id);
+
       if (!p) return;
 
+ 
+
       document.getElementById('placeId').value = p.id;
+
       document.getElementById('name').value = p.name || '';
+
       document.getElementById('area').value = p.area || '';
+
       document.getElementById('rating').value = p.rating || 5;
+
       document.getElementById('category').value = p.category || '';
+
       document.getElementById('lat').value = p.lat ?? '';
+
       document.getElementById('lng').value = p.lng ?? '';
+
       document.getElementById('review').value = p.review || '';
+
       document.getElementById('visited').value = p.visited || '';
+
       document.getElementById('photoUrl').value = p.photo_url || '';
+
       document.getElementById('photoSource').value = p.photo_source || '';
+
+ 
 
       document.getElementById('photoUrl').dispatchEvent(new Event('input'));
 
+ 
+
       document.getElementById('modalTitle').textContent = '술집 기록 수정';
+
       document.getElementById('deleteBtn').style.display = 'none';
+
       document.getElementById('modalBackdrop').classList.add('show');
+
     });
+
   });
 
+ 
+
   document.querySelectorAll('.delete-place-btn').forEach(button => {
+
     button.addEventListener('click', async event => {
+
       event.stopPropagation();
 
+ 
+
       const card = button.closest('.place-card');
+
       const placeId = card.dataset.id;
+
       const place = places.find(p => String(p.id) === String(placeId));
+
       if (!place) return;
+
+ 
 
       if (!confirm(`「${place.name}」 리뷰를 정말 삭제할까요?`)) return;
 
+ 
+
       const { error } = await supabaseClient
+
         .from('places')
+
         .delete()
+
         .eq('id', placeId);
 
+ 
+
       if (error) {
+
         console.error('삭제 실패:', error);
+
         alert('삭제에 실패했어요. 관리자 로그인과 권한을 확인해 주세요.');
+
         return;
+
       }
+
+ 
 
       places = places.filter(p => String(p.id) !== String(placeId));
 
+ 
+
       if (String(activeId) === String(placeId)) {
+
         activeId = null;
+
       }
 
+ 
+
       render();
+
       alert('리뷰를 삭제했어요!');
+
     });
+
   });
+
 }
+
 document.getElementById('placeForm').addEventListener('submit', async (e) => {
+
   e.preventDefault();
 
+ 
+
   const placeId = document.getElementById('placeId').value;
+
   const name = document.getElementById('name').value.trim();
+
   const area = document.getElementById('area').value.trim();
+
   const rating = Number(document.getElementById('rating').value);
+
   const category = document.getElementById('category').value.trim();
+
   const lat = Number(document.getElementById('lat').value);
+
   const lng = Number(document.getElementById('lng').value);
+
   const review = document.getElementById('review').value.trim();
+
   const visited = document.getElementById('visited').value;
+
   const photo_url = document.getElementById('photoUrl').value.trim();
 
+ 
+
   if (!name || !review) {
+
     alert('가게 이름과 리뷰를 입력해 주세요.');
+
     return;
+
   }
+
+ 
 
   if (
+
     document.getElementById('lat').value.trim() === '' ||
+
     document.getElementById('lng').value.trim() === '' ||
+
     !Number.isFinite(lat) ||
+
     !Number.isFinite(lng) ||
+
     lat < -90 || lat > 90 ||
+
     lng < -180 || lng > 180
+
   ) {
+
     alert('지도에서 가게 위치를 선택해 주세요.');
+
     return;
+
   }
 
+ 
+
   const row = {
+
     name,
+
     address: area || '교토',
+
     latitude: lat,
+
     longitude: lng,
+
     review,
+
     rating,
+
     category,
+
     visited: visited || null,
+
     photo_url: photo_url || null
+
   };
+
+ 
 
   let result;
 
+ 
+
   if (placeId) {
+
     result = await supabaseClient
+
       .from('places')
+
       .update(row)
+
       .eq('id', placeId)
+
       .select()
+
       .single();
+
   } else {
+
     result = await supabaseClient
+
       .from('places')
+
       .insert(row)
+
       .select()
+
       .single();
+
   }
+
+ 
 
   const { data, error } = result;
 
+ 
+
   if (error) {
+
     console.error('저장 실패:', error);
+
     alert('저장에 실패했어요. 로그인 상태와 Supabase 권한 및 테이블 설정을 확인해 주세요.');
+
     return;
+
   }
-
-  const savedPlace = {
-    ...data,
-    lat: data.latitude,
-    lng: data.longitude,
-    area: data.address || '교토',
-    category: data.category || '',
-    visited: data.visited || '',
-    photo_url: data.photo_url || ''
-  };
-
-  if (placeId) {
-    const index = places.findIndex(p => String(p.id) === String(placeId));
-
-    if (index !== -1) {
-      places[index] = savedPlace;
-    }
-  } else {
-    places.unshift(savedPlace);
-  }
-
-  document.getElementById('placeForm').reset();
-  document.getElementById('placeId').value = '';
-  document.getElementById('modalBackdrop').classList.remove('show');
-
-  render();
-  await updateAdminUI();
-
-  alert(placeId ? '리뷰를 수정했어요!' : '새 리뷰를 저장했어요!');
-});
-
 
  
-document.getElementById('searchPhotosBtn').addEventListener('click', async () => {
-  const name = document.getElementById('name').value.trim();
-  const status = document.getElementById('photoSearchStatus');
-  const candidates = document.getElementById('photoCandidates');
 
-  if (!name) {
-    status.textContent = '먼저 가게 이름을 입력해 주세요.';
-    return;
+  const savedPlace = {
+
+    ...data,
+
+    lat: data.latitude,
+
+    lng: data.longitude,
+
+    area: data.address || '교토',
+
+    category: data.category || '',
+
+    visited: data.visited || '',
+
+    photo_url: data.photo_url || ''
+
+  };
+
+ 
+
+  if (placeId) {
+
+    const index = places.findIndex(p => String(p.id) === String(placeId));
+
+ 
+
+    if (index !== -1) {
+
+      places[index] = savedPlace;
+
+    }
+
+  } else {
+
+    places.unshift(savedPlace);
+
   }
 
+ 
+
+  document.getElementById('placeForm').reset();
+
+  document.getElementById('placeId').value = '';
+
+  document.getElementById('modalBackdrop').classList.remove('show');
+
+ 
+
+  render();
+
+  await updateAdminUI();
+
+ 
+
+  alert(placeId ? '리뷰를 수정했어요!' : '새 리뷰를 저장했어요!');
+
+});
+
+ 
+
+ 
+
+ 
+
+document.getElementById('searchPhotosBtn').addEventListener('click', async () => {
+
+  const name = document.getElementById('name').value.trim();
+
+  const status = document.getElementById('photoSearchStatus');
+
+  const candidates = document.getElementById('photoCandidates');
+
+ 
+
+  if (!name) {
+
+    status.textContent = '먼저 가게 이름을 입력해 주세요.';
+
+    return;
+
+  }
+
+ 
+
   status.textContent = '사진을 검색하고 있어요...';
+
   candidates.innerHTML = '';
 
+ 
+
   try {
+
     const query = `${name} Kyoto Japan`;
 
+ 
+
     const params = new URLSearchParams({
+
       action: 'query',
+
       generator: 'search',
+
       gsrsearch: query,
+
       gsrnamespace: '6',
+
       gsrlimit: '12',
+
       prop: 'imageinfo',
+
       iiprop: 'url|extmetadata',
+
       iiurlwidth: '400',
+
       format: 'json',
+
       origin: '*'
+
     });
 
+ 
+
     const response = await fetch(
+
       'https://commons.wikimedia.org/w/api.php?' + params
+
     );
+
+ 
 
     if (!response.ok) throw new Error('검색에 실패했어요.');
 
+ 
+
     const data = await response.json();
+
     const pages = Object.values(data.query?.pages || {});
 
+ 
+
     if (!pages.length) {
+
       status.textContent =
+
         '사진 후보가 없어요. 가게 이름이나 영문 표기를 바꿔 검색해 보세요.';
+
       return;
+
     }
 
+ 
+
     pages.forEach(page => {
+
       const info = page.imageinfo?.[0];
+
       if (!info?.thumburl || !info?.descriptionurl) return;
 
+ 
+
       const license =
+
         info.extmetadata?.LicenseShortName?.value || '라이선스 확인 필요';
 
+ 
+
       const card = document.createElement('div');
+
       card.style.cssText =
+
         'border:1px solid #ddd;border-radius:8px;padding:8px;overflow:hidden;';
 
+ 
+
       const img = document.createElement('img');
+
       img.src = info.thumburl;
+
       img.alt = page.title;
+
       img.style.cssText =
+
         'width:100%;height:120px;object-fit:cover;border-radius:6px;';
 
+ 
+
       const title = document.createElement('p');
+
       title.textContent = page.title.replace(/^File:/, '');
+
       title.style.cssText =
+
         'font-size:12px;overflow-wrap:anywhere;margin:6px 0;';
 
+ 
+
       const source = document.createElement('a');
+
       source.href = info.descriptionurl;
+
       source.target = '_blank';
+
       source.rel = 'noopener noreferrer';
+
       source.textContent = '출처 및 사진 정보 확인';
+
       source.style.cssText = 'font-size:12px;display:block;margin-bottom:8px;';
 
+ 
+
       const licenseText = document.createElement('p');
+
       licenseText.textContent = '라이선스: ' + license;
+
       licenseText.style.cssText = 'font-size:11px;color:#666;';
 
+ 
+
       const choose = document.createElement('button');
+
       choose.type = 'button';
+
       choose.textContent = '이 사진 사용';
+
       choose.style.cssText = 'width:100%;padding:8px;cursor:pointer;';
 
+ 
+
       choose.addEventListener('click', () => {
+
         document.getElementById('photoUrl').value = info.thumburl;
+
         document.getElementById('photoSource').value = info.descriptionurl;
 
+ 
+
         status.textContent =
+
           '사진 후보를 선택했어요. 저장 기능은 다음 단계에서 연결할게요.';
 
+ 
+
         candidates.querySelectorAll('button').forEach(button => {
+
           if (button !== choose) button.textContent = '이 사진 사용';
+
         });
 
+ 
+
         choose.textContent = '✓ 선택한 사진';
+
       });
 
+ 
+
       card.append(img, title, source, licenseText, choose);
+
       candidates.appendChild(card);
+
     });
 
+ 
+
     status.textContent = candidates.children.length
+
       ? '사진 후보를 확인해 주세요. 실제 해당 가게의 사진인지 출처에서 확인한 뒤 선택하세요.'
+
       : '표시할 수 있는 사진 후보가 없어요.';
+
   } catch (error) {
+
     status.textContent =
+
       '검색에 실패했어요. 인터넷 연결을 확인하고 다시 시도해 주세요.';
+
   }
+
 });
 
+ 
+
 document.getElementById('search').addEventListener('input', renderList);
+
   document.getElementById('areaFilter')
+
   .addEventListener('change', renderList);
+
+ 
 
 document.getElementById('categoryFilter')
+
   .addEventListener('change', renderList);
 
+ 
+
 const photoUrlInput = document.getElementById('photoUrl');
+
 const manualPhotoPreview = document.getElementById('manualPhotoPreview');
 
+ 
+
 photoUrlInput.addEventListener('input', () => {
+
   const url = photoUrlInput.value.trim();
+
   manualPhotoPreview.innerHTML = '';
+
+ 
 
   if (!url) return;
 
+ 
+
   try {
+
     const parsedUrl = new URL(url);
 
+ 
+
     if (!['http:', 'https:'].includes(parsedUrl.protocol)) {
+
       throw new Error('Invalid URL');
+
     }
 
+ 
+
     const img = document.createElement('img');
+
     img.src = parsedUrl.href;
+
     img.alt = '사진 미리보기';
+
     img.style.cssText =
+
       'width:100%;max-height:220px;object-fit:cover;border-radius:10px;';
 
+ 
+
     img.onerror = () => {
+
       manualPhotoPreview.textContent =
+
         '사진을 불러올 수 없어요. 이미지 주소인지 확인해 주세요.';
+
     };
 
+ 
+
     manualPhotoPreview.appendChild(img);
+
   } catch {
+
     manualPhotoPreview.textContent = '올바른 사진 URL을 입력해 주세요.';
+
   }
+
 });
+
+ 
 
 let userLocationMarker = null;
 
+ 
+
 async function findLocation(query) {
+
   const status = document.getElementById('locationSearchStatus');
+
   const searchBtn = document.getElementById('locationSearchBtn');
 
+ 
+
   if (!query.trim()) {
+
     status.textContent = '호텔 이름, 역 이름 또는 주소를 입력해 주세요.';
+
     return;
-  }
 
-  status.textContent = '장소를 검색하고 있어요...';
-  searchBtn.disabled = true;
-
-  try {
-    const params = new URLSearchParams({
-      q: query.trim(),
-      format: 'jsonv2',
-      limit: '1',
-      'accept-language': 'ja,en,ko'
-    });
-
-    const response = await fetch(
-      'https://nominatim.openstreetmap.org/search?' + params
-    );
-
-    if (!response.ok) throw new Error('검색 요청 실패');
-
-    const results = await response.json();
-
-    if (!results.length) {
-      status.textContent = '장소를 찾지 못했어요. 다른 이름으로 검색해 주세요.';
-      return;
-    }
-
-    const place = results[0];
-    const lat = Number(place.lat);
-    const lng = Number(place.lon);
-currentSearchLocation = {
-  lat: lat,
-  lng: lng,
-  label: query.trim()
-};
-    map.setView([lat, lng], 16);
-
-    if (userLocationMarker) {
-      map.removeLayer(userLocationMarker);
-    }
-
-    userLocationMarker = L.marker([lat, lng])
-      .addTo(map)
-      .bindPopup('📍 ' + esc(query.trim()))
-      .openPopup();
-
-    status.textContent = '장소를 찾았어요! 지도에서 위치를 확인해 주세요.';
-   renderList();
-  } catch (error) {
-    console.error('장소 검색 실패:', error);
-    status.textContent = '검색에 실패했어요. 잠시 후 다시 시도해 주세요.';
-  } finally {
-    searchBtn.disabled = false;
-  }
-}
-
-document.getElementById('locationSearchBtn').addEventListener('click', () => {
-  findLocation(document.getElementById('locationSearch').value);
-});
-
-document.getElementById('locationSearch').addEventListener('keydown', event => {
-  if (event.key === 'Enter') {
-    event.preventDefault();
-    findLocation(document.getElementById('locationSearch').value);
-  }
-});
-
-document.getElementById('currentLocationBtn').addEventListener('click', () => {
-  const status = document.getElementById('locationSearchStatus');
-
-  if (!navigator.geolocation) {
-    status.textContent = '이 브라우저에서는 위치 기능을 사용할 수 없어요.';
-    return;
-  }
-
-  status.textContent = '현재 위치를 확인하고 있어요...';
-
-  navigator.geolocation.getCurrentPosition(
-    position => {
-      const lat = position.coords.latitude;
-      const lng = position.coords.longitude;
-currentSearchLocation = {
-  lat: lat,
-  lng: lng,
-  label: '내 현재 위치'
-};
-      map.setView([lat, lng], 16);
-
-      if (userLocationMarker) {
-        map.removeLayer(userLocationMarker);
-      }
-
-      userLocationMarker = L.marker([lat, lng])
-        .addTo(map)
-        .bindPopup('📍 내 현재 위치')
-        .openPopup();
-
-      status.textContent = '현재 위치를 찾았어요!';
-     renderList();
-    },
-    error => {
-      status.textContent =
-        error.code === 1
-          ? '위치 권한을 허용해 주세요.'
-          : '위치를 확인하지 못했어요. GPS 설정을 확인해 주세요.';
-    },
-    { enableHighAccuracy: true, timeout: 10000 }
-  );
-});
-
-/* ===== Kyoto Community =====
-   기존 관리자 로그인과 분리된 커뮤니티 세션
-*/
-const communityClient = window.supabase.createClient(
-  window.SUPABASE_URL,
-  window.SUPABASE_PUBLISHABLE_KEY,
-  {
-    auth: {
-      storageKey: 'kyoto-community-auth',
-      autoRefreshToken: true,
-      persistSession: true,
-      detectSessionInUrl: false
-    }
-  }
-);
-
-const calendarToday = new Date();
-let calendarYear = calendarToday.getFullYear();
-let calendarMonthIndex = calendarToday.getMonth();
-let selectedDate = localDateString(calendarToday);
-let pendingDates = new Set();
-let myStayDates = new Set();
-let communityUser = null;
-
-function localDateString(date) {
-  const y = date.getFullYear();
-  const m = String(date.getMonth() + 1).padStart(2, '0');
-  const d = String(date.getDate()).padStart(2, '0');
-  return `${y}-${m}-${d}`;
-}
-
-function dateRange(start, end) {
-  const dates = [];
-  const current = new Date(start + 'T12:00:00');
-  const last = new Date(end + 'T12:00:00');
-
-  while (current <= last && dates.length < 366) {
-    dates.push(localDateString(current));
-    current.setDate(current.getDate() + 1);
-  }
-  return dates;
-}
-
-function communityEscape(value = '') {
-  return String(value).replace(/[&<>"']/g, char => ({
-    '&': '&amp;',
-    '<': '&lt;',
-    '>': '&gt;',
-    '"': '&quot;',
-    "'": '&#39;'
-  }[char]));
-}
-
-function setCommunityStatus(id, message) {
-  document.getElementById(id).textContent = message;
-}
-
-
-
-function updateCommunityAuthUI() {
-  const loggedIn = Boolean(communityUser);
-
-  document.getElementById('communityAuthButtons').style.display =
-    loggedIn ? 'none' : 'flex';
-
-  document.getElementById('communityAuthForm').style.display = 'none';
-  document.getElementById('communityLoggedIn').style.display =
-    loggedIn ? 'block' : 'none';
-
-  if (loggedIn) {
-    const nickname =
-      communityUser.user_metadata?.nickname ||
-      communityUser.email?.split('@')[0] ||
-      '사용자';
-
-    document.getElementById('communityNicknameLabel').textContent =
-      `👤 ${nickname}님`;
-
-    setCommunityStatus(
-      'communityAuthStatus',
-      '로그인했어요. 체류 날짜와 채팅, 모임 글을 등록할 수 있어요.'
-    );
-  } else {
-    setCommunityStatus(
-      'communityAuthStatus',
-      '로그인하면 체류 날짜, 채팅, 모임 글을 등록할 수 있어요.'
-    );
-  }
-}
-
-
-async function refreshCommunityUser() {
-  const { data, error } = await communityClient.auth.getUser();
-  communityUser = error ? null : data.user;
-console.log('로그인 사용자 정보:', communityUser);
-console.log('메타데이터:', communityUser?.user_metadata);
-console.log('닉네임:', communityUser?.user_metadata?.nickname);
-  updateCommunityAuthUI();
-  await loadMyStays();
-  await loadChatMessages();
-  await loadMeetups();
-  await loadMyProfile();
-  await loadDirectInbox();
-  await loadDateStayUsers();
-}
-// 프로필 입력 영역 열기 / 닫기
-document.getElementById('profileToggleBtn')?.addEventListener('click', () => {
-  const wrap = document.getElementById('profileFormWrap');
-  if (wrap) {
-    wrap.style.display = wrap.style.display === 'none' ? 'block' : 'none';
-  }
-});
-
-let profileLocationMethod = 'manual';
-let profileLatitude = null;
-let profileLongitude = null;
-
-// GPS로 현재 위치 가져오기
-document.getElementById('profileGpsBtn')?.addEventListener('click', () => {
-  const status = document.getElementById('profileLocationStatus');
-
-  if (!navigator.geolocation) {
-    status.textContent = '이 브라우저에서는 GPS를 사용할 수 없어요.';
-    return;
-  }
-
-  status.textContent = '위치 정보를 가져오는 중...';
-
-  navigator.geolocation.getCurrentPosition(
-    (position) => {
-      profileLatitude = position.coords.latitude;
-      profileLongitude = position.coords.longitude;
-      profileLocationMethod = 'gps';
-
-      status.textContent = 'GPS 위치를 가져왔어요. 위치 공개 여부를 선택해 주세요.';
-    },
-    (error) => {
-      status.textContent =
-        error.code === 1
-          ? '위치 권한이 거부됐어요. 브라우저 설정을 확인하거나 지역명을 직접 입력해 주세요.'
-          : '위치를 가져오지 못했어요. 지역명을 직접 입력해 주세요.';
-    },
-    { enableHighAccuracy: false, timeout: 10000, maximumAge: 60000 }
-  );
-});
-
-
-
-let profileLocationMapInstance = null;
-let profileLocationMarker = null;
-
-// 프로필 설정 안에서 지도 열기
-document.getElementById('profileMapPickBtn')
-  ?.addEventListener('click', () => {
-    const mapContainer = document.getElementById('profileLocationMap');
-    const help = document.getElementById('profileMapHelp');
-    const status = document.getElementById('profileLocationStatus');
-
-    mapContainer.style.display = 'block';
-    help.style.display = 'block';
-
-    if (!profileLocationMapInstance) {
-      const initialLat = Number.isFinite(Number(profileLatitude))
-        && profileLatitude != null
-        ? Number(profileLatitude)
-        : 35.0116;
-
-      const initialLng = Number.isFinite(Number(profileLongitude))
-        && profileLongitude != null
-        ? Number(profileLongitude)
-        : 135.7681;
-
-      profileLocationMapInstance = L.map('profileLocationMap')
-        .setView([initialLat, initialLng], 15);
-
-      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-        maxZoom: 19,
-        attribution: '&copy; OpenStreetMap contributors'
-      }).addTo(profileLocationMapInstance);
-
-      profileLocationMapInstance.on('click', event => {
-        profileLatitude = event.latlng.lat;
-        profileLongitude = event.latlng.lng;
-        profileLocationMethod = 'map';
-
-        if (profileLocationMarker) {
-          profileLocationMarker.setLatLng(event.latlng);
-        } else {
-          profileLocationMarker = L.marker(event.latlng)
-            .addTo(profileLocationMapInstance);
-        }
-
-        const label = document.getElementById('profileLocationLabel');
-
-        if (!label.value.trim()) {
-          label.value = '지도에서 선택한 위치';
-        }
-
-        status.textContent =
-          '지도에서 위치를 선택했어요! 프로필 저장을 눌러 주세요.';
-      });
-    }
-
-    setTimeout(() => {
-      profileLocationMapInstance.invalidateSize();
-    }, 200);
-
-    status.textContent =
-      '지도에서 원하는 위치를 클릭해 주세요.';
-  });
-
-
-async function searchProfileLocation() {
-  const input = document.getElementById('profileLocationLabel');
-  const status = document.getElementById('profileLocationStatus');
-  const query = input.value.trim();
-
-  if (!query) {
-    status.textContent = '지역명을 먼저 입력해 주세요.';
-    return;
-  }
-
-  status.textContent = '지역을 검색하고 있어요...';
-
-  try {
-    const params = new URLSearchParams({
-      q: query + ', Kyoto, Japan',
-      format: 'jsonv2',
-      limit: '1',
-      'accept-language': 'ja'
-    });
-
-    const response = await fetch(
-      'https://nominatim.openstreetmap.org/search?' + params
-    );
-
-    if (!response.ok) throw new Error('검색 요청 실패');
-
-    const results = await response.json();
-
-    if (!results.length) {
-      status.textContent =
-        '장소를 찾지 못했어요. 다른 지역명으로 입력해 주세요.';
-      return;
-    }
-
-    const place = results[0];
-    const lat = Number(place.lat);
-    const lng = Number(place.lon);
-
-    if (!Number.isFinite(lat) || !Number.isFinite(lng)) {
-      throw new Error('올바르지 않은 좌표');
-    }
-
-    profileLatitude = lat;
-    profileLongitude = lng;
-    profileLocationMethod = 'manual';
-
-    const mapContainer = document.getElementById('profileLocationMap');
-    const help = document.getElementById('profileMapHelp');
-
-    mapContainer.style.display = 'block';
-    help.style.display = 'block';
-
-    if (!profileLocationMapInstance) {
-      profileLocationMapInstance = L.map('profileLocationMap')
-        .setView([lat, lng], 16);
-
-      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-        maxZoom: 19,
-        attribution: '&copy; OpenStreetMap contributors'
-      }).addTo(profileLocationMapInstance);
-
-      profileLocationMapInstance.on('click', event => {
-        profileLatitude = event.latlng.lat;
-        profileLongitude = event.latlng.lng;
-        profileLocationMethod = 'map';
-
-        if (profileLocationMarker) {
-          profileLocationMarker.setLatLng(event.latlng);
-        } else {
-          profileLocationMarker = L.marker(event.latlng)
-            .addTo(profileLocationMapInstance);
-        }
-
-        status.textContent =
-          '위치를 선택했어요! 프로필 저장을 눌러 주세요.';
-      });
-    } else {
-      profileLocationMapInstance.setView([lat, lng], 16);
-    }
-
-    if (profileLocationMarker) {
-      profileLocationMarker.setLatLng([lat, lng]);
-    } else {
-      profileLocationMarker = L.marker([lat, lng])
-        .addTo(profileLocationMapInstance);
-    }
-
-    setTimeout(() => {
-      profileLocationMapInstance.invalidateSize();
-    }, 200);
-
-    status.textContent =
-      '지역을 찾았어요! 지도에서 위치를 확인한 뒤 프로필을 저장해 주세요.';
-  } catch (error) {
-    console.error('프로필 지역 검색 실패:', error);
-    status.textContent =
-      '검색에 실패했어요. 잠시 후 다시 시도해 주세요.';
-  }
-}
-
-document.getElementById('profileLocationLabel')
-  ?.addEventListener('change', searchProfileLocation);
-
-// 프로필 불러오기
-async function loadMyProfile() {
-  const status = document.getElementById('profileStatus');
-
-  if (!communityUser) {
-    if (status) status.textContent = '프로필을 작성하려면 로그인해 주세요.';
-    return;
-  }
-
-  const { data, error } = await communityClient
-    .from('kyoto_profiles')
-    .select('*')
-    .eq('user_id', communityUser.id)
-    .maybeSingle();
-
-  if (error) {
-    if (status) status.textContent = '프로필을 불러오지 못했어요: ' + error.message;
-    return;
-  }
-
-  if (!data) {
-    document.getElementById('profileNickname').value =
-      communityUser.user_metadata?.nickname || '';
-    return;
-  }
-
-  document.getElementById('profileNickname').value = data.nickname || '';
-  document.getElementById('profileAge').value = data.age ?? '';
-  document.getElementById('profileGender').value = data.gender || '';
-  document.getElementById('profileMbti').value = data.mbti || '';
-  document.getElementById('profileDrinking').value = data.drinking_level || '';
-  document.getElementById('profileDrinks').value = data.favorite_drinks || '';
-  document.getElementById('profileStayStart').value = data.stay_start || '';
-  document.getElementById('profileStayEnd').value = data.stay_end || '';
-  document.getElementById('profileIsPublic').checked = data.is_public || false;
-
-  // 저장된 위치 정보 불러오기
-  document.getElementById('profileLocationLabel').value =
-    data.location_label || '';
-
-  document.getElementById('profileLocationPublic').checked =
-    data.is_location_public || false;
-
-  profileLocationMethod = data.location_method || 'manual';
-  profileLatitude = data.latitude ?? null;
-  profileLongitude = data.longitude ?? null;
-
-  const locationStatus = document.getElementById('profileLocationStatus');
-
-  if (locationStatus) {
-    if (data.location_label) {
-      locationStatus.textContent = '등록된 지역: ' + data.location_label;
-    } else if (data.latitude != null && data.longitude != null) {
-      locationStatus.textContent = 'GPS 위치가 저장되어 있어요.';
-    } else {
-      locationStatus.textContent = '아직 위치를 등록하지 않았어요.';
-    }
-  }
-}
-
-// 프로필 저장
-document.getElementById('profileSaveBtn')?.addEventListener('click', async () => {
-  const status = document.getElementById('profileStatus');
-
-  if (!communityUser) {
-    status.textContent = '먼저 로그인해 주세요.';
-    return;
-  }
-
-  const nickname = document.getElementById('profileNickname').value.trim();
-  const ageValue = document.getElementById('profileAge').value;
-  const age = ageValue ? Number(ageValue) : null;
-  const stayStart = document.getElementById('profileStayStart').value || null;
-  const stayEnd = document.getElementById('profileStayEnd').value || null;
-
-  if (!nickname) {
-    status.textContent = '닉네임을 입력해 주세요.';
-    return;
-  }
-
-  if (age !== null && (!Number.isInteger(age) || age < 18 || age > 120)) {
-    status.textContent = '나이는 만 18세 이상으로 입력해 주세요.';
-    return;
-  }
-
-  if (stayStart && stayEnd && stayEnd < stayStart) {
-    status.textContent = '체류 종료일은 시작일 이후로 선택해 주세요.';
-    return;
-  }
-
-  status.textContent = '저장 중...';
-
-  
-
-const profile = {
-  user_id: communityUser.id,
-  nickname,
-  age,
-  gender: document.getElementById('profileGender').value || null,
-  mbti: document.getElementById('profileMbti').value || null,
-  drinking_level: document.getElementById('profileDrinking').value || null,
-  favorite_drinks: document.getElementById('profileDrinks').value.trim(),
-  stay_start: stayStart,
-  stay_end: stayEnd,
-  is_public: document.getElementById('profileIsPublic').checked,
-  location_method: profileLocationMethod,
-  location_label: document.getElementById('profileLocationLabel').value.trim() || null,
-  latitude: profileLatitude,
-  longitude: profileLongitude,
-  is_location_public: document.getElementById('profileLocationPublic').checked,
-  updated_at: new Date().toISOString()
-};
-
-
-  const { error } = await communityClient
-    .from('kyoto_profiles')
-    .upsert(profile, { onConflict: 'user_id' });
-
-  if (error) {
-    status.textContent = '저장 실패: ' + error.message;
-    return;
-  }
-
-  const locationPublic =
-    document.getElementById('profileIsPublic').checked &&
-    document.getElementById('profileLocationPublic').checked;
-
-  
-if (locationPublic) {
-  if (
-    profileLatitude == null ||
-    profileLongitude == null ||
-    !Number.isFinite(Number(profileLatitude)) ||
-    !Number.isFinite(Number(profileLongitude))
-  ) {
-    status.textContent =
-      '프로필은 저장됐어요. 먼저 GPS를 가져오거나 지역 검색 또는 지도 선택으로 위치를 등록해 주세요.';
-    return;
-  }
-
-
-    const { error: locationError } = await communityClient
-      .from('kyoto_public_locations')
-      .upsert({
-        user_id: communityUser.id,
-        nickname,
-        latitude: Number(profileLatitude),
-        longitude: Number(profileLongitude),
-        updated_at: new Date().toISOString()
-      }, { onConflict: 'user_id' });
-
-    if (locationError) {
-      status.textContent =
-        '프로필은 저장됐지만 공개 위치 저장에 실패했어요: ' +
-        locationError.message;
-      return;
-    }
-  } else {
-    const { error: deleteError } = await communityClient
-      .from('kyoto_public_locations')
-      .delete()
-      .eq('user_id', communityUser.id);
-
-    if (deleteError) {
-      status.textContent =
-        '프로필은 저장됐지만 공개 위치 삭제에 실패했어요: ' +
-        deleteError.message;
-      return;
-    }
-  }
-
-  status.textContent = '프로필과 공개 위치 설정을 저장했어요!';
-});
-
-
-async function loadMyStays() {
-  myStayDates = new Set();
-
-  if (communityUser) {
-    const { data, error } = await communityClient
-      .from('kyoto_stays')
-      .select('stay_date')
-      .eq('user_id', communityUser.id);
-
-    if (error) {
-      setCommunityStatus('stayStatus', '체류 날짜를 불러오지 못했어요.');
-      console.error(error);
-    } else {
-      (data || []).forEach(row => myStayDates.add(row.stay_date));
-    }
-  }
-
-  await renderCalendar();
-}
-
-async function renderCalendar() {
-  const firstDay = new Date(calendarYear, calendarMonthIndex, 1);
-  const daysInMonth = new Date(
-    calendarYear, calendarMonthIndex + 1, 0
-  ).getDate();
-
-  document.getElementById('calendarMonth').textContent =
-    `${calendarYear}년 ${calendarMonthIndex + 1}월`;
-
-  document.getElementById('selectedDateLabel').textContent =
-    `선택한 날짜: ${selectedDate}`;
-
-  const monthStart = `${calendarYear}-${String(calendarMonthIndex + 1).padStart(2, '0')}-01`;
-  const monthEnd = `${calendarYear}-${String(calendarMonthIndex + 1).padStart(2, '0')}-${String(daysInMonth).padStart(2, '0')}`;
-
-  const { data, error } = await communityClient
-    .from('kyoto_stays')
-    .select('stay_date,user_id')
-    .gte('stay_date', monthStart)
-    .lte('stay_date', monthEnd);
-
-  const counts = {};
-  if (!error) {
-    (data || []).forEach(row => {
-      counts[row.stay_date] = (counts[row.stay_date] || 0) + 1;
-    });
-  }
-
-  const grid = document.getElementById('calendarGrid');
-  grid.replaceChildren();
-
-  for (let i = 0; i < firstDay.getDay(); i++) {
-    const blank = document.createElement('div');
-    grid.appendChild(blank);
-  }
-
-  for (let day = 1; day <= daysInMonth; day++) {
-    const date = `${calendarYear}-${String(calendarMonthIndex + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
-    const button = document.createElement('button');
-    button.type = 'button';
-    button.style.cssText =
-      'min-height:68px;padding:5px 1px;border:1px solid #ddd;border-radius:8px;background:white;overflow-wrap:anywhere;';
-
-    if (date === selectedDate) {
-      button.style.border = '2px solid #333';
-    }
-    if (pendingDates.has(date)) {
-      button.style.background = '#f2e8dc';
-    }
-    if (myStayDates.has(date)) {
-      button.style.boxShadow = 'inset 0 -4px #64816a';
-    }
-
-    button.innerHTML =
-      `<strong>${day}</strong><br><small>${counts[date] || 0}명</small>` +
-      (myStayDates.has(date) ? '<br><small>내 일정</small>' : '') +
-      (pendingDates.has(date) ? '<br><small>선택 중</small>' : '');
-
-    button.setAttribute(
-      'aria-label',
-      `${date}, 체류 ${counts[date] || 0}명`
-    );
-
-    button.addEventListener('click', async () => {
-      selectedDate = date;
-
-      if (pendingDates.has(date)) {
-        pendingDates.delete(date);
-      } else {
-        pendingDates.add(date);
-      }
-
-      document.getElementById('stayStart').value = date;
-      document.getElementById('stayEnd').value = date;
-      document.getElementById('meetupDate').value = date;
-
-      await renderCalendar();
-      await loadChatMessages();
-      await loadMeetups();
-      await loadDateStayUsers();
-    });
-
-    grid.appendChild(button);
-  }
-
-  document.getElementById('stayCountLabel').textContent = error
-    ? '체류 인원수를 불러오지 못했어요.'
-    : `${selectedDate} 교토 체류 등록 인원: ${counts[selectedDate] || 0}명`;
-}
-
-document.getElementById('prevMonthBtn').addEventListener('click', async () => {
-  calendarMonthIndex--;
-  if (calendarMonthIndex < 0) {
-    calendarMonthIndex = 11;
-    calendarYear--;
-  }
-  await renderCalendar();
-});
-
-document.getElementById('nextMonthBtn').addEventListener('click', async () => {
-  calendarMonthIndex++;
-  if (calendarMonthIndex > 11) {
-    calendarMonthIndex = 0;
-    calendarYear++;
-  }
-  await renderCalendar();
-});
-
-/* 달력 열기 / 닫기 */
-document.getElementById('calendarToggleBtn').addEventListener('click', async () => {
-  document.querySelector('.sidebar').style.display = 'none';
-  document.querySelector('.map-wrap').style.display = 'none';
-  document.getElementById('calendarPanel').style.display = 'block';
-
-  await refreshCommunityUser();
-  await loadChatMessages();
-  await loadMeetups();
-});
-
-document.getElementById('calendarBackBtn').addEventListener('click', () => {
-  document.getElementById('calendarPanel').style.display = 'none';
-  document.querySelector('.sidebar').style.display = '';
-  document.querySelector('.map-wrap').style.display = '';
-  if (window.map && typeof window.map.invalidateSize === 'function') {
-    window.map.invalidateSize();
-  }
-});
-
-/* 로그인·회원가입 화면 전환 */
-function openCommunityAuth(mode) {
-  const loggedIn = Boolean(communityUser);
-  if (loggedIn) return;
-
-  document.getElementById('communityAuthForm').style.display = 'block';
-  document.getElementById('communityAuthButtons').style.display = 'none';
-
-  const isSignup = mode === 'signup';
-
-  document.getElementById('communityAuthTitle').textContent =
-    isSignup ? '회원가입' : '로그인';
-
-  document.getElementById('communityNickname').style.display =
-    isSignup ? 'block' : 'none';
-
-  document.getElementById('communitySignupBtn').style.display =
-    isSignup ? 'inline-block' : 'none';
-
-  document.getElementById('communityLoginBtn').style.display =
-    isSignup ? 'none' : 'inline-block';
-
-  document.getElementById('communityPassword').autocomplete =
-    isSignup ? 'new-password' : 'current-password';
-}
-
-document.getElementById('showSignupBtn').addEventListener('click', () => {
-  openCommunityAuth('signup');
-});
-
-document.getElementById('showLoginBtn').addEventListener('click', () => {
-  openCommunityAuth('login');
-});
-
-document.getElementById('cancelCommunityAuthBtn').addEventListener('click', () => {
-  document.getElementById('communityAuthForm').style.display = 'none';
-  document.getElementById('communityAuthButtons').style.display = 'flex';
-});
-
-/* 회원가입 */
-document.getElementById('communitySignupBtn').addEventListener('click', async () => {
-  const email = document.getElementById('communityEmail').value.trim();
-  const password = document.getElementById('communityPassword').value;
-  const nickname = document.getElementById('communityNickname').value.trim();
-
-if (!nickname || !email || password.length < 6) {
-  setCommunityStatus(
-    'communityAuthStatus',
-    '닉네임, 이메일, 6자 이상의 비밀번호를 입력해 주세요.'
-  );
-  return;
-}
-
-
-const { data, error } = await communityClient.auth.signUp({
-  email,
-  password,
-  options: {
-    data: {
-      nickname: nickname
-    }
-  }
-});
-
-
-  if (error) {
-    setCommunityStatus('communityAuthStatus', '회원가입 실패: ' + error.message);
-    return;
-  }
-
-  if (data.session) {
-    await refreshCommunityUser();
-  } else {
-    setCommunityStatus(
-      'communityAuthStatus',
-      '가입 요청이 완료됐어요. 이메일 인증이 필요하다면 메일을 확인한 뒤 로그인해 주세요.'
-    );
-  }
-});
-
-/* 로그인 */
-document.getElementById('communityLoginBtn').addEventListener('click', async () => {
-  const email = document.getElementById('communityEmail').value.trim();
-  const password = document.getElementById('communityPassword').value;
-
-  if (!email || !password) {
-    setCommunityStatus('communityAuthStatus', '이메일과 비밀번호를 입력해 주세요.');
-    return;
-  }
-
-  const { error } = await communityClient.auth.signInWithPassword({
-    email,
-    password
-  });
-
-  if (error) {
-    setCommunityStatus('communityAuthStatus', '로그인 실패: ' + error.message);
-    return;
-  }
-
-  document.getElementById('communityPassword').value = '';
-  await refreshCommunityUser();
-});
-
-/* 로그아웃 */
-document.getElementById('communityLogoutBtn').addEventListener('click', async () => {
-  const { error } = await communityClient.auth.signOut();
-
-  if (error) {
-    setCommunityStatus('communityAuthStatus', '로그아웃 실패: ' + error.message);
-    return;
-  }
-
-  communityUser = null;
-  pendingDates.clear();
-  await refreshCommunityUser();
-});
-
-/* 체류 날짜 등록 */
-document.getElementById('saveStayBtn').addEventListener('click', async () => {
-  if (!communityUser) {
-    setCommunityStatus('stayStatus', '먼저 커뮤니티 회원가입 또는 로그인을 해 주세요.');
-    return;
-  }
-
-  const start = document.getElementById('stayStart').value;
-  const end = document.getElementById('stayEnd').value;
-  let dates = [];
-
-  if (start && end) {
-    if (start > end) {
-      setCommunityStatus('stayStatus', '종료일은 시작일보다 빠를 수 없어요.');
-      return;
-    }
-    dates = dateRange(start, end);
-  } else if (pendingDates.size) {
-    dates = [...pendingDates];
-  } else {
-    setCommunityStatus('stayStatus', '달력에서 날짜를 선택하거나 시작일과 종료일을 입력해 주세요.');
-    return;
-  }
-
-  if (dates.length > 366) {
-    setCommunityStatus('stayStatus', '한 번에 최대 366일까지 등록할 수 있어요.');
-    return;
-  }
-
-  let failed = 0;
-  for (const date of dates) {
-    if (myStayDates.has(date)) continue;
-
-    const { error } = await communityClient
-      .from('kyoto_stays')
-      .insert({ user_id: communityUser.id, stay_date: date });
-
-    // 이미 등록된 날짜는 건너뜀
-    if (error && error.code !== '23505') {
-      failed++;
-      console.error(error);
-    }
-  }
-
-  pendingDates.clear();
-  setCommunityStatus(
-    'stayStatus',
-    failed ? `일부 날짜를 등록하지 못했어요 (${failed}건).` : '체류 날짜를 등록했어요!'
-  );
-
-  await loadMyStays();
-});
-
-/* 선택 날짜 등록 취소 */
-document.getElementById('removeStayBtn').addEventListener('click', async () => {
-  if (!communityUser) {
-    setCommunityStatus('stayStatus', '먼저 로그인해 주세요.');
-    return;
-  }
-
-  const dates = pendingDates.size ? [...pendingDates] : [selectedDate];
-  let failed = 0;
-
-  for (const date of dates) {
-    const { error } = await communityClient
-      .from('kyoto_stays')
-      .delete()
-      .eq('user_id', communityUser.id)
-      .eq('stay_date', date);
-
-    if (error) {
-      failed++;
-      console.error(error);
-    }
-  }
-
-  pendingDates.clear();
-  setCommunityStatus(
-    'stayStatus',
-    failed ? '일부 날짜를 취소하지 못했어요.' : '선택한 날짜의 등록을 취소했어요.'
-  );
-  await loadMyStays();
-});
-
-/* 날짜별 채팅 */
-
-async function loadChatMessages() {
-  const heading = document.getElementById('chatHeading');
-  const box = document.getElementById('chatMessages');
-
-  heading.textContent = `💬 ${selectedDate} 교토 채팅`;
-  box.replaceChildren();
-
-  const { data, error } = await communityClient
-    .from('kyoto_chat_messages')
-    .select('id,user_id,nickname,message,created_at')
-    .eq('stay_date', selectedDate)
-    .order('created_at', { ascending: true })
-    .limit(100);
-
-  if (error) {
-    box.textContent = '채팅을 불러오지 못했어요.';
-    console.error(error);
-    return;
-  }
-
-  if (!data || !data.length) {
-    box.textContent = '아직 메시지가 없어요. 첫 메시지를 남겨 보세요!';
-    return;
-  }
-
-  const myNickname =
-    communityUser?.user_metadata?.nickname ||
-    communityUser?.email?.split('@')[0] ||
-    '사용자';
-
-  data.forEach(row => {
-    const item = document.createElement('div');
-    item.style.cssText =
-      'padding:8px 0;border-bottom:1px solid #eee;overflow-wrap:anywhere;';
-
-    const time = new Date(row.created_at).toLocaleTimeString('ko-KR', {
-      hour: '2-digit',
-      minute: '2-digit'
-    });
-
-    const nickname =
-      row.nickname ||
-      (row.user_id === communityUser?.id ? myNickname : '참여자');
-
-  
-const displayName =
-  row.user_id === communityUser?.id
-    ? '나 (' + (row.nickname || '사용자') + ')'
-    : (row.nickname || '사용자');
-
-item.innerHTML =
-  `<small>${communityEscape(displayName)} · ${time}</small>` +
-  `<div>${communityEscape(row.message)}</div>`;
-
-
-    box.appendChild(item);
-  });
-
-  box.scrollTop = box.scrollHeight;
-}
-
-
-document.getElementById('sendChatBtn').addEventListener('click', async () => {
-  if (!communityUser) {
-    setCommunityStatus('chatStatus', '메시지를 보내려면 로그인해 주세요.');
-    return;
-  }
-
-  const input = document.getElementById('chatInput');
-  const message = input.value.trim();
-
-  if (!message) {
-    setCommunityStatus('chatStatus', '메시지를 입력해 주세요.');
-    return;
   }
 
  
-const { data: userData, error: userError } =
-  await communityClient.auth.getUser();
 
-if (userError || !userData.user) {
-  setCommunityStatus('chatStatus', '로그인 정보를 확인할 수 없어요. 다시 로그인해 주세요.');
-  return;
-}
+  status.textContent = '장소를 검색하고 있어요...';
 
-const currentUser = userData.user;
+  searchBtn.disabled = true;
 
-const nickname =
-  currentUser.user_metadata?.nickname ||
-  currentUser.email?.split('@')[0] ||
-  '사용자';
+ 
 
-console.log('메시지에 저장할 닉네임:', nickname);
-  
-const { error } = await communityClient
-  .from('kyoto_chat_messages')
-  .insert({
-    user_id: currentUser.id,
-    stay_date: selectedDate,
-    message,
-    nickname
-  });
+  try {
 
+    const params = new URLSearchParams({
 
-  if (error) {
-    setCommunityStatus('chatStatus', '메시지 전송 실패: ' + error.message);
-    console.error(error);
-    return;
-  }
+      q: query.trim(),
 
-  input.value = '';
-  setCommunityStatus('chatStatus', '메시지를 보냈어요.');
-  await loadChatMessages();
-});
+      format: 'jsonv2',
 
-/* 오늘 술친구 할까요 게시판 */
-async function loadMeetups() {
-  const list = document.getElementById('meetupList');
-  list.replaceChildren();
+      limit: '1',
 
-  const { data, error } = await communityClient
-    .from('kyoto_meetups')
-    .select('id,user_id,meetup_date,title,description,area,created_at')
-    .eq('meetup_date', selectedDate)
-    .order('created_at', { ascending: false })
-    .limit(100);
+      'accept-language': 'ja,en,ko'
 
-  if (error) {
-    list.textContent = '모임 글을 불러오지 못했어요.';
-    console.error(error);
-    return;
-  }
-
-  if (!data || !data.length) {
-    list.textContent = `${selectedDate}에 등록된 모임이 아직 없어요.`;
-    return;
-  }
-
-  data.forEach(row => {
-    const card = document.createElement('div');
-    card.style.cssText = 'border:1px solid #eee;border-radius:10px;padding:12px;margin:10px 0;overflow-wrap:anywhere;';
-
-    card.innerHTML =
-      `<h4>${communityEscape(row.title)}</h4>` +
-      `<p>${communityEscape(row.description)}</p>` +
-      `<small>${communityEscape(row.meetup_date)} · ${communityEscape(row.area)}</small>`;
-
-    if (communityUser && row.user_id === communityUser.id) {
-      const deleteButton = document.createElement('button');
-      deleteButton.type = 'button';
-      deleteButton.textContent = '내 글 삭제';
-      deleteButton.style.marginTop = '10px';
-
-      deleteButton.addEventListener('click', async () => {
-        if (!confirm('이 모임 글을 삭제할까요?')) return;
-
-        const { error: deleteError } = await communityClient
-          .from('kyoto_meetups')
-          .delete()
-          .eq('id', row.id)
-          .eq('user_id', communityUser.id);
-
-        if (deleteError) {
-          setCommunityStatus('meetupStatus', '삭제하지 못했어요.');
-          console.error(deleteError);
-        } else {
-          setCommunityStatus('meetupStatus', '모임 글을 삭제했어요.');
-          await loadMeetups();
-        }
-      });
-
-      card.appendChild(deleteButton);
-    }
-
-    list.appendChild(card);
-  });
-}
-
-document.getElementById('createMeetupBtn').addEventListener('click', async () => {
-  if (!communityUser) {
-    setCommunityStatus('meetupStatus', '모임 글을 작성하려면 로그인해 주세요.');
-    return;
-  }
-
-  const title = document.getElementById('meetupTitle').value.trim();
-  const meetupDate = document.getElementById('meetupDate').value || selectedDate;
-  const area = document.getElementById('meetupArea').value.trim() || '교토';
-  const description = document.getElementById('meetupDescription').value.trim();
-
-  if (!title) {
-    setCommunityStatus('meetupStatus', '모임 제목을 입력해 주세요.');
-    return;
-  }
-
-  const { error } = await communityClient
-    .from('kyoto_meetups')
-    .insert({
-      user_id: communityUser.id,
-      meetup_date: meetupDate,
-      title,
-      area,
-      description
     });
 
-  if (error) {
-    setCommunityStatus('meetupStatus', '글 등록 실패: ' + error.message);
-    console.error(error);
-    return;
+ 
+
+    const response = await fetch(
+
+      'https://nominatim.openstreetmap.org/search?' + params
+
+    );
+
+ 
+
+    if (!response.ok) throw new Error('검색 요청 실패');
+
+ 
+
+    const results = await response.json();
+
+ 
+
+    if (!results.length) {
+
+      status.textContent = '장소를 찾지 못했어요. 다른 이름으로 검색해 주세요.';
+
+      return;
+
+    }
+
+ 
+
+    const place = results[0];
+
+    const lat = Number(place.lat);
+
+    const lng = Number(place.lon);
+
+currentSearchLocation = {
+
+  lat: lat,
+
+  lng: lng,
+
+  label: query.trim()
+
+};
+
+    map.setView([lat, lng], 16);
+
+ 
+
+    if (userLocationMarker) {
+
+      map.removeLayer(userLocationMarker);
+
+    }
+
+ 
+
+    userLocationMarker = L.marker([lat, lng])
+
+      .addTo(map)
+
+      .bindPopup('📍 ' + esc(query.trim()))
+
+      .openPopup();
+
+ 
+
+    status.textContent = '장소를 찾았어요! 지도에서 위치를 확인해 주세요.';
+
+   renderList();
+
+  } catch (error) {
+
+    console.error('장소 검색 실패:', error);
+
+    status.textContent = '검색에 실패했어요. 잠시 후 다시 시도해 주세요.';
+
+  } finally {
+
+    searchBtn.disabled = false;
+
   }
 
-  selectedDate = meetupDate;
-  document.getElementById('meetupTitle').value = '';
-  document.getElementById('meetupArea').value = '';
-  document.getElementById('meetupDescription').value = '';
+}
 
-  const parsed = new Date(meetupDate + 'T12:00:00');
-  calendarYear = parsed.getFullYear();
-  calendarMonthIndex = parsed.getMonth();
+ 
 
-  setCommunityStatus('meetupStatus', '모임 글을 올렸어요!');
-  await renderCalendar();
-  await loadMeetups();
-  await loadChatMessages();
+document.getElementById('locationSearchBtn').addEventListener('click', () => {
+
+  findLocation(document.getElementById('locationSearch').value);
+
 });
 
-  
-/* 개인 메시지 기능 */
-let activeDirectConversationId = null;
-let activeDirectOtherUserId = null;
+ 
 
-function setDirectStatus(message) {
-  const el = document.getElementById('directChatStatus');
-  if (el) el.textContent = message || '';
-}
+document.getElementById('locationSearch').addEventListener('keydown', event => {
 
-async function openDirectConversation(otherUserId, otherName) {
-  if (!communityUser) {
-    setDirectStatus('개인 메시지를 보내려면 먼저 로그인해 주세요.');
-    return;
-  }
-  if (!otherUserId || otherUserId === communityUser.id) {
-    setDirectStatus('자기 자신에게는 메시지를 보낼 수 없어요.');
-    return;
+  if (event.key === 'Enter') {
+
+    event.preventDefault();
+
+    findLocation(document.getElementById('locationSearch').value);
+
   }
 
-  setDirectStatus('대화를 여는 중...');
+});
 
-  const { data: existing, error: findError } = await communityClient
-    .from('kyoto_direct_conversations')
-    .select('*')
-    .or(`participant_a.eq.${communityUser.id},participant_b.eq.${communityUser.id}`);
+ 
 
-  if (findError) {
-    setDirectStatus('대화 목록을 불러오지 못했어요: ' + findError.message);
+document.getElementById('currentLocationBtn').addEventListener('click', () => {
+
+  const status = document.getElementById('locationSearchStatus');
+
+ 
+
+  if (!navigator.geolocation) {
+
+    status.textContent = '이 브라우저에서는 위치 기능을 사용할 수 없어요.';
+
     return;
+
   }
 
-  let conversation = (existing || []).find(c =>
-    (c.participant_a === communityUser.id && c.participant_b === otherUserId) ||
-    (c.participant_a === otherUserId && c.participant_b === communityUser.id)
+ 
+
+  status.textContent = '현재 위치를 확인하고 있어요...';
+
+ 
+
+  navigator.geolocation.getCurrentPosition(
+
+    position => {
+
+      const lat = position.coords.latitude;
+
+      const lng = position.coords.longitude;
+
+currentSearchLocation = {
+
+  lat: lat,
+
+  lng: lng,
+
+  label: '내 현재 위치'
+
+};
+
+      map.setView([lat, lng], 16);
+
+ 
+
+      if (userLocationMarker) {
+
+        map.removeLayer(userLocationMarker);
+
+      }
+
+ 
+
+      userLocationMarker = L.marker([lat, lng])
+
+        .addTo(map)
+
+        .bindPopup('📍 내 현재 위치')
+
+        .openPopup();
+
+ 
+
+      status.textContent = '현재 위치를 찾았어요!';
+
+     renderList();
+
+    },
+
+    error => {
+
+      status.textContent =
+
+        error.code === 1
+
+          ? '위치 권한을 허용해 주세요.'
+
+          : '위치를 확인하지 못했어요. GPS 설정을 확인해 주세요.';
+
+    },
+
+    { enableHighAccuracy: true, timeout: 10000 }
+
   );
 
-  if (!conversation) {
-    const { data, error } = await communityClient
-      .from('kyoto_direct_conversations')
-      .insert({ participant_a: communityUser.id, participant_b: otherUserId })
-      .select()
-      .single();
+});
 
-    if (error) {
-      setDirectStatus('새 대화를 만들지 못했어요: ' + error.message);
-      return;
+ 
+
+/* ===== Kyoto Community =====
+
+   기존 관리자 로그인과 분리된 커뮤니티 세션
+
+*/
+
+const communityClient = window.supabase.createClient(
+
+  window.SUPABASE_URL,
+
+  window.SUPABASE_PUBLISHABLE_KEY,
+
+  {
+
+    auth: {
+
+      storageKey: 'kyoto-community-auth',
+
+      autoRefreshToken: true,
+
+      persistSession: true,
+
+      detectSessionInUrl: false
+
     }
-    conversation = data;
+
   }
 
-  activeDirectConversationId = conversation.id;
-  activeDirectOtherUserId = otherUserId;
+);
 
-  document.getElementById('directThread').style.display = 'block';
-  document.getElementById('directThreadTitle').textContent =
-    `💌 ${otherName || '사용자'}님과의 대화`;
+ 
 
-  await loadDirectMessages();
-  setDirectStatus('대화를 열었어요.');
+const calendarToday = new Date();
+
+let calendarYear = calendarToday.getFullYear();
+
+let calendarMonthIndex = calendarToday.getMonth();
+
+let selectedDate = localDateString(calendarToday);
+
+let pendingDates = new Set();
+
+let myStayDates = new Set();
+
+let communityUser = null;
+
+ 
+
+function localDateString(date) {
+
+  const y = date.getFullYear();
+
+  const m = String(date.getMonth() + 1).padStart(2, '0');
+
+  const d = String(date.getDate()).padStart(2, '0');
+
+  return `${y}-${m}-${d}`;
+
 }
 
-async function loadDirectMessages() {
-  if (!activeDirectConversationId) return;
+ 
 
-  const box = document.getElementById('directMessages');
+function dateRange(start, end) {
+
+  const dates = [];
+
+  const current = new Date(start + 'T12:00:00');
+
+  const last = new Date(end + 'T12:00:00');
+
+ 
+
+  while (current <= last && dates.length < 366) {
+
+    dates.push(localDateString(current));
+
+    current.setDate(current.getDate() + 1);
+
+  }
+
+  return dates;
+
+}
+
+ 
+
+function communityEscape(value = '') {
+
+  return String(value).replace(/[&<>"']/g, char => ({
+
+    '&': '&amp;',
+
+    '<': '&lt;',
+
+    '>': '&gt;',
+
+    '"': '&quot;',
+
+    "'": '&#39;'
+
+  }[char]));
+
+}
+
+ 
+
+function setCommunityStatus(id, message) {
+
+  document.getElementById(id).textContent = message;
+
+}
+
+ 
+
+ 
+
+ 
+
+function updateCommunityAuthUI() {
+
+  const loggedIn = Boolean(communityUser);
+
+ 
+
+  document.getElementById('communityAuthButtons').style.display =
+
+    loggedIn ? 'none' : 'flex';
+
+ 
+
+  document.getElementById('communityAuthForm').style.display = 'none';
+
+  document.getElementById('communityLoggedIn').style.display =
+
+    loggedIn ? 'block' : 'none';
+
+ 
+
+  if (loggedIn) {
+
+    const nickname =
+
+      communityUser.user_metadata?.nickname ||
+
+      communityUser.email?.split('@')[0] ||
+
+      '사용자';
+
+ 
+
+    document.getElementById('communityNicknameLabel').textContent =
+
+      `👤 ${nickname}님`;
+
+ 
+
+    setCommunityStatus(
+
+      'communityAuthStatus',
+
+      '로그인했어요. 체류 날짜와 채팅, 모임 글을 등록할 수 있어요.'
+
+    );
+
+  } else {
+
+    setCommunityStatus(
+
+      'communityAuthStatus',
+
+      '로그인하면 체류 날짜, 채팅, 모임 글을 등록할 수 있어요.'
+
+    );
+
+  }
+
+}
+
+ 
+
+ 
+
+async function refreshCommunityUser() {
+
+  const { data, error } = await communityClient.auth.getUser();
+
+  communityUser = error ? null : data.user;
+
+console.log('로그인 사용자 정보:', communityUser);
+
+console.log('메타데이터:', communityUser?.user_metadata);
+
+console.log('닉네임:', communityUser?.user_metadata?.nickname);
+
+  updateCommunityAuthUI();
+
+  await loadMyStays();
+
+  await loadChatMessages();
+
+  await loadMeetups();
+
+  await loadMyProfile();
+
+  await loadDirectInbox();
+
+  await loadDateStayUsers();
+
+}
+
+// 프로필 입력 영역 열기 / 닫기
+
+document.getElementById('profileToggleBtn')?.addEventListener('click', () => {
+
+  const wrap = document.getElementById('profileFormWrap');
+
+  if (wrap) {
+
+    wrap.style.display = wrap.style.display === 'none' ? 'block' : 'none';
+
+  }
+
+});
+
+ 
+
+let profileLocationMethod = 'manual';
+
+let profileLatitude = null;
+
+let profileLongitude = null;
+
+ 
+
+// GPS로 현재 위치 가져오기
+
+document.getElementById('profileGpsBtn')?.addEventListener('click', () => {
+
+  const status = document.getElementById('profileLocationStatus');
+
+ 
+
+  if (!navigator.geolocation) {
+
+    status.textContent = '이 브라우저에서는 GPS를 사용할 수 없어요.';
+
+    return;
+
+  }
+
+ 
+
+  status.textContent = '위치 정보를 가져오는 중...';
+
+ 
+
+  navigator.geolocation.getCurrentPosition(
+
+    (position) => {
+
+      profileLatitude = position.coords.latitude;
+
+      profileLongitude = position.coords.longitude;
+
+      profileLocationMethod = 'gps';
+
+ 
+
+      status.textContent = 'GPS 위치를 가져왔어요. 위치 공개 여부를 선택해 주세요.';
+
+    },
+
+    (error) => {
+
+      status.textContent =
+
+        error.code === 1
+
+          ? '위치 권한이 거부됐어요. 브라우저 설정을 확인하거나 지역명을 직접 입력해 주세요.'
+
+          : '위치를 가져오지 못했어요. 지역명을 직접 입력해 주세요.';
+
+    },
+
+    { enableHighAccuracy: false, timeout: 10000, maximumAge: 60000 }
+
+  );
+
+});
+
+ 
+
+ 
+
+ 
+
+let profileLocationMapInstance = null;
+
+let profileLocationMarker = null;
+
+ 
+
+// 프로필 설정 안에서 지도 열기
+
+document.getElementById('profileMapPickBtn')
+
+  ?.addEventListener('click', () => {
+
+    const mapContainer = document.getElementById('profileLocationMap');
+
+    const help = document.getElementById('profileMapHelp');
+
+    const status = document.getElementById('profileLocationStatus');
+
+ 
+
+    mapContainer.style.display = 'block';
+
+    help.style.display = 'block';
+
+ 
+
+    if (!profileLocationMapInstance) {
+
+      const initialLat = Number.isFinite(Number(profileLatitude))
+
+        && profileLatitude != null
+
+        ? Number(profileLatitude)
+
+        : 35.0116;
+
+ 
+
+      const initialLng = Number.isFinite(Number(profileLongitude))
+
+        && profileLongitude != null
+
+        ? Number(profileLongitude)
+
+        : 135.7681;
+
+ 
+
+      profileLocationMapInstance = L.map('profileLocationMap')
+
+        .setView([initialLat, initialLng], 15);
+
+ 
+
+      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+
+        maxZoom: 19,
+
+        attribution: '&copy; OpenStreetMap contributors'
+
+      }).addTo(profileLocationMapInstance);
+
+ 
+
+      profileLocationMapInstance.on('click', event => {
+
+        profileLatitude = event.latlng.lat;
+
+        profileLongitude = event.latlng.lng;
+
+        profileLocationMethod = 'map';
+
+ 
+
+        if (profileLocationMarker) {
+
+          profileLocationMarker.setLatLng(event.latlng);
+
+        } else {
+
+          profileLocationMarker = L.marker(event.latlng)
+
+            .addTo(profileLocationMapInstance);
+
+        }
+
+ 
+
+        const label = document.getElementById('profileLocationLabel');
+
+ 
+
+        if (!label.value.trim()) {
+
+          label.value = '지도에서 선택한 위치';
+
+        }
+
+ 
+
+        status.textContent =
+
+          '지도에서 위치를 선택했어요! 프로필 저장을 눌러 주세요.';
+
+      });
+
+    }
+
+ 
+
+    setTimeout(() => {
+
+      profileLocationMapInstance.invalidateSize();
+
+    }, 200);
+
+ 
+
+    status.textContent =
+
+      '지도에서 원하는 위치를 클릭해 주세요.';
+
+  });
+
+ 
+
+ 
+
+async function searchProfileLocation() {
+
+  const input = document.getElementById('profileLocationLabel');
+
+  const status = document.getElementById('profileLocationStatus');
+
+  const query = input.value.trim();
+
+ 
+
+  if (!query) {
+
+    status.textContent = '지역명을 먼저 입력해 주세요.';
+
+    return;
+
+  }
+
+ 
+
+  status.textContent = '지역을 검색하고 있어요...';
+
+ 
+
+  try {
+
+    const params = new URLSearchParams({
+
+      q: query + ', Kyoto, Japan',
+
+      format: 'jsonv2',
+
+      limit: '1',
+
+      'accept-language': 'ja'
+
+    });
+
+ 
+
+    const response = await fetch(
+
+      'https://nominatim.openstreetmap.org/search?' + params
+
+    );
+
+ 
+
+    if (!response.ok) throw new Error('검색 요청 실패');
+
+ 
+
+    const results = await response.json();
+
+ 
+
+    if (!results.length) {
+
+      status.textContent =
+
+        '장소를 찾지 못했어요. 다른 지역명으로 입력해 주세요.';
+
+      return;
+
+    }
+
+ 
+
+    const place = results[0];
+
+    const lat = Number(place.lat);
+
+    const lng = Number(place.lon);
+
+ 
+
+    if (!Number.isFinite(lat) || !Number.isFinite(lng)) {
+
+      throw new Error('올바르지 않은 좌표');
+
+    }
+
+ 
+
+    profileLatitude = lat;
+
+    profileLongitude = lng;
+
+    profileLocationMethod = 'manual';
+
+ 
+
+    const mapContainer = document.getElementById('profileLocationMap');
+
+    const help = document.getElementById('profileMapHelp');
+
+ 
+
+    mapContainer.style.display = 'block';
+
+    help.style.display = 'block';
+
+ 
+
+    if (!profileLocationMapInstance) {
+
+      profileLocationMapInstance = L.map('profileLocationMap')
+
+        .setView([lat, lng], 16);
+
+ 
+
+      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+
+        maxZoom: 19,
+
+        attribution: '&copy; OpenStreetMap contributors'
+
+      }).addTo(profileLocationMapInstance);
+
+ 
+
+      profileLocationMapInstance.on('click', event => {
+
+        profileLatitude = event.latlng.lat;
+
+        profileLongitude = event.latlng.lng;
+
+        profileLocationMethod = 'map';
+
+ 
+
+        if (profileLocationMarker) {
+
+          profileLocationMarker.setLatLng(event.latlng);
+
+        } else {
+
+          profileLocationMarker = L.marker(event.latlng)
+
+            .addTo(profileLocationMapInstance);
+
+        }
+
+ 
+
+        status.textContent =
+
+          '위치를 선택했어요! 프로필 저장을 눌러 주세요.';
+
+      });
+
+    } else {
+
+      profileLocationMapInstance.setView([lat, lng], 16);
+
+    }
+
+ 
+
+    if (profileLocationMarker) {
+
+      profileLocationMarker.setLatLng([lat, lng]);
+
+    } else {
+
+      profileLocationMarker = L.marker([lat, lng])
+
+        .addTo(profileLocationMapInstance);
+
+    }
+
+ 
+
+    setTimeout(() => {
+
+      profileLocationMapInstance.invalidateSize();
+
+    }, 200);
+
+ 
+
+    status.textContent =
+
+      '지역을 찾았어요! 지도에서 위치를 확인한 뒤 프로필을 저장해 주세요.';
+
+  } catch (error) {
+
+    console.error('프로필 지역 검색 실패:', error);
+
+    status.textContent =
+
+      '검색에 실패했어요. 잠시 후 다시 시도해 주세요.';
+
+  }
+
+}
+
+ 
+
+document.getElementById('profileLocationLabel')
+
+  ?.addEventListener('change', searchProfileLocation);
+
+ 
+
+// 프로필 불러오기
+
+async function loadMyProfile() {
+
+  const status = document.getElementById('profileStatus');
+
+ 
+
+  if (!communityUser) {
+
+    if (status) status.textContent = '프로필을 작성하려면 로그인해 주세요.';
+
+    return;
+
+  }
+
+ 
+
   const { data, error } = await communityClient
-    .from('kyoto_direct_messages')
+
+    .from('kyoto_profiles')
+
     .select('*')
-    .eq('conversation_id', activeDirectConversationId)
-    .order('created_at', { ascending: true });
+
+    .eq('user_id', communityUser.id)
+
+    .maybeSingle();
+
+ 
 
   if (error) {
-    setDirectStatus('메시지를 불러오지 못했어요: ' + error.message);
+
+    if (status) status.textContent = '프로필을 불러오지 못했어요: ' + error.message;
+
     return;
+
   }
+
+ 
+
+  if (!data) {
+
+    document.getElementById('profileNickname').value =
+
+      communityUser.user_metadata?.nickname || '';
+
+    return;
+
+  }
+
+ 
+
+  document.getElementById('profileNickname').value = data.nickname || '';
+
+  document.getElementById('profileAge').value = data.age ?? '';
+
+  document.getElementById('profileGender').value = data.gender || '';
+
+  document.getElementById('profileMbti').value = data.mbti || '';
+
+  document.getElementById('profileDrinking').value = data.drinking_level || '';
+
+  document.getElementById('profileDrinks').value = data.favorite_drinks || '';
+
+  document.getElementById('profileStayStart').value = data.stay_start || '';
+
+  document.getElementById('profileStayEnd').value = data.stay_end || '';
+
+  document.getElementById('profileIsPublic').checked = data.is_public || false;
+
+ 
+
+  // 저장된 위치 정보 불러오기
+
+  document.getElementById('profileLocationLabel').value =
+
+    data.location_label || '';
+
+ 
+
+  document.getElementById('profileLocationPublic').checked =
+
+    data.is_location_public || false;
+
+ 
+
+  profileLocationMethod = data.location_method || 'manual';
+
+  profileLatitude = data.latitude ?? null;
+
+  profileLongitude = data.longitude ?? null;
+
+ 
+
+  const locationStatus = document.getElementById('profileLocationStatus');
+
+ 
+
+  if (locationStatus) {
+
+    if (data.location_label) {
+
+      locationStatus.textContent = '등록된 지역: ' + data.location_label;
+
+    } else if (data.latitude != null && data.longitude != null) {
+
+      locationStatus.textContent = 'GPS 위치가 저장되어 있어요.';
+
+    } else {
+
+      locationStatus.textContent = '아직 위치를 등록하지 않았어요.';
+
+    }
+
+  }
+
+}
+
+ 
+
+// 프로필 저장
+
+document.getElementById('profileSaveBtn')?.addEventListener('click', async () => {
+
+  const status = document.getElementById('profileStatus');
+
+ 
+
+  if (!communityUser) {
+
+    status.textContent = '먼저 로그인해 주세요.';
+
+    return;
+
+  }
+
+ 
+
+  const nickname = document.getElementById('profileNickname').value.trim();
+
+  const ageValue = document.getElementById('profileAge').value;
+
+  const age = ageValue ? Number(ageValue) : null;
+
+  const stayStart = document.getElementById('profileStayStart').value || null;
+
+  const stayEnd = document.getElementById('profileStayEnd').value || null;
+
+ 
+
+  if (!nickname) {
+
+    status.textContent = '닉네임을 입력해 주세요.';
+
+    return;
+
+  }
+
+ 
+
+  if (age !== null && (!Number.isInteger(age) || age < 18 || age > 120)) {
+
+    status.textContent = '나이는 만 18세 이상으로 입력해 주세요.';
+
+    return;
+
+  }
+
+ 
+
+  if (stayStart && stayEnd && stayEnd < stayStart) {
+
+    status.textContent = '체류 종료일은 시작일 이후로 선택해 주세요.';
+
+    return;
+
+  }
+
+ 
+
+  status.textContent = '저장 중...';
+
+ 
+
+  
+
+ 
+
+const profile = {
+
+  user_id: communityUser.id,
+
+  nickname,
+
+  age,
+
+  gender: document.getElementById('profileGender').value || null,
+
+  mbti: document.getElementById('profileMbti').value || null,
+
+  drinking_level: document.getElementById('profileDrinking').value || null,
+
+  favorite_drinks: document.getElementById('profileDrinks').value.trim(),
+
+  stay_start: stayStart,
+
+  stay_end: stayEnd,
+
+  is_public: document.getElementById('profileIsPublic').checked,
+
+  location_method: profileLocationMethod,
+
+  location_label: document.getElementById('profileLocationLabel').value.trim() || null,
+
+  latitude: profileLatitude,
+
+  longitude: profileLongitude,
+
+  is_location_public: document.getElementById('profileLocationPublic').checked,
+
+  updated_at: new Date().toISOString()
+
+};
+
+ 
+
+ 
+
+  const { error } = await communityClient
+
+    .from('kyoto_profiles')
+
+    .upsert(profile, { onConflict: 'user_id' });
+
+ 
+
+  if (error) {
+
+    status.textContent = '저장 실패: ' + error.message;
+
+    return;
+
+  }
+
+ 
+
+  const locationPublic =
+
+    document.getElementById('profileIsPublic').checked &&
+
+    document.getElementById('profileLocationPublic').checked;
+
+ 
+
+  
+
+if (locationPublic) {
+
+  if (
+
+    profileLatitude == null ||
+
+    profileLongitude == null ||
+
+    !Number.isFinite(Number(profileLatitude)) ||
+
+    !Number.isFinite(Number(profileLongitude))
+
+  ) {
+
+    status.textContent =
+
+      '프로필은 저장됐어요. 먼저 GPS를 가져오거나 지역 검색 또는 지도 선택으로 위치를 등록해 주세요.';
+
+    return;
+
+  }
+
+ 
+
+ 
+
+    const { error: locationError } = await communityClient
+
+      .from('kyoto_public_locations')
+
+      .upsert({
+
+        user_id: communityUser.id,
+
+        nickname,
+
+        latitude: Number(profileLatitude),
+
+        longitude: Number(profileLongitude),
+
+        updated_at: new Date().toISOString()
+
+      }, { onConflict: 'user_id' });
+
+ 
+
+    if (locationError) {
+
+      status.textContent =
+
+        '프로필은 저장됐지만 공개 위치 저장에 실패했어요: ' +
+
+        locationError.message;
+
+      return;
+
+    }
+
+  } else {
+
+    const { error: deleteError } = await communityClient
+
+      .from('kyoto_public_locations')
+
+      .delete()
+
+      .eq('user_id', communityUser.id);
+
+ 
+
+    if (deleteError) {
+
+      status.textContent =
+
+        '프로필은 저장됐지만 공개 위치 삭제에 실패했어요: ' +
+
+        deleteError.message;
+
+      return;
+
+    }
+
+  }
+
+ 
+
+  status.textContent = '프로필과 공개 위치 설정을 저장했어요!';
+
+});
+
+ 
+
+ 
+
+async function loadMyStays() {
+
+  myStayDates = new Set();
+
+ 
+
+  if (communityUser) {
+
+    const { data, error } = await communityClient
+
+      .from('kyoto_stays')
+
+      .select('stay_date')
+
+      .eq('user_id', communityUser.id);
+
+ 
+
+    if (error) {
+
+      setCommunityStatus('stayStatus', '체류 날짜를 불러오지 못했어요.');
+
+      console.error(error);
+
+    } else {
+
+      (data || []).forEach(row => myStayDates.add(row.stay_date));
+
+    }
+
+  }
+
+ 
+
+  await renderCalendar();
+
+}
+
+ 
+
+async function renderCalendar() {
+
+  const firstDay = new Date(calendarYear, calendarMonthIndex, 1);
+
+  const daysInMonth = new Date(
+
+    calendarYear, calendarMonthIndex + 1, 0
+
+  ).getDate();
+
+ 
+
+  document.getElementById('calendarMonth').textContent =
+
+    `${calendarYear}년 ${calendarMonthIndex + 1}월`;
+
+ 
+
+  document.getElementById('selectedDateLabel').textContent =
+
+    `선택한 날짜: ${selectedDate}`;
+
+ 
+
+  const monthStart = `${calendarYear}-${String(calendarMonthIndex + 1).padStart(2, '0')}-01`;
+
+  const monthEnd = `${calendarYear}-${String(calendarMonthIndex + 1).padStart(2, '0')}-${String(daysInMonth).padStart(2, '0')}`;
+
+ 
+
+  const { data, error } = await communityClient
+
+    .from('kyoto_stays')
+
+    .select('stay_date,user_id')
+
+    .gte('stay_date', monthStart)
+
+    .lte('stay_date', monthEnd);
+
+ 
+
+  const counts = {};
+
+  if (!error) {
+
+    (data || []).forEach(row => {
+
+      counts[row.stay_date] = (counts[row.stay_date] || 0) + 1;
+
+    });
+
+  }
+
+ 
+
+  const grid = document.getElementById('calendarGrid');
+
+  grid.replaceChildren();
+
+ 
+
+  for (let i = 0; i < firstDay.getDay(); i++) {
+
+    const blank = document.createElement('div');
+
+    grid.appendChild(blank);
+
+  }
+
+ 
+
+  for (let day = 1; day <= daysInMonth; day++) {
+
+    const date = `${calendarYear}-${String(calendarMonthIndex + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+
+    const button = document.createElement('button');
+
+    button.type = 'button';
+
+    button.style.cssText =
+
+      'min-height:68px;padding:5px 1px;border:1px solid #ddd;border-radius:8px;background:white;overflow-wrap:anywhere;';
+
+ 
+
+    if (date === selectedDate) {
+
+      button.style.border = '2px solid #333';
+
+    }
+
+    if (pendingDates.has(date)) {
+
+      button.style.background = '#f2e8dc';
+
+    }
+
+    if (myStayDates.has(date)) {
+
+      button.style.boxShadow = 'inset 0 -4px #64816a';
+
+    }
+
+ 
+
+    button.innerHTML =
+
+      `<strong>${day}</strong><br><small>${counts[date] || 0}명</small>` +
+
+      (myStayDates.has(date) ? '<br><small>내 일정</small>' : '') +
+
+      (pendingDates.has(date) ? '<br><small>선택 중</small>' : '');
+
+ 
+
+    button.setAttribute(
+
+      'aria-label',
+
+      `${date}, 체류 ${counts[date] || 0}명`
+
+    );
+
+ 
+
+    button.addEventListener('click', async () => {
+
+      selectedDate = date;
+
+ 
+
+      if (pendingDates.has(date)) {
+
+        pendingDates.delete(date);
+
+      } else {
+
+        pendingDates.add(date);
+
+      }
+
+ 
+
+      document.getElementById('stayStart').value = date;
+
+      document.getElementById('stayEnd').value = date;
+
+      document.getElementById('meetupDate').value = date;
+
+ 
+
+      await renderCalendar();
+
+      await loadChatMessages();
+
+      await loadMeetups();
+
+      await loadDateStayUsers();
+
+    });
+
+ 
+
+    grid.appendChild(button);
+
+  }
+
+ 
+
+  document.getElementById('stayCountLabel').textContent = error
+
+    ? '체류 인원수를 불러오지 못했어요.'
+
+    : `${selectedDate} 교토 체류 등록 인원: ${counts[selectedDate] || 0}명`;
+
+}
+
+ 
+
+document.getElementById('prevMonthBtn').addEventListener('click', async () => {
+
+  calendarMonthIndex--;
+
+  if (calendarMonthIndex < 0) {
+
+    calendarMonthIndex = 11;
+
+    calendarYear--;
+
+  }
+
+  await renderCalendar();
+
+});
+
+ 
+
+document.getElementById('nextMonthBtn').addEventListener('click', async () => {
+
+  calendarMonthIndex++;
+
+  if (calendarMonthIndex > 11) {
+
+    calendarMonthIndex = 0;
+
+    calendarYear++;
+
+  }
+
+  await renderCalendar();
+
+});
+
+ 
+
+/* 달력 열기 / 닫기 */
+
+document.getElementById('calendarToggleBtn').addEventListener('click', async () => {
+
+  document.querySelector('.sidebar').style.display = 'none';
+
+  document.querySelector('.map-wrap').style.display = 'none';
+
+  document.getElementById('calendarPanel').style.display = 'block';
+
+ 
+
+  await refreshCommunityUser();
+
+  await loadChatMessages();
+
+  await loadMeetups();
+
+});
+
+ 
+
+document.getElementById('calendarBackBtn').addEventListener('click', () => {
+
+  document.getElementById('calendarPanel').style.display = 'none';
+
+  document.querySelector('.sidebar').style.display = '';
+
+  document.querySelector('.map-wrap').style.display = '';
+
+  if (window.map && typeof window.map.invalidateSize === 'function') {
+
+    window.map.invalidateSize();
+
+  }
+
+});
+
+ 
+
+/* 로그인·회원가입 화면 전환 */
+
+function openCommunityAuth(mode) {
+
+  const loggedIn = Boolean(communityUser);
+
+  if (loggedIn) return;
+
+ 
+
+  document.getElementById('communityAuthForm').style.display = 'block';
+
+  document.getElementById('communityAuthButtons').style.display = 'none';
+
+ 
+
+  const isSignup = mode === 'signup';
+
+ 
+
+  document.getElementById('communityAuthTitle').textContent =
+
+    isSignup ? '회원가입' : '로그인';
+
+ 
+
+  document.getElementById('communityNickname').style.display =
+
+    isSignup ? 'block' : 'none';
+
+ 
+
+  document.getElementById('communitySignupBtn').style.display =
+
+    isSignup ? 'inline-block' : 'none';
+
+ 
+
+  document.getElementById('communityLoginBtn').style.display =
+
+    isSignup ? 'none' : 'inline-block';
+
+ 
+
+  document.getElementById('communityPassword').autocomplete =
+
+    isSignup ? 'new-password' : 'current-password';
+
+}
+
+ 
+
+document.getElementById('showSignupBtn').addEventListener('click', () => {
+
+  openCommunityAuth('signup');
+
+});
+
+ 
+
+document.getElementById('showLoginBtn').addEventListener('click', () => {
+
+  openCommunityAuth('login');
+
+});
+
+ 
+
+document.getElementById('cancelCommunityAuthBtn').addEventListener('click', () => {
+
+  document.getElementById('communityAuthForm').style.display = 'none';
+
+  document.getElementById('communityAuthButtons').style.display = 'flex';
+
+});
+
+ 
+
+/* 회원가입 */
+
+document.getElementById('communitySignupBtn').addEventListener('click', async () => {
+
+  const email = document.getElementById('communityEmail').value.trim();
+
+  const password = document.getElementById('communityPassword').value;
+
+  const nickname = document.getElementById('communityNickname').value.trim();
+
+ 
+
+if (!nickname || !email || password.length < 6) {
+
+  setCommunityStatus(
+
+    'communityAuthStatus',
+
+    '닉네임, 이메일, 6자 이상의 비밀번호를 입력해 주세요.'
+
+  );
+
+  return;
+
+}
+
+ 
+
+ 
+
+const { data, error } = await communityClient.auth.signUp({
+
+  email,
+
+  password,
+
+  options: {
+
+    data: {
+
+      nickname: nickname
+
+    }
+
+  }
+
+});
+
+ 
+
+ 
+
+  if (error) {
+
+    setCommunityStatus('communityAuthStatus', '회원가입 실패: ' + error.message);
+
+    return;
+
+  }
+
+ 
+
+  if (data.session) {
+
+    await refreshCommunityUser();
+
+  } else {
+
+    setCommunityStatus(
+
+      'communityAuthStatus',
+
+      '가입 요청이 완료됐어요. 이메일 인증이 필요하다면 메일을 확인한 뒤 로그인해 주세요.'
+
+    );
+
+  }
+
+});
+
+ 
+
+/* 로그인 */
+
+document.getElementById('communityLoginBtn').addEventListener('click', async () => {
+
+  const email = document.getElementById('communityEmail').value.trim();
+
+  const password = document.getElementById('communityPassword').value;
+
+ 
+
+  if (!email || !password) {
+
+    setCommunityStatus('communityAuthStatus', '이메일과 비밀번호를 입력해 주세요.');
+
+    return;
+
+  }
+
+ 
+
+  const { error } = await communityClient.auth.signInWithPassword({
+
+    email,
+
+    password
+
+  });
+
+ 
+
+  if (error) {
+
+    setCommunityStatus('communityAuthStatus', '로그인 실패: ' + error.message);
+
+    return;
+
+  }
+
+ 
+
+  document.getElementById('communityPassword').value = '';
+
+  await refreshCommunityUser();
+
+});
+
+ 
+
+/* 로그아웃 */
+
+document.getElementById('communityLogoutBtn').addEventListener('click', async () => {
+
+  const { error } = await communityClient.auth.signOut();
+
+ 
+
+  if (error) {
+
+    setCommunityStatus('communityAuthStatus', '로그아웃 실패: ' + error.message);
+
+    return;
+
+  }
+
+ 
+
+  communityUser = null;
+
+  pendingDates.clear();
+
+  await refreshCommunityUser();
+
+});
+
+ 
+
+/* 체류 날짜 등록 */
+
+document.getElementById('saveStayBtn').addEventListener('click', async () => {
+
+  if (!communityUser) {
+
+    setCommunityStatus('stayStatus', '먼저 커뮤니티 회원가입 또는 로그인을 해 주세요.');
+
+    return;
+
+  }
+
+ 
+
+  const start = document.getElementById('stayStart').value;
+
+  const end = document.getElementById('stayEnd').value;
+
+  let dates = [];
+
+ 
+
+  if (start && end) {
+
+    if (start > end) {
+
+      setCommunityStatus('stayStatus', '종료일은 시작일보다 빠를 수 없어요.');
+
+      return;
+
+    }
+
+    dates = dateRange(start, end);
+
+  } else if (pendingDates.size) {
+
+    dates = [...pendingDates];
+
+  } else {
+
+    setCommunityStatus('stayStatus', '달력에서 날짜를 선택하거나 시작일과 종료일을 입력해 주세요.');
+
+    return;
+
+  }
+
+ 
+
+  if (dates.length > 366) {
+
+    setCommunityStatus('stayStatus', '한 번에 최대 366일까지 등록할 수 있어요.');
+
+    return;
+
+  }
+
+ 
+
+  let failed = 0;
+
+  for (const date of dates) {
+
+    if (myStayDates.has(date)) continue;
+
+ 
+
+    const { error } = await communityClient
+
+      .from('kyoto_stays')
+
+      .insert({ user_id: communityUser.id, stay_date: date });
+
+ 
+
+    // 이미 등록된 날짜는 건너뜀
+
+    if (error && error.code !== '23505') {
+
+      failed++;
+
+      console.error(error);
+
+    }
+
+  }
+
+ 
+
+  pendingDates.clear();
+
+  setCommunityStatus(
+
+    'stayStatus',
+
+    failed ? `일부 날짜를 등록하지 못했어요 (${failed}건).` : '체류 날짜를 등록했어요!'
+
+  );
+
+ 
+
+  await loadMyStays();
+
+});
+
+ 
+
+/* 선택 날짜 등록 취소 */
+
+document.getElementById('removeStayBtn').addEventListener('click', async () => {
+
+  if (!communityUser) {
+
+    setCommunityStatus('stayStatus', '먼저 로그인해 주세요.');
+
+    return;
+
+  }
+
+ 
+
+  const dates = pendingDates.size ? [...pendingDates] : [selectedDate];
+
+  let failed = 0;
+
+ 
+
+  for (const date of dates) {
+
+    const { error } = await communityClient
+
+      .from('kyoto_stays')
+
+      .delete()
+
+      .eq('user_id', communityUser.id)
+
+      .eq('stay_date', date);
+
+ 
+
+    if (error) {
+
+      failed++;
+
+      console.error(error);
+
+    }
+
+  }
+
+ 
+
+  pendingDates.clear();
+
+  setCommunityStatus(
+
+    'stayStatus',
+
+    failed ? '일부 날짜를 취소하지 못했어요.' : '선택한 날짜의 등록을 취소했어요.'
+
+  );
+
+  await loadMyStays();
+
+});
+
+ 
+
+/* 날짜별 채팅 */
+
+ 
+
+async function loadChatMessages() {
+
+  const heading = document.getElementById('chatHeading');
+
+  const box = document.getElementById('chatMessages');
+
+ 
+
+  heading.textContent = `💬 ${selectedDate} 교토 채팅`;
 
   box.replaceChildren();
 
-  (data || []).forEach(msg => {
-    const p = document.createElement('p');
-    p.style.cssText =
-      'padding:8px;margin:6px 0;border-radius:8px;background:' +
-      (msg.sender_id === communityUser?.id ? '#f2e8dc' : '#f5f5f5');
-    p.textContent =
-      `${msg.sender_id === communityUser?.id ? '나' : '상대'}: ${msg.content || ''}`;
-    box.appendChild(p);
+ 
+
+  const { data, error } = await communityClient
+
+    .from('kyoto_chat_messages')
+
+    .select('id,user_id,nickname,message,created_at')
+
+    .eq('stay_date', selectedDate)
+
+    .order('created_at', { ascending: true })
+
+    .limit(100);
+
+ 
+
+  if (error) {
+
+    box.textContent = '채팅을 불러오지 못했어요.';
+
+    console.error(error);
+
+    return;
+
+  }
+
+ 
+
+  if (!data || !data.length) {
+
+    box.textContent = '아직 메시지가 없어요. 첫 메시지를 남겨 보세요!';
+
+    return;
+
+  }
+
+ 
+
+  const myNickname =
+
+    communityUser?.user_metadata?.nickname ||
+
+    communityUser?.email?.split('@')[0] ||
+
+    '사용자';
+
+ 
+
+  data.forEach(row => {
+
+    const item = document.createElement('div');
+
+    item.style.cssText =
+
+      'padding:8px 0;border-bottom:1px solid #eee;overflow-wrap:anywhere;';
+
+ 
+
+    const time = new Date(row.created_at).toLocaleTimeString('ko-KR', {
+
+      hour: '2-digit',
+
+      minute: '2-digit'
+
+    });
+
+ 
+
+    const nickname =
+
+      row.nickname ||
+
+      (row.user_id === communityUser?.id ? myNickname : '참여자');
+
+ 
+
+  
+
+const displayName =
+
+  row.user_id === communityUser?.id
+
+    ? '나 (' + (row.nickname || '사용자') + ')'
+
+    : (row.nickname || '사용자');
+
+ 
+
+item.innerHTML =
+
+  `<small>${communityEscape(displayName)} · ${time}</small>` +
+
+  `<div>${communityEscape(row.message)}</div>`;
+
+ 
+
+ 
+
+    box.appendChild(item);
+
+  });
+
+ 
+
+  box.scrollTop = box.scrollHeight;
+
+}
+
+ 
+
+ 
+
+document.getElementById('sendChatBtn').addEventListener('click', async () => {
+
+  if (!communityUser) {
+
+    setCommunityStatus('chatStatus', '메시지를 보내려면 로그인해 주세요.');
+
+    return;
+
+  }
+
+ 
+
+  const input = document.getElementById('chatInput');
+
+  const message = input.value.trim();
+
+ 
+
+  if (!message) {
+
+    setCommunityStatus('chatStatus', '메시지를 입력해 주세요.');
+
+    return;
+
+  }
+
+ 
+
+ 
+
+const { data: userData, error: userError } =
+
+  await communityClient.auth.getUser();
+
+ 
+
+if (userError || !userData.user) {
+
+  setCommunityStatus('chatStatus', '로그인 정보를 확인할 수 없어요. 다시 로그인해 주세요.');
+
+  return;
+
+}
+
+ 
+
+const currentUser = userData.user;
+
+ 
+
+const nickname =
+
+  currentUser.user_metadata?.nickname ||
+
+  currentUser.email?.split('@')[0] ||
+
+  '사용자';
+
+ 
+
+console.log('메시지에 저장할 닉네임:', nickname);
+
+  
+
+const { error } = await communityClient
+
+  .from('kyoto_chat_messages')
+
+  .insert({
+
+    user_id: currentUser.id,
+
+    stay_date: selectedDate,
+
+    message,
+
+    nickname
+
+  });
+
+ 
+
+ 
+
+  if (error) {
+
+    setCommunityStatus('chatStatus', '메시지 전송 실패: ' + error.message);
+
+    console.error(error);
+
+    return;
+
+  }
+
+ 
+
+  input.value = '';
+
+  setCommunityStatus('chatStatus', '메시지를 보냈어요.');
+
+  await loadChatMessages();
+
+});
+
+ 
+
+/* 오늘 술친구 할까요 게시판 */
+
+async function loadMeetups() {
+
+  const list = document.getElementById('meetupList');
+
+  list.replaceChildren();
+
+ 
+
+  const { data, error } = await communityClient
+
+    .from('kyoto_meetups')
+
+    .select('id,user_id,meetup_date,title,description,area,created_at')
+
+    .eq('meetup_date', selectedDate)
+
+    .order('created_at', { ascending: false })
+
+    .limit(100);
+
+ 
+
+  if (error) {
+
+    list.textContent = '모임 글을 불러오지 못했어요.';
+
+    console.error(error);
+
+    return;
+
+  }
+
+ 
+
+  if (!data || !data.length) {
+
+    list.textContent = `${selectedDate}에 등록된 모임이 아직 없어요.`;
+
+    return;
+
+  }
+
+ 
+
+  data.forEach(row => {
+
+    const card = document.createElement('div');
+
+    card.style.cssText = 'border:1px solid #eee;border-radius:10px;padding:12px;margin:10px 0;overflow-wrap:anywhere;';
+
+ 
+
+    card.innerHTML =
+
+      `<h4>${communityEscape(row.title)}</h4>` +
+
+      `<p>${communityEscape(row.description)}</p>` +
+
+      `<small>${communityEscape(row.meetup_date)} · ${communityEscape(row.area)}</small>`;
+
+ 
+
+    if (communityUser && row.user_id === communityUser.id) {
+
+      const deleteButton = document.createElement('button');
+
+      deleteButton.type = 'button';
+
+      deleteButton.textContent = '내 글 삭제';
+
+      deleteButton.style.marginTop = '10px';
+
+ 
+
+      deleteButton.addEventListener('click', async () => {
+
+        if (!confirm('이 모임 글을 삭제할까요?')) return;
+
+ 
+
+        const { error: deleteError } = await communityClient
+
+          .from('kyoto_meetups')
+
+          .delete()
+
+          .eq('id', row.id)
+
+          .eq('user_id', communityUser.id);
+
+ 
+
+        if (deleteError) {
+
+          setCommunityStatus('meetupStatus', '삭제하지 못했어요.');
+
+          console.error(deleteError);
+
+        } else {
+
+          setCommunityStatus('meetupStatus', '모임 글을 삭제했어요.');
+
+          await loadMeetups();
+
+        }
+
+      });
+
+ 
+
+      card.appendChild(deleteButton);
+
+    }
+
+ 
+
+    list.appendChild(card);
+
+  });
+
+}
+
+ 
+
+document.getElementById('createMeetupBtn').addEventListener('click', async () => {
+
+  if (!communityUser) {
+
+    setCommunityStatus('meetupStatus', '모임 글을 작성하려면 로그인해 주세요.');
+
+    return;
+
+  }
+
+ 
+
+  const title = document.getElementById('meetupTitle').value.trim();
+
+  const meetupDate = document.getElementById('meetupDate').value || selectedDate;
+
+  const area = document.getElementById('meetupArea').value.trim() || '교토';
+
+  const description = document.getElementById('meetupDescription').value.trim();
+
+ 
+
+  if (!title) {
+
+    setCommunityStatus('meetupStatus', '모임 제목을 입력해 주세요.');
+
+    return;
+
+  }
+
+ 
+
+  const { error } = await communityClient
+
+    .from('kyoto_meetups')
+
+    .insert({
+
+      user_id: communityUser.id,
+
+      meetup_date: meetupDate,
+
+      title,
+
+      area,
+
+      description
+
+    });
+
+ 
+
+  if (error) {
+
+    setCommunityStatus('meetupStatus', '글 등록 실패: ' + error.message);
+
+    console.error(error);
+
+    return;
+
+  }
+
+ 
+
+  selectedDate = meetupDate;
+
+  document.getElementById('meetupTitle').value = '';
+
+  document.getElementById('meetupArea').value = '';
+
+  document.getElementById('meetupDescription').value = '';
+
+ 
+
+  const parsed = new Date(meetupDate + 'T12:00:00');
+
+  calendarYear = parsed.getFullYear();
+
+  calendarMonthIndex = parsed.getMonth();
+
+ 
+
+  setCommunityStatus('meetupStatus', '모임 글을 올렸어요!');
+
+  await renderCalendar();
+
+  await loadMeetups();
+
+  await loadChatMessages();
+
+});
+
+ 
+
+  
+
+/* 개인 메시지 기능 */
+
+let activeDirectConversationId = null;
+
+let activeDirectOtherUserId = null;
+
+let activeDirectOtherName = '사용자';
+
+ 
+
+function setDirectStatus(message) {
+
+  const el = document.getElementById('directChatStatus');
+
+  if (el) el.textContent = message || '';
+
+}
+
+ 
+
+function directInitial(name) {
+
+  const clean = String(name || '사용자').trim();
+
+  return clean ? Array.from(clean)[0].toUpperCase() : '?';
+
+}
+
+ 
+
+function directTime(value, includeDate = false) {
+
+  if (!value) return '';
+
+  const date = new Date(value);
+
+  if (Number.isNaN(date.getTime())) return '';
+
+  const now = new Date();
+
+  const sameDay = date.toDateString() === now.toDateString();
+
+  return sameDay || !includeDate
+
+    ? date.toLocaleTimeString('ko-KR', { hour: '2-digit', minute: '2-digit' })
+
+    : date.toLocaleDateString('ko-KR', { month: 'numeric', day: 'numeric' });
+
+}
+
+ 
+
+function makeDirectEmpty(title, description) {
+
+  const empty = document.createElement('div');
+
+  empty.className = 'dm-empty';
+
+  const icon = document.createElement('span');
+
+  icon.className = 'dm-empty-icon';
+
+  icon.textContent = '✉';
+
+  const strong = document.createElement('strong');
+
+  strong.textContent = title;
+
+  const p = document.createElement('p');
+
+  p.textContent = description;
+
+  empty.append(icon, strong, p);
+
+  return empty;
+
+}
+
+ 
+
+async function openDirectConversation(otherUserId, otherName) {
+
+  if (!communityUser) {
+
+    setDirectStatus('개인 메시지를 보내려면 먼저 로그인해 주세요.');
+
+    return;
+
+  }
+
+  if (!otherUserId || otherUserId === communityUser.id) {
+
+    setDirectStatus('자기 자신에게는 메시지를 보낼 수 없어요.');
+
+    return;
+
+  }
+
+ 
+
+  setDirectStatus('대화를 여는 중…');
+
+  const { data: existing, error: findError } = await communityClient
+
+    .from('kyoto_direct_conversations')
+
+    .select('*')
+
+    .or(`participant_a.eq.${communityUser.id},participant_b.eq.${communityUser.id}`);
+
+ 
+
+  if (findError) {
+
+    setDirectStatus('대화 목록을 불러오지 못했어요: ' + findError.message);
+
+    return;
+
+  }
+
+ 
+
+  let conversation = (existing || []).find(c =>
+
+    (c.participant_a === communityUser.id && c.participant_b === otherUserId) ||
+
+    (c.participant_a === otherUserId && c.participant_b === communityUser.id)
+
+  );
+
+ 
+
+  if (!conversation) {
+
+    const { data, error } = await communityClient
+
+      .from('kyoto_direct_conversations')
+
+      .insert({ participant_a: communityUser.id, participant_b: otherUserId })
+
+      .select()
+
+      .single();
+
+    if (error) {
+
+      setDirectStatus('새 대화를 만들지 못했어요: ' + error.message);
+
+      return;
+
+    }
+
+    conversation = data;
+
+  }
+
+ 
+
+  activeDirectConversationId = conversation.id;
+
+  activeDirectOtherUserId = otherUserId;
+
+  activeDirectOtherName = otherName || '사용자';
+
+ 
+
+  // 지도 마커나 프로필에서 메시지를 눌러도 패널이 자동으로 열리게 해요.
+
+  const drawer = document.getElementById('directChatPanel');
+
+  drawer?.classList.add('is-open');
+
+  drawer?.setAttribute('aria-hidden', 'false');
+
+ 
+
+  const thread = document.getElementById('directThread');
+
+  thread.style.display = 'flex';
+
+  document.getElementById('directThreadTitle').textContent = activeDirectOtherName;
+
+  document.getElementById('directThreadAvatar').textContent = directInitial(activeDirectOtherName);
+
+  document.getElementById('directMessageInput').value = '';
+
+  await loadDirectMessages();
+
+  await loadDirectInbox();
+
+  setDirectStatus('');
+
+  document.getElementById('directMessageInput').focus();
+
+  if (window.matchMedia('(max-width: 600px)').matches) {
+
+    thread.scrollIntoView({ behavior: 'smooth', block: 'start' });
+
+  }
+
+}
+
+ 
+
+async function loadDirectMessages() {
+
+  if (!activeDirectConversationId) return;
+
+  const box = document.getElementById('directMessages');
+
+  box.replaceChildren();
+
+  const { data, error } = await communityClient
+
+    .from('kyoto_direct_messages')
+
+    .select('*')
+
+    .eq('conversation_id', activeDirectConversationId)
+
+    .order('created_at', { ascending: true });
+
+ 
+
+  if (error) {
+
+    box.appendChild(makeDirectEmpty('메시지를 불러오지 못했어요', '잠시 후 다시 시도해 주세요.'));
+
+    setDirectStatus('메시지 불러오기 오류: ' + error.message);
+
+    return;
+
+  }
+
+  if (!data?.length) {
+
+    box.appendChild(makeDirectEmpty('첫 인사를 건네 보세요', '가벼운 인사로 대화를 시작해 보세요.'));
+
+    return;
+
+  }
+
+ 
+
+  data.forEach(msg => {
+
+    const mine = msg.sender_id === communityUser?.id;
+
+    const row = document.createElement('div');
+
+    row.className = 'dm-message-row' + (mine ? ' is-mine' : '');
+
+    if (!mine) {
+
+      const sender = document.createElement('span');
+
+      sender.className = 'dm-message-sender';
+
+      sender.textContent = activeDirectOtherName;
+
+      row.appendChild(sender);
+
+    }
+
+    const bubble = document.createElement('div');
+
+    bubble.className = 'dm-message-bubble';
+
+    bubble.textContent = msg.content || '';
+
+    const time = document.createElement('span');
+
+    time.className = 'dm-message-time';
+
+    time.textContent = directTime(msg.created_at);
+
+    row.append(bubble, time);
+
+    box.appendChild(row);
+
   });
 
   box.scrollTop = box.scrollHeight;
+
 }
 
-async function sendDirectMessage() {
+ 
+
+async function sendDirectMessage(event) {
+
+  if (event?.preventDefault) event.preventDefault();
+
   if (!communityUser) {
+
     setDirectStatus('먼저 로그인해 주세요.');
+
     return;
+
   }
 
   if (!activeDirectConversationId) {
+
     setDirectStatus('먼저 대화 상대를 선택해 주세요.');
+
     return;
+
   }
 
   const input = document.getElementById('directMessageInput');
+
   const message = input.value.trim();
 
   if (!message) return;
 
+ 
+
+  const sendBtn = document.getElementById('directSendBtn');
+
+  sendBtn.disabled = true;
+
+  sendBtn.style.opacity = '.65';
+
   const { error } = await communityClient
+
     .from('kyoto_direct_messages')
+
     .insert({
+
       conversation_id: activeDirectConversationId,
+
       sender_id: communityUser.id,
+
       content: message
+
     });
 
+  sendBtn.disabled = false;
+
+  sendBtn.style.opacity = '';
+
+ 
+
   if (error) {
+
     setDirectStatus('메시지를 보내지 못했어요: ' + error.message);
+
     return;
+
   }
 
   input.value = '';
+
   await loadDirectMessages();
-  setDirectStatus('메시지를 보냈어요.');
+
+  await loadDirectInbox();
+
+  setDirectStatus('');
+
+  input.focus();
+
 }
+
+ 
 
 async function loadDirectInbox() {
+
   const box = document.getElementById('directInbox');
 
-  if (!communityUser) {
-    box.textContent = '로그인하면 개인 메시지를 사용할 수 있어요.';
-    return;
-  }
-
-  const { data: conversations, error } = await communityClient
-    .from('kyoto_direct_conversations')
-    .select('*')
-    .or(`participant_a.eq.${communityUser.id},participant_b.eq.${communityUser.id}`)
-    .order('created_at', { ascending: false });
-
-  if (error) {
-    box.textContent = '대화 목록 오류: ' + error.message;
-    return;
-  }
-
-  box.replaceChildren();
-
-  if (!conversations?.length) {
-    box.textContent = '아직 대화가 없어요. 아래 날짜별 사용자 목록에서 메시지를 보내 보세요.';
-    return;
-  }
-
-  for (const c of conversations) {
-    const otherId =
-      c.participant_a === communityUser.id ? c.participant_b : c.participant_a;
-
-    const { data: profile } = await communityClient
-      .from('kyoto_profiles')
-      .select('nickname')
-      .eq('user_id', otherId)
-      .maybeSingle();
-
-    const b = document.createElement('button');
-    b.type = 'button';
-    b.style.cssText =
-      'display:block;width:100%;text-align:left;margin:6px 0;padding:10px;';
-    b.textContent = '💬 ' + (profile?.nickname || '사용자와의 대화');
-    b.addEventListener('click', () =>
-      openDirectConversation(otherId, profile?.nickname || '사용자')
-    );
-    box.appendChild(b);
-  }
-}
-
-async function loadDateStayUsers() {
-  const box = document.getElementById('dateStayUsers');
   if (!box) return;
 
   box.replaceChildren();
 
-  const heading = document.createElement('h4');
-  heading.textContent = `📅 ${selectedDate || '선택한 날짜'}에 교토에 있는 사용자`;
-  box.appendChild(heading);
+ 
 
   if (!communityUser) {
-    const p = document.createElement('p');
-    p.textContent = '로그인하면 사용자에게 개인 메시지를 보낼 수 있어요.';
-    box.appendChild(p);
+
+    box.appendChild(makeDirectEmpty('로그인이 필요해요', '로그인하면 개인 메시지를 주고받을 수 있어요.'));
+
     return;
+
   }
 
-  const { data: stays, error } = await communityClient
-    .from('kyoto_stays')
-    .select('user_id')
-    .eq('stay_date', selectedDate);
+ 
+
+  const { data: conversations, error } = await communityClient
+
+    .from('kyoto_direct_conversations')
+
+    .select('*')
+
+    .or(`participant_a.eq.${communityUser.id},participant_b.eq.${communityUser.id}`)
+
+    .order('created_at', { ascending: false });
+
+ 
 
   if (error) {
-    const p = document.createElement('p');
-    p.textContent = '체류 사용자 목록 오류: ' + error.message;
-    box.appendChild(p);
+
+    box.appendChild(makeDirectEmpty('대화 목록을 불러오지 못했어요', '새로고침을 눌러 다시 시도해 주세요.'));
+
+    setDirectStatus('대화 목록 오류: ' + error.message);
+
     return;
+
   }
 
-  const ids = [...new Set(
-    (stays || []).map(s => s.user_id).filter(id => id && id !== communityUser.id)
-  )];
+  if (!conversations?.length) {
 
-  if (!ids.length) {
-    const p = document.createElement('p');
-    p.textContent = '이 날짜에 등록된 다른 사용자가 없어요.';
-    box.appendChild(p);
+    box.appendChild(makeDirectEmpty('아직 대화가 없어요', '아래의 체류 사용자 목록에서 먼저 인사를 건네 보세요.'));
+
     return;
+
   }
 
-  const { data: profiles, error: profileError } = await communityClient
-    .from('kyoto_profiles')
-    .select('user_id,nickname,is_public')
-    .in('user_id', ids)
-    .eq('is_public', true);
+ 
 
-  if (profileError) {
-    const p = document.createElement('p');
-    p.textContent = '공개 프로필 오류: ' + profileError.message;
-    box.appendChild(p);
-    return;
-  }
+  const rows = await Promise.all(conversations.map(async c => {
 
-  (profiles || []).forEach(profile => {
-    const row = document.createElement('div');
-    row.style.cssText =
-      'display:flex;align-items:center;justify-content:space-between;gap:8px;padding:8px 0;border-bottom:1px solid #eee;';
+    const otherId = c.participant_a === communityUser.id ? c.participant_b : c.participant_a;
+
+    const [{ data: profile }, { data: lastMessages }] = await Promise.all([
+
+      communityClient.from('kyoto_profiles').select('nickname').eq('user_id', otherId).maybeSingle(),
+
+      communityClient.from('kyoto_direct_messages').select('content,created_at,sender_id')
+
+        .eq('conversation_id', c.id).order('created_at', { ascending: false }).limit(1)
+
+    ]);
+
+    return { conversation: c, otherId, name: profile?.nickname || '교토 사용자', last: lastMessages?.[0] || null };
+
+  }));
+
+ 
+
+  rows.sort((a, b) => new Date(b.last?.created_at || b.conversation.created_at || 0) - new Date(a.last?.created_at || a.conversation.created_at || 0));
+
+  rows.forEach(item => {
+
+    const button = document.createElement('button');
+
+    button.type = 'button';
+
+    button.className = 'dm-conversation' + (item.conversation.id === activeDirectConversationId ? ' is-active' : '');
+
+    const avatar = document.createElement('span');
+
+    avatar.className = 'dm-avatar';
+
+    avatar.textContent = directInitial(item.name);
+
+    const copy = document.createElement('span');
+
+    copy.className = 'dm-conversation-copy';
+
+    const top = document.createElement('span');
+
+    top.className = 'dm-conversation-top';
 
     const name = document.createElement('span');
-    name.textContent = profile.nickname || '교토 사용자';
 
-    const btn = document.createElement('button');
-    btn.type = 'button';
-    btn.textContent = '개인 메시지';
-    btn.addEventListener('click', () =>
-      openDirectConversation(profile.user_id, profile.nickname || '사용자')
-    );
+    name.className = 'dm-conversation-name';
 
-    row.append(name, btn);
-    box.appendChild(row);
+    name.textContent = item.name;
+
+    const time = document.createElement('span');
+
+    time.className = 'dm-conversation-time';
+
+    time.textContent = directTime(item.last?.created_at || item.conversation.created_at, true);
+
+    top.append(name, time);
+
+    const preview = document.createElement('span');
+
+    preview.className = 'dm-conversation-preview';
+
+    preview.textContent = item.last
+
+      ? ((item.last.sender_id === communityUser.id ? '나: ' : '') + (item.last.content || '메시지'))
+
+      : '대화를 시작해 보세요.';
+
+    copy.append(top, preview);
+
+    button.append(avatar, copy);
+
+    button.addEventListener('click', () => openDirectConversation(item.otherId, item.name));
+
+    box.appendChild(button);
+
   });
+
 }
 
-document.getElementById('directInboxRefreshBtn')
-  ?.addEventListener('click', loadDirectInbox);
+ 
 
-document.getElementById('directSendBtn')
-  ?.addEventListener('click', sendDirectMessage);
+async function loadDateStayUsers() {
 
-  
-/* 채팅 패널 열기 및 닫기 */
-document.getElementById('openDirectChatBtn')?.addEventListener('click', async () => {
-  const panel = document.getElementById('directChatPanel');
-  if (panel) {
-    panel.style.display = 'block';
-    await loadDirectInbox();
-    await loadDateStayUsers();
+  const box = document.getElementById('dateStayUsers');
+
+  if (!box) return;
+
+ 
+
+  box.replaceChildren();
+
+ 
+
+  if (!communityUser) {
+
+    box.appendChild(makeDirectEmpty('로그인이 필요해요', '로그인하면 같은 날짜에 교토에 있는 사람에게 메시지를 보낼 수 있어요.'));
+
+    return;
+
   }
+
+ 
+
+  const { data: stays, error } = await communityClient
+
+    .from('kyoto_stays')
+
+    .select('user_id')
+
+    .eq('stay_date', selectedDate);
+
+ 
+
+  if (error) {
+
+    const p = document.createElement('p');
+
+    p.textContent = '체류 사용자 목록 오류: ' + error.message;
+
+    box.appendChild(p);
+
+    return;
+
+  }
+
+ 
+
+  const ids = [...new Set(
+
+    (stays || []).map(s => s.user_id).filter(id => id && id !== communityUser.id)
+
+  )];
+
+ 
+
+  if (!ids.length) {
+
+    box.appendChild(makeDirectEmpty('아직 다른 사용자가 없어요', '체류 날짜를 등록하면 같은 날 교토에 있는 사람을 여기서 만날 수 있어요.'));
+
+    return;
+
+  }
+
+ 
+
+  const { data: profiles, error: profileError } = await communityClient
+
+    .from('kyoto_profiles')
+
+    .select('user_id,nickname,is_public')
+
+    .in('user_id', ids)
+
+    .eq('is_public', true);
+
+ 
+
+  if (profileError) {
+
+    const p = document.createElement('p');
+
+    p.textContent = '공개 프로필 오류: ' + profileError.message;
+
+    box.appendChild(p);
+
+    return;
+
+  }
+
+ 
+
+  if (!profiles?.length) {
+
+    box.appendChild(makeDirectEmpty('공개된 프로필이 없어요', '프로필 공개를 설정한 사용자가 등록되면 여기에 표시돼요.'));
+
+    return;
+
+  }
+
+ 
+
+  profiles.forEach(profile => {
+
+    const row = document.createElement('div');
+
+    row.className = 'dm-person-row';
+
+    const avatar = document.createElement('span');
+
+    avatar.className = 'dm-avatar';
+
+    avatar.textContent = directInitial(profile.nickname || '교토 사용자');
+
+    const copy = document.createElement('span');
+
+    copy.className = 'dm-person-copy';
+
+    const name = document.createElement('span');
+
+    name.className = 'dm-person-name';
+
+    name.textContent = profile.nickname || '교토 사용자';
+
+    const caption = document.createElement('span');
+
+    caption.className = 'dm-person-caption';
+
+    caption.textContent = '같은 날 교토에 머무는 사람';
+
+    copy.append(name, caption);
+
+    const btn = document.createElement('button');
+
+    btn.type = 'button';
+
+    btn.className = 'dm-person-message';
+
+    btn.textContent = '인사하기';
+
+    btn.addEventListener('click', () => openDirectConversation(profile.user_id, profile.nickname || '사용자'));
+
+    row.append(avatar, copy, btn);
+
+    box.appendChild(row);
+
+  });
+
+}
+
+ 
+
+document.getElementById('directInboxRefreshBtn')?.addEventListener('click', async () => {
+
+  await loadDirectInbox();
+
+  await loadDateStayUsers();
+
+  if (activeDirectConversationId) await loadDirectMessages();
+
 });
+
+ 
+
+document.getElementById('directMessageForm')?.addEventListener('submit', sendDirectMessage);
+
+document.getElementById('directMessageInput')?.addEventListener('keydown', event => {
+
+  if (event.key === 'Enter' && !event.shiftKey && !event.isComposing) {
+
+    event.preventDefault();
+
+    document.getElementById('directMessageForm').requestSubmit();
+
+  }
+
+});
+
+document.getElementById('directBackBtn')?.addEventListener('click', () => {
+
+  document.getElementById('directThread').style.display = 'none';
+
+  activeDirectConversationId = null;
+
+  activeDirectOtherUserId = null;
+
+  loadDirectInbox();
+
+});
+
+ 
+
+/* 메시지 패널은 지도 화면에서도 항상 열 수 있어요. */
+
+document.getElementById('openDirectChatBtn')?.addEventListener('click', async () => {
+
+  const panel = document.getElementById('directChatPanel');
+
+  if (!panel) return;
+
+  panel.classList.add('is-open');
+
+  panel.setAttribute('aria-hidden', 'false');
+
+  await loadDirectInbox();
+
+  await loadDateStayUsers();
+
+  if (activeDirectConversationId) await loadDirectMessages();
+
+});
+
+ 
 
 document.getElementById('closeDirectChatBtn')?.addEventListener('click', () => {
+
   const panel = document.getElementById('directChatPanel');
-  if (panel) panel.style.display = 'none';
+
+  if (!panel) return;
+
+  panel.classList.remove('is-open');
+
+  panel.setAttribute('aria-hidden', 'true');
+
 });
+
+ 
+
+document.addEventListener('keydown', event => {
+
+  if (event.key === 'Escape') {
+
+    const panel = document.getElementById('directChatPanel');
+
+    panel?.classList.remove('is-open');
+
+    panel?.setAttribute('aria-hidden', 'true');
+
+  }
+
+});
+
+ 
 
 /* 커뮤니티 로그인 상태 변경 */
+
 communityClient.auth.onAuthStateChange(() => {
+
   setTimeout(() => {
+
     refreshCommunityUser();
+
   }, 0);
+
 });
 
+ 
+
 /* 첫 화면 준비 */
+
 document.getElementById('stayStart').value = selectedDate;
+
 document.getElementById('stayEnd').value = selectedDate;
+
 document.getElementById('meetupDate').value = selectedDate;
+
 renderCalendar();
+
 refreshCommunityUser();
 
+ 
+
 loadPlaces();
+
 renderUserMarkers();
+
 </script>
+
 </body>
+
 </html>
