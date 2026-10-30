@@ -2241,7 +2241,226 @@ h4 {
   overflow: hidden;
   overflow-wrap: anywhere;
 }
+/* ===== 오늘의 술 운세 : 수채화 오미쿠지 ===== */
 
+#sakeFortuneModal.is-open {
+  display: flex !important;
+  position: fixed;
+  inset: 0;
+  z-index: 99999;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  background: rgba(24, 20, 18, 0.78);
+  backdrop-filter: blur(5px);
+}
+
+.sake-fortune-card {
+  position: relative;
+  width: 100%;
+  max-width: 420px;
+  max-height: 90vh;
+  overflow-y: auto;
+  padding: 38px 28px;
+  text-align: center;
+  color: #40352d;
+  background:
+    radial-gradient(ellipse at 15% 20%, rgba(196, 151, 120, .12), transparent 35%),
+    radial-gradient(ellipse at 85% 75%, rgba(150, 164, 137, .13), transparent 35%),
+    #f5efdf;
+  border: 1px solid #d8cbb2;
+  box-shadow: 0 20px 60px rgba(0,0,0,.3);
+  font-family: "Noto Serif KR", serif;
+}
+
+.sake-fortune-card::before,
+.sake-fortune-card::after {
+  content: "";
+  position: absolute;
+  pointer-events: none;
+  border-radius: 50%;
+  filter: blur(18px);
+  opacity: 0;
+}
+
+.sake-fortune-card::before {
+  width: 150px;
+  height: 120px;
+  top: 15%;
+  left: -35px;
+  background: rgba(181, 105, 91, .25);
+}
+
+.sake-fortune-card::after {
+  width: 170px;
+  height: 130px;
+  right: -45px;
+  bottom: 15%;
+  background: rgba(111, 137, 119, .25);
+}
+
+.sake-fortune-card.is-revealed::before {
+  animation: watercolorBleed 2.2s ease-out forwards;
+}
+
+.sake-fortune-card.is-revealed::after {
+  animation: watercolorBleed 2.8s ease-out .3s forwards;
+}
+
+@keyframes watercolorBleed {
+  0% {
+    opacity: 0;
+    transform: scale(.2);
+  }
+  45% {
+    opacity: .9;
+  }
+  100% {
+    opacity: .45;
+    transform: scale(1.8);
+  }
+}
+
+.sake-fortune-card h2 {
+  margin: 12px 0;
+  font-size: 25px;
+  letter-spacing: 5px;
+}
+
+.fortune-eyebrow {
+  font-size: 10px;
+  letter-spacing: 2px;
+  color: #927b65;
+}
+
+.fortune-deco {
+  margin: 15px 0;
+  font-size: 22px;
+}
+
+.fortune-date {
+  color: #8b7b6a;
+  font-size: 12px;
+}
+
+.fortune-rank,
+.fortune-message,
+.fortune-detail,
+.fortune-mission,
+.fortune-footer {
+  opacity: 0;
+  filter: blur(10px);
+  transform: translateY(8px);
+}
+
+.is-revealed .fortune-rank {
+  animation: inkAppear 1.2s ease forwards .5s;
+}
+
+.is-revealed .fortune-message {
+  animation: inkAppear 1.2s ease forwards 1s;
+}
+
+.is-revealed .fortune-detail:nth-of-type(1) {
+  animation: inkAppear 1.2s ease forwards 1.5s;
+}
+
+.is-revealed .fortune-detail:nth-of-type(2) {
+  animation: inkAppear 1.2s ease forwards 1.8s;
+}
+
+.is-revealed .fortune-detail:nth-of-type(3) {
+  animation: inkAppear 1.2s ease forwards 2.1s;
+}
+
+.is-revealed .fortune-detail:nth-of-type(4) {
+  animation: inkAppear 1.2s ease forwards 2.4s;
+}
+
+.is-revealed .fortune-mission {
+  animation: inkAppear 1.2s ease forwards 2.7s;
+}
+
+.is-revealed .fortune-footer {
+  animation: inkAppear 1.2s ease forwards 3s;
+}
+
+@keyframes inkAppear {
+  0% {
+    opacity: 0;
+    filter: blur(12px);
+    transform: translateY(8px);
+  }
+  100% {
+    opacity: 1;
+    filter: blur(0);
+    transform: translateY(0);
+  }
+}
+
+.fortune-rank {
+  margin: 20px auto;
+  font-size: 52px;
+  font-weight: bold;
+  color: #a33e32;
+  letter-spacing: 8px;
+}
+
+.fortune-divider {
+  height: 1px;
+  margin: 24px 0;
+  background: #d8cbb2;
+}
+
+.fortune-detail {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin: 18px 0;
+  text-align: left;
+}
+
+.fortune-detail span,
+.fortune-mission span {
+  font-size: 11px;
+  color: #927b65;
+  letter-spacing: 1px;
+}
+
+.fortune-detail strong {
+  font-size: 15px;
+  font-weight: 500;
+}
+
+.fortune-mission {
+  margin-top: 25px;
+  padding: 17px;
+  background: rgba(255,255,255,.35);
+  border: 1px solid rgba(180,160,130,.35);
+}
+
+.fortune-mission p {
+  margin-bottom: 0;
+  font-size: 14px;
+}
+
+.fortune-footer {
+  margin-top: 25px;
+  font-size: 10px;
+  letter-spacing: 1px;
+  color: #927b65;
+}
+
+#closeSakeFortune {
+  position: absolute;
+  top: 12px;
+  right: 14px;
+  border: none;
+  background: transparent;
+  color: #786958;
+  font-size: 20px;
+  cursor: pointer;
+}
 </style>
 
  
@@ -2291,6 +2510,9 @@ h4 {
     👥 프로필 등록 · 체류 날짜 · 술친구 찾기
 
   </button>
+ <button type="button" id="sakeFortuneBtn">
+  🎴 오늘의 술 운세
+</button>
 
 </div>
 
@@ -3095,7 +3317,12 @@ h4 {
 
     <div class="field"><label for="lng">경도 (지도 위치)</label><input id="lng" type="number" step="any" placeholder="지도 클릭으로 자동 입력"/></div>
 
-    <div class="field full"><label for="review">나의 리뷰 *</label><textarea id="review" required placeholder="<textarea id="review" required placeholder="【흡연】 전석 금연 / 흡연 가능
+ <div class="field full">
+  <label for="review">나의 리뷰 *</label>
+  <textarea
+    id="review"
+    required
+    placeholder="【흡연】 전석 금연 / 흡연 가능
 
 【분위기】
 
@@ -3115,7 +3342,9 @@ h4 {
 
 【재방문 의사】
 
-【한 줄 총평】"></textarea>"></textarea></div>
+【한 줄 총평】"
+  ></textarea>
+</div>
 
  
 
@@ -3250,7 +3479,56 @@ h4 {
  </div>
 
 </div>
+<!-- 오늘의 술 운세 -->
+<div id="sakeFortuneModal" style="display:none;">
+  <div class="sake-fortune-card">
+    <button type="button" id="closeSakeFortune" aria-label="닫기">✕</button>
 
+    <div class="fortune-eyebrow">KYOTO AFTER DARK · DAILY OMikuji</div>
+    <div class="fortune-deco">✦　🍶　✦</div>
+
+    <h2>오늘의 술 운세</h2>
+    <p class="fortune-date" id="fortuneDate"></p>
+   <button type="button" id="drawSakeFortune">
+  🎴 운세 뽑기
+</button>
+
+    <div class="fortune-rank" id="fortuneRank">大吉</div>
+    <p class="fortune-message" id="fortuneMessage">
+      오늘 밤, 좋은 한 잔이 기다리고 있어요.
+    </p>
+
+    <div class="fortune-divider"></div>
+
+    <div class="fortune-detail">
+      <span>📍 오늘의 추천 장소</span>
+      <strong id="fortunePlace">운세를 확인해 보세요</strong>
+    </div>
+
+    <div class="fortune-detail">
+      <span>🥃 오늘의 추천 술</span>
+      <strong id="fortuneDrink">—</strong>
+    </div>
+
+    <div class="fortune-detail">
+      <span>🫂 술친구 운</span>
+      <strong id="fortuneCompanion">—</strong>
+    </div>
+
+    <div class="fortune-detail">
+      <span>🚃 막차 운</span>
+      <strong id="fortuneLastTrain">—</strong>
+    </div>
+
+    <div class="fortune-mission">
+      <span>오늘 밤의 미션</span>
+      <p id="fortuneMission">—</p>
+    </div>
+
+    <p class="fortune-footer">あなたの京都の夜に、いい一杯を。</p>
+  </div>
+</div>
+ 
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" crossorigin=""></script>
 
 <script src="./places.js"></script>
@@ -8346,6 +8624,61 @@ loadPlaces();
 
 renderUserMarkers();
 
+ // ===== 오늘의 술 운세 열기 및 뽑기 =====
+
+const sakeFortuneModal = document.getElementById('sakeFortuneModal');
+const sakeFortuneBtn = document.getElementById('sakeFortuneBtn');
+const closeSakeFortune = document.getElementById('closeSakeFortune');
+const drawSakeFortune = document.getElementById('drawSakeFortune');
+const sakeFortuneCard = document.querySelector('.sake-fortune-card');
+
+if (sakeFortuneBtn && sakeFortuneModal && sakeFortuneCard) {
+  sakeFortuneBtn.addEventListener('click', () => {
+    sakeFortuneModal.classList.add('is-open');
+    sakeFortuneCard.classList.remove('is-revealed');
+
+    if (drawSakeFortune) {
+      drawSakeFortune.style.display = 'inline-block';
+    }
+
+    const dateElement = document.getElementById('fortuneDate');
+
+    if (dateElement) {
+      dateElement.textContent = new Intl.DateTimeFormat('ko-KR', {
+        timeZone: 'Asia/Tokyo',
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric'
+      }).format(new Date());
+    }
+  });
+}
+
+if (closeSakeFortune && sakeFortuneModal) {
+  closeSakeFortune.addEventListener('click', () => {
+    sakeFortuneModal.classList.remove('is-open');
+  });
+}
+
+if (sakeFortuneModal) {
+  sakeFortuneModal.addEventListener('click', (event) => {
+    if (event.target === sakeFortuneModal) {
+      sakeFortuneModal.classList.remove('is-open');
+    }
+  });
+}
+
+if (drawSakeFortune && sakeFortuneCard) {
+  drawSakeFortune.addEventListener('click', () => {
+    sakeFortuneCard.classList.remove('is-revealed');
+
+    // 애니메이션을 처음부터 다시 시작
+    void sakeFortuneCard.offsetWidth;
+
+    sakeFortuneCard.classList.add('is-revealed');
+    drawSakeFortune.style.display = 'none';
+  });
+}
 </script>
 
 </body>
