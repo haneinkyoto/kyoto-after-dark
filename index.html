@@ -2461,6 +2461,10 @@ h4 {
   font-size: 20px;
   cursor: pointer;
 }
+ /* 메인 지도: 따뜻한 빈티지 아이보리 톤 */
+#map .leaflet-tile-pane {
+  filter: sepia(18%) saturate(78%) brightness(1.02);
+}
 </style>
 
  
@@ -3987,12 +3991,9 @@ document.getElementById('cancelBtn').addEventListener('click', () => {
 
 });
 
-L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-
-  maxZoom: 19,
-
-  attribution: '&copy; OpenStreetMap contributors'
-
+L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
+  maxZoom: 20,
+  attribution: '&copy; OpenStreetMap contributors &copy; CARTO'
 }).addTo(map);
 
  map.on('click', function (e) {
