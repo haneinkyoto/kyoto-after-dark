@@ -8671,12 +8671,116 @@ if (sakeFortuneModal) {
 
 if (drawSakeFortune && sakeFortuneCard) {
   drawSakeFortune.addEventListener('click', () => {
+
+    const fortunes = [
+      {
+        rank: '大吉',
+        message: '오늘은 평소보다 조금 더 멀리 가보세요. 뜻밖의 좋은 밤이 기다려요.',
+        weight: 2
+      },
+      {
+        rank: '中吉',
+        message: '좋은 대화가 술맛을 더해주는 날. 새로운 사람에게 먼저 말을 걸어보세요.',
+        weight: 4
+      },
+      {
+        rank: '小吉',
+        message: '익숙한 골목에서 작은 행복을 발견할 수 있어요.',
+        weight: 5
+      },
+      {
+        rank: '吉',
+        message: '무리하지 않는 한 잔이 가장 좋은 선택이에요.',
+        weight: 5
+      },
+      {
+        rank: '末吉',
+        message: '처음 계획과 달라도 괜찮아요. 오늘 밤은 천천히 흘러갈수록 좋아요.',
+        weight: 3
+      },
+      {
+        rank: '凶',
+        message: '오늘은 과음 금지! 일찍 돌아와도 충분히 좋은 하루예요.',
+        weight: 1
+      }
+    ];
+
+    const weightedFortunes = fortunes.flatMap(f =>
+      Array(f.weight).fill(f)
+    );
+
+    const fortune = weightedFortunes[
+      Math.floor(Math.random() * weightedFortunes.length)
+    ];
+
+    const reviewedPlaces = places.filter(p =>
+      p.review && String(p.review).trim()
+    );
+
+    const candidates = reviewedPlaces.length
+      ? reviewedPlaces
+      : places;
+
+    const place = candidates.length
+      ? candidates[Math.floor(Math.random() * candidates.length)]
+      : null;
+
+    const drinks = [
+      '오늘은 시원한 생맥주',
+      '천천히 즐기는 사케 한 잔',
+      '향긋한 유자 하이볼',
+      '기분 전환에 좋은 레몬 사와',
+      '따뜻한 일본 소주',
+      '오늘은 무알코올 음료도 좋아요'
+    ];
+
+    const companions = [
+      '오랜 친구와 깊은 대화를 나눠보세요.',
+      '새로운 사람과 인연이 생길지도 몰라요.',
+      '오늘은 혼술도 꽤 근사한 선택이에요.',
+      '먼저 연락하지 않았던 사람에게 연락해 보세요.'
+    ];
+
+    const trains = [
+      '막차 시간을 미리 확인하세요.',
+      '오늘은 여유 있게 귀가하는 게 좋아요.',
+      '막차 직전의 무리한 이동은 피하세요.',
+      '택시비를 남겨두면 행운이 따를지도!'
+    ];
+
+    const missions = [
+      '평소 지나치던 골목의 술집에 들어가 보기.',
+      '오늘 마신 술의 이름을 사진으로 남기기.',
+      '바텐더나 직원에게 추천 메뉴 물어보기.',
+      '휴대폰을 내려놓고 술 한 잔에 집중하기.',
+      '오늘 밤 마음에 든 풍경을 하나 기억하기.'
+    ];
+
+    document.getElementById('fortuneRank').textContent = fortune.rank;
+    document.getElementById('fortuneMessage').textContent = fortune.message;
+
+    document.getElementById('fortunePlace').textContent = place
+      ? place.name
+      : '아직 등록된 술집이 없어요';
+
+    document.getElementById('fortuneDrink').textContent =
+      drinks[Math.floor(Math.random() * drinks.length)];
+
+    document.getElementById('fortuneCompanion').textContent =
+      companions[Math.floor(Math.random() * companions.length)];
+
+    document.getElementById('fortuneLastTrain').textContent =
+      trains[Math.floor(Math.random() * trains.length)];
+
+    document.getElementById('fortuneMission').textContent =
+      missions[Math.floor(Math.random() * missions.length)];
+
     sakeFortuneCard.classList.remove('is-revealed');
 
-    // 애니메이션을 처음부터 다시 시작
     void sakeFortuneCard.offsetWidth;
 
     sakeFortuneCard.classList.add('is-revealed');
+
     drawSakeFortune.style.display = 'none';
   });
 }
