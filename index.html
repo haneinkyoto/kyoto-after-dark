@@ -3127,22 +3127,32 @@ h4 {
 
  
 
-<label for="photoUrl" style="display:block;margin-top:12px;">
-
-  사진 URL
-
+<label style="display:block;margin-top:12px;">
+  가게 사진
 </label>
 
+<button
+  type="button"
+  id="photoUploadBtn"
+  style="width:100%;padding:12px;margin-top:6px;"
+>
+  📷 내 기기에서 사진 선택
+</button>
+
 <input
+  type="file"
+  id="photoFile"
+  accept="image/jpeg,image/png,image/webp"
+  style="display:none;"
+/>
 
-  type="url"
+<p style="font-size:12px;color:#777;margin-top:6px;">
+  JPG, PNG, WebP 사진을 선택할 수 있어요.
+</p>
 
-  id="photoUrl"
+<div id="manualPhotoPreview" style="margin-top:10px;"></div>
 
-  placeholder="https://example.com/photo.jpg"
-
-  style="width:100%;box-sizing:border-box;padding:10px;margin-top:6px;"
-
+<input type="hidden" id="photoUrl" />
 />
 
  
@@ -5092,7 +5102,73 @@ photoUrlInput.addEventListener('input', () => {
 });
 
  
+const photoFileInput = document.getElementById('photoFile');
+const photoUploadBtn = document.getElementById('photoUploadBtn');
 
+photoUploadBtn.addEventListener('click', () => {
+  photoFileInput.click();
+});
+
+photoFileInput.addEventListener('change', async () => {
+  const file = photoFileInput.files[0];
+
+  if (!file) return;
+
+  const allowedTypes = [
+    'image/jpeg',
+    'image/png',
+    'image/webp'
+  ];
+
+  if (!allowedTypes.includes(file.type)) {
+    alert('JPG, PNG, WebP 사진만 업로드할 수 있어요.');
+    photoFileInput.value = '';
+    return;
+  }
+
+  if (file.size > 5 * 1024 * 1024) {
+    alert('사진은 5MB 이하로 선택해 주세요.');
+    photoFileInput.value = '';
+    return;
+  }
+
+  photoUploadBtn.disabled = true;
+  photoUploadBtn.textContent = '사진 업로드 중...';
+
+  try {
+    const extension = file.type.split('/')[1].replace('jpeg', 'jpg');
+    const filePath = `places/${Date.now()}-${crypto.randomUUID()}.${extension}`;
+
+    const { error: uploadError } = await supabaseClient
+      .storage
+      .from('place-photos')
+      .upload(filePath, file, {
+        cacheControl: '3600',
+        upsert: false,
+        contentType: file.type
+      });
+
+    if (uploadError) throw uploadError;
+
+    const { data } = supabaseClient
+      .storage
+      .from('place-photos')
+      .getPublicUrl(filePath);
+
+    photoUrlInput.value = data.publicUrl;
+    photoUrlInput.dispatchEvent(new Event('input'));
+
+    photoUploadBtn.textContent = '✓ 사진 선택 완료';
+
+  } catch (error) {
+    console.error('사진 업로드 실패:', error);
+    alert('사진 업로드에 실패했어요. Supabase Storage 권한을 확인해 주세요.');
+    photoUploadBtn.textContent = '📷 내 기기에서 사진 선택';
+
+  } finally {
+    photoUploadBtn.disabled = false;
+  }
+});
 let userLocationMarker = null;
 
  
