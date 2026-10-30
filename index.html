@@ -5436,7 +5436,17 @@ function setCommunityStatus(id, message) {
 function updateCommunityAuthUI() {
 
   const loggedIn = Boolean(communityUser);
+ // 프로필 등록 버튼과 입력 영역 표시 제어
+  const profileToggleBtn = document.getElementById('profileToggleBtn');
+  const profileFormWrap = document.getElementById('profileFormWrap');
 
+  if (profileToggleBtn) {
+    profileToggleBtn.style.display = loggedIn ? 'inline-block' : 'none';
+  }
+
+  if (!loggedIn && profileFormWrap) {
+    profileFormWrap.style.display = 'none';
+  }
  
 
   document.getElementById('communityAuthButtons').style.display =
@@ -5526,17 +5536,18 @@ console.log('닉네임:', communityUser?.user_metadata?.nickname);
 }
 
 // 프로필 입력 영역 열기 / 닫기
-
 document.getElementById('profileToggleBtn')?.addEventListener('click', () => {
-
   const wrap = document.getElementById('profileFormWrap');
 
-  if (wrap) {
+  if (!wrap) return;
 
-    wrap.style.display = wrap.style.display === 'none' ? 'block' : 'none';
-
+  // 로그인하지 않았다면 열지 않기
+  if (!communityUser) {
+    alert('프로필을 등록하려면 먼저 로그인해 주세요.');
+    return;
   }
 
+  wrap.style.display = wrap.style.display === 'none' ? 'block' : 'none';
 });
 
  
