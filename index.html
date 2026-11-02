@@ -2617,7 +2617,37 @@ h4 {
   position: relative;
   z-index: 1;
 }
+/* 오늘의 술 운세: 팝업 스크롤 수정 */
+#sakeFortuneModal.is-open {
+  overflow-y: auto !important;
+  overflow-x: hidden !important;
+  align-items: flex-start !important;
+  padding: 20px 12px !important;
+  box-sizing: border-box;
+}
 
+.sake-fortune-card {
+  max-height: none !important;
+  height: auto !important;
+  overflow-x: hidden !important;
+  overflow-y: visible !important;
+  margin: auto !important;
+  box-sizing: border-box;
+  flex-shrink: 0;
+}
+
+/* 모바일 화면에서도 팝업이 화면을 넘지 않도록 */
+@media (max-width: 600px) {
+  #sakeFortuneModal.is-open {
+    padding: 12px 10px !important;
+  }
+
+  .sake-fortune-card {
+    width: 100% !important;
+    max-width: 420px !important;
+    padding: 30px 20px !important;
+  }
+}
 </style>
 
  
