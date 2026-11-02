@@ -2681,6 +2681,136 @@ h4 {
   min-height: 220px;
   line-height: 1.8;
 }
+ /* 식당 팝업 기본 디자인 */
+.restaurant-popup {
+  width: 100%;
+  min-width: 0;
+  color: #3f382f;
+  font-size: 13px;
+  line-height: 1.65;
+  overflow-wrap: anywhere;
+  box-sizing: border-box;
+}
+
+.restaurant-popup-header {
+  margin-bottom: 8px;
+}
+
+.restaurant-popup .popup-name {
+  font-size: 17px;
+  font-weight: 700;
+  line-height: 1.4;
+  margin-bottom: 5px;
+  color: #352f28;
+}
+
+.restaurant-popup .popup-rating {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  color: #756957;
+}
+
+.restaurant-popup .popup-stars {
+  color: #b18a48;
+  letter-spacing: 1px;
+}
+
+.restaurant-popup-photo {
+  display: block;
+  width: 100%;
+  max-height: 150px;
+  object-fit: cover;
+  border-radius: 10px;
+  margin: 10px 0;
+}
+
+.restaurant-popup-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 10px;
+  margin: 8px 0;
+  font-size: 11px;
+  color: #857969;
+}
+
+.restaurant-popup-preview {
+  margin: 10px 0;
+  font-size: 13px;
+  line-height: 1.7;
+  color: #51483d;
+  overflow-wrap: anywhere;
+}
+
+.restaurant-popup-details {
+  margin-top: 12px;
+  border-top: 1px solid #e8dfd2;
+}
+
+.restaurant-popup-details summary {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  min-height: 44px;
+  padding: 10px 2px;
+  color: #a34532;
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+  list-style: none;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.restaurant-popup-details summary::-webkit-details-marker {
+  display: none;
+}
+
+.restaurant-popup-details[open] .popup-arrow {
+  transform: rotate(45deg);
+}
+
+.popup-arrow {
+  font-size: 20px;
+  transition: transform 0.2s ease;
+}
+
+.restaurant-popup-full-review {
+  padding: 10px 2px 14px;
+  border-top: 1px solid #eee5d9;
+  font-size: 13px;
+  line-height: 1.85;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  color: #51483d;
+}
+
+/* 휴대폰 화면 최적화 */
+@media (max-width: 600px) {
+  .leaflet-popup-content-wrapper {
+    border-radius: 14px !important;
+  }
+
+  .leaflet-popup-content {
+    width: 260px !important;
+    max-width: calc(100vw - 100px) !important;
+    margin: 14px !important;
+  }
+
+  .restaurant-popup .popup-name {
+    font-size: 16px;
+  }
+
+  .restaurant-popup-photo {
+    max-height: 130px;
+  }
+
+  .restaurant-popup-details summary {
+    min-height: 48px;
+    font-size: 14px;
+  }
+}
 </style>
 
  
@@ -4395,37 +4525,57 @@ function tooltipPreview(p) {
 
 function popup(p) {
   const review = String(p.review || '');
+  const hasReview = review.trim().length > 0;
 
   return `
-    <div class="popup-name">${esc(p.name)}</div>
+    <div class="restaurant-popup">
 
-    <div class="popup-rating">
-      ${stars(p.rating)} · ${Number(p.rating) || 0}/5
-    </div>
-
-    ${p.photo_url ? `
-      <img
-        src="${esc(p.photo_url)}"
-        alt="${esc(p.name)} 사진"
-        style="width:100%;max-height:180px;object-fit:cover;border-radius:8px;margin:8px 0;"
-        onerror="this.style.display='none'"
-      >
-    ` : ''}
-
-    <div style="font-size:12px;color:#777;margin-bottom:8px">
-      ${esc(p.area || '교토')}
-      ${p.visited ? ' · 방문일: ' + esc(p.visited) : ''}
-    </div>
-
-    <details>
-      <summary style="cursor:pointer;font-size:12px;color:#a34532;font-weight:600">
-        리뷰 전체 보기
-      </summary>
-
-      <div class="popup-review" style="margin-top:10px;white-space:pre-wrap;overflow-wrap:anywhere">
-        ${esc(review || '아직 작성된 리뷰가 없습니다.')}
+      <div class="restaurant-popup-header">
+        <div class="popup-name">${esc(p.name)}</div>
+        <div class="popup-rating">
+          <span class="popup-stars">${stars(p.rating)}</span>
+          <span>${Number(p.rating) || 0}/5</span>
+        </div>
       </div>
-    </details>
+
+      ${p.photo_url ? `
+        <img
+          class="restaurant-popup-photo"
+          src="${esc(p.photo_url)}"
+          alt="${esc(p.name)} 사진"
+          onerror="this.style.display='none'"
+        >
+      ` : ''}
+
+      <div class="restaurant-popup-meta">
+        <span>📍 ${esc(p.area || '교토')}</span>
+        ${p.visited ? `
+          <span>방문일 ${esc(p.visited)}</span>
+        ` : ''}
+      </div>
+
+      <div class="restaurant-popup-preview">
+        ${
+          hasReview
+            ? esc(review.slice(0, 90)) + (review.length > 90 ? '…' : '')
+            : '아직 작성된 리뷰가 없습니다.'
+        }
+      </div>
+
+      ${hasReview ? `
+        <details class="restaurant-popup-details">
+          <summary>
+            <span>리뷰 전체 보기</span>
+            <span class="popup-arrow">＋</span>
+          </summary>
+
+          <div class="restaurant-popup-full-review">
+            ${esc(review)}
+          </div>
+        </details>
+      ` : ''}
+
+    </div>
   `;
 }
  
