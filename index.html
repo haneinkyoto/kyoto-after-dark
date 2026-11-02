@@ -8935,13 +8935,20 @@ if (drawSakeFortune && sakeFortuneCard) {
       Math.floor(Math.random() * weightedFortunes.length)
     ];
 
-    const reviewedPlaces = places.filter(p =>
-      p.review && String(p.review).trim()
-    );
+    // 별점 2점 이상인 술집만 추천 후보에 포함
+const eligiblePlaces = places.filter(p =>
+  Number(p.rating) >= 2
+);
 
-    const candidates = reviewedPlaces.length
-      ? reviewedPlaces
-      : places;
+// 리뷰가 있는 술집을 우선 추천
+const reviewedPlaces = eligiblePlaces.filter(p =>
+  p.review && String(p.review).trim()
+);
+
+// 리뷰가 있는 곳이 없으면 별점 2점 이상인 술집 중 선택
+const candidates = reviewedPlaces.length
+  ? reviewedPlaces
+  : eligiblePlaces;
 
     const place = candidates.length
       ? candidates[Math.floor(Math.random() * candidates.length)]
