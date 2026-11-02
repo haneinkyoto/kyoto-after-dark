@@ -2648,6 +2648,39 @@ h4 {
     padding: 30px 20px !important;
   }
 }
+ /* 리뷰 작성 가이드 */
+.review-guide {
+  margin-bottom: 12px;
+  padding: 15px 17px;
+  border: 1px solid #e5dac7;
+  border-radius: 12px;
+  background: #f8f3e9;
+  color: #514638;
+  font-size: 13px;
+  line-height: 1.8;
+}
+
+.review-guide strong {
+  color: #8a6545;
+}
+
+.review-guide p {
+  margin: 5px 0 8px;
+}
+
+.review-guide ul {
+  margin: 0;
+  padding-left: 20px;
+}
+
+.review-guide li {
+  margin: 2px 0;
+}
+
+#review {
+  min-height: 220px;
+  line-height: 1.8;
+}
 </style>
 
  
@@ -3506,33 +3539,31 @@ h4 {
 
  <div class="field full">
   <label for="review">나의 리뷰 *</label>
+
+  <div class="review-guide">
+    <strong>📝 리뷰 작성 가이드</strong>
+    <p>아래 항목을 참고해서 자유롭게 리뷰를 작성해 주세요.</p>
+    <ul>
+      <li><strong>흡연:</strong> 전석 금연 / 흡연 가능</li>
+      <li><strong>분위기:</strong> 조용함 / 활기참 / 세련됨</li>
+      <li><strong>가격대:</strong> 1인 기준 약 ¥</li>
+      <li><strong>음식:</strong> 추천 메뉴와 맛</li>
+      <li><strong>술 종류:</strong> 사케 / 맥주 / 하이볼 등</li>
+      <li><strong>서비스:</strong> 직원의 친절도</li>
+      <li><strong>매장 규모:</strong> 좌석 수와 매장 크기</li>
+      <li><strong>혼술하기 좋은가:</strong> 혼자 방문하기 편한지</li>
+      <li><strong>추천 방문 목적:</strong> 데이트 / 친구와 한잔 / 혼술</li>
+      <li><strong>재방문 의사:</strong> 다시 방문하고 싶은지</li>
+      <li><strong>한 줄 총평:</strong> 가게를 한 문장으로 표현</li>
+    </ul>
+  </div>
+
   <textarea
     id="review"
     required
-    placeholder="【흡연】 전석 금연 / 흡연 가능
-
-【분위기】
-
-【가격대】 1인 기준 약 ¥
-
-【음식】
-
-【술 종류】
-
-【서비스】
-
-【매장 규모】
-
-【혼술하기 좋은가】
-
-【추천 방문 목적】
-
-【재방문 의사】
-
-【한 줄 총평】"
+    placeholder="이곳에 직접 방문한 느낌과 솔직한 리뷰를 작성해 주세요."
   ></textarea>
 </div>
-
  
 
 <div class="field full"><label for="visited">방문일</label><input id="visited" type="date"/></div>
