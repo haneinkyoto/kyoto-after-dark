@@ -3090,6 +3090,620 @@ header {
 @media (max-width: 800px) {
 
 }
+  /* =====================================
+   KYOTO STAY COMMUNITY — EDITORIAL DESIGN
+===================================== */
+
+#calendarPanel {
+  --stay-paper: #F3EBDD;
+  --stay-ink: #292923;
+  --stay-muted: #777568;
+  --stay-wine: #843D3D;
+  --stay-olive: #777B57;
+  --stay-gold: #B39A69;
+
+  max-width: 1120px !important;
+  padding: 32px 28px 80px !important;
+  color: var(--stay-ink);
+  font-family: inherit;
+}
+
+#calendarPanel h2 {
+  font-family: Georgia, serif;
+  font-size: clamp(30px, 5vw, 48px);
+  font-weight: 500;
+  letter-spacing: -1.5px;
+  margin: 24px 0 8px;
+}
+
+#calendarPanel h3 {
+  font-family: Georgia, serif;
+  font-size: 21px;
+  font-weight: 500;
+  letter-spacing: -.4px;
+}
+
+#calendarPanel p {
+  color: var(--stay-muted);
+  line-height: 1.75;
+}
+
+#calendarPanel button {
+  cursor: pointer;
+  transition: background .2s, color .2s, border-color .2s;
+}
+
+#calendarPanel > button:first-child {
+  border: 0;
+  background: transparent;
+  color: var(--stay-wine);
+  padding: 8px 0;
+  font-size: 13px;
+}
+
+#calendarPanel > div[style*="border:1px solid"] {
+  background: rgba(255, 252, 244, .66) !important;
+  border: 1px solid rgba(120, 105, 78, .2) !important;
+  border-radius: 4px !important;
+  padding: 24px !important;
+  margin: 24px 0 !important;
+  box-shadow: 0 5px 20px rgba(55, 43, 25, .035);
+}
+
+#calendarPanel input:not([type="checkbox"]),
+#calendarPanel textarea,
+#calendarPanel select {
+  background: #FFFCF5;
+  border: 1px solid rgba(120, 105, 78, .3);
+  border-radius: 3px;
+  padding: 12px !important;
+  color: var(--stay-ink);
+  font: inherit;
+}
+
+#calendarPanel input:focus,
+#calendarPanel textarea:focus,
+#calendarPanel select:focus {
+  outline: 1px solid var(--stay-gold);
+  border-color: var(--stay-gold);
+}
+
+#calendarPanel button:not(#calendarBackBtn) {
+  border: 1px solid rgba(120, 105, 78, .35);
+  border-radius: 3px;
+  padding: 10px 16px;
+  background: #FFFCF5;
+  color: var(--stay-ink);
+  font-size: 13px;
+}
+
+#calendarPanel button:not(#calendarBackBtn):hover {
+  background: var(--stay-wine);
+  border-color: var(--stay-wine);
+  color: white;
+}
+
+#calendarMonth {
+  font-family: Georgia, serif;
+  font-size: 25px !important;
+  letter-spacing: -.5px;
+}
+
+#calendarGrid {
+  gap: 5px !important;
+}
+
+#calendarGrid button {
+  min-height: 82px !important;
+  border: 1px solid rgba(120, 105, 78, .2) !important;
+  border-radius: 2px !important;
+  background: rgba(255, 252, 244, .75) !important;
+  color: var(--stay-ink) !important;
+  font-family: Georgia, serif;
+}
+
+#calendarGrid button:hover {
+  background: #E9DECB !important;
+  color: var(--stay-ink) !important;
+}
+
+#selectedDateLabel {
+  margin-top: 22px;
+  color: var(--stay-wine) !important;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+#stayCountLabel {
+  font-size: 13px;
+}
+
+#chatMessages {
+  background: #F8F3E9;
+  border: 1px solid rgba(120, 105, 78, .2) !important;
+  border-radius: 3px !important;
+}
+
+#meetupList > div {
+  background: #FFFCF5;
+  border: 1px solid rgba(120, 105, 78, .2) !important;
+  border-radius: 3px !important;
+  padding: 20px !important;
+  margin: 12px 0 !important;
+}
+
+#meetupList h4 {
+  font-family: Georgia, serif;
+  font-size: 19px;
+  font-weight: 500;
+  color: var(--stay-wine);
+}
+
+#calendarPanel label {
+  color: var(--stay-muted);
+  font-size: 13px;
+}
+
+@media (max-width: 700px) {
+  #calendarPanel {
+    padding: 20px 14px 60px !important;
+  }
+
+  #calendarPanel > div[style*="border:1px solid"] {
+    padding: 16px !important;
+    margin: 16px 0 !important;
+  }
+
+  #calendarGrid {
+    gap: 3px !important;
+  }
+
+  #calendarGrid button {
+    min-height: 62px !important;
+    padding: 4px 1px !important;
+    font-size: 12px;
+  }
+
+  #calendarMonth {
+    font-size: 21px !important;
+  }
+}
+  .stay-hero {
+  position: relative;
+  padding: 20px 0 28px;
+  margin: 12px 0 30px;
+  border-top: 1px solid rgba(120, 105, 78, .35);
+  border-bottom: 1px solid rgba(120, 105, 78, .35);
+}
+
+.stay-hero-top,
+.stay-hero-bottom {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  color: #777568;
+  font-size: 10px;
+  letter-spacing: 1.8px;
+}
+
+.stay-hero-main {
+  padding: 42px 0 38px;
+}
+
+.stay-hero-main .stay-kicker {
+  color: #843D3D !important;
+  font-size: 10px;
+  letter-spacing: 3px;
+  margin-bottom: 12px;
+}
+
+#calendarPanel .stay-hero h2 {
+  font-family: Georgia, serif;
+  font-size: clamp(32px, 6vw, 58px);
+  font-weight: 400;
+  letter-spacing: -2px;
+  line-height: 1.2;
+  margin: 0;
+}
+
+.stay-hero h2 span {
+  color: #843D3D;
+}
+
+#calendarPanel .stay-hero .stay-intro {
+  margin: 18px 0 0;
+  font-size: 14px;
+  line-height: 2;
+  color: #777568;
+}
+
+.stay-hero-bottom {
+  padding-top: 14px;
+  border-top: 1px solid rgba(120, 105, 78, .2);
+  letter-spacing: 1.2px;
+}
+
+@media (max-width: 600px) {
+  .stay-hero-main {
+    padding: 32px 0;
+  }
+
+  .stay-hero-top,
+  .stay-hero-bottom {
+    font-size: 9px;
+    letter-spacing: 1px;
+  }
+}
+  /* COMMUNITY MEMBERSHIP AREA */
+
+#calendarPanel .stay-auth-card {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px 24px;
+  padding: 18px 22px !important;
+  background: rgba(132, 61, 61, .045) !important;
+  border: 1px solid rgba(132, 61, 61, .2) !important;
+}
+
+#calendarPanel .stay-auth-card > h3 {
+  width: 100%;
+  margin: 0 0 2px;
+  color: #843D3D;
+  font-size: 17px;
+}
+
+#communityAuthArea {
+  width: 100%;
+}
+
+#communityAuthButtons {
+  gap: 8px !important;
+}
+
+#communityAuthButtons button {
+  min-width: 100px;
+}
+
+#communityAuthStatus {
+  margin: 8px 0 0;
+  font-size: 12px;
+  color: #777568;
+}
+
+#communityLoggedIn {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+#communityNicknameLabel {
+  margin: 0;
+  color: #292923 !important;
+  font-size: 14px;
+}
+
+#communityAuthForm {
+  max-width: 480px;
+}
+
+#communityAuthForm h3 {
+  margin: 14px 0 8px;
+}
+
+@media (max-width: 600px) {
+  #calendarPanel .stay-auth-card {
+    padding: 16px !important;
+  }
+
+  #communityAuthButtons button {
+    flex: 1;
+  }
+}
+/* CALENDAR EDITORIAL STYLE */
+
+.stay-calendar-heading {
+  padding: 18px 0 12px;
+  border-bottom: 1px solid rgba(120, 105, 78, .25);
+}
+
+.stay-calendar-heading button {
+  min-width: 86px;
+  background: transparent !important;
+  border: 0 !important;
+  color: #843D3D !important;
+  font-size: 12px !important;
+}
+
+.stay-calendar-heading button:hover {
+  background: #E9DECB !important;
+  color: #292923 !important;
+}
+
+#calendarMonth {
+  flex: 1;
+  text-align: center;
+  color: #292923;
+}
+
+.stay-weekdays {
+  display: grid;
+  grid-template-columns: repeat(7, minmax(0, 1fr));
+  gap: 5px;
+  text-align: center;
+  padding: 12px 0 7px;
+  color: #777568;
+  font-size: 11px;
+  letter-spacing: 1px;
+}
+
+.stay-weekdays > div:first-child {
+  color: #843D3D;
+}
+
+.stay-weekdays > div:last-child {
+  color: #777B57;
+}
+
+#calendarGrid button {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 5px;
+  padding-top: 10px !important;
+  font-family: inherit !important;
+  font-size: 13px;
+}
+
+#calendarGrid button strong {
+  font-family: Georgia, serif;
+  font-size: 17px;
+  font-weight: 500;
+}
+
+#calendarGrid button small {
+  font-family: inherit;
+  font-size: 9px;
+  color: #777568;
+}
+
+#calendarGrid button[style*="2px solid"] {
+  background: #E9DECB !important;
+  border: 1px solid #843D3D !important;
+}
+
+@media (max-width: 600px) {
+  .stay-weekdays {
+    font-size: 10px;
+    gap: 3px;
+  }
+
+  #calendarGrid button {
+    gap: 4px;
+  }
+
+  #calendarGrid button strong {
+    font-size: 15px;
+  }
+
+  #calendarGrid button small {
+    font-size: 8px;
+  }
+}
+/* STAY DATE REGISTRATION */
+
+#calendarPanel .stay-date-card {
+  position: relative;
+  padding: 24px !important;
+  margin: 24px 0 !important;
+  background: rgba(255, 252, 244, .72);
+  border: 1px solid rgba(120, 105, 78, .25) !important;
+  border-radius: 3px !important;
+}
+
+#calendarPanel .stay-date-card h3 {
+  margin: 0 0 8px;
+  color: #843D3D;
+  font-family: Georgia, serif;
+  font-size: 22px;
+}
+
+#calendarPanel .stay-date-card p {
+  font-size: 13px;
+  margin-bottom: 20px;
+}
+
+#calendarPanel .stay-date-card label {
+  display: block;
+  margin: 14px 0 6px;
+  color: #777568;
+  font-size: 12px;
+}
+
+#calendarPanel .stay-date-card input[type="date"] {
+  width: 100%;
+  max-width: 320px;
+  box-sizing: border-box;
+  min-height: 46px;
+  background: #FFFCF5;
+}
+
+#calendarPanel #saveStayBtn {
+  background: #843D3D !important;
+  border-color: #843D3D !important;
+  color: white !important;
+}
+
+#calendarPanel #removeStayBtn {
+  margin-left: 6px;
+  color: #843D3D;
+}
+
+#calendarPanel #stayStatus {
+  font-size: 12px;
+  margin-top: 14px;
+}
+
+@media (max-width: 600px) {
+  #calendarPanel .stay-date-card {
+    padding: 18px !important;
+  }
+
+  #calendarPanel #removeStayBtn {
+    margin: 8px 0 0;
+  }
+}
+/* DATE CHAT EDITORIAL DESIGN */
+
+#calendarPanel .stay-chat-card {
+  padding: 24px !important;
+  margin: 24px 0 !important;
+  background: rgba(255, 252, 244, .72);
+  border: 1px solid rgba(120, 105, 78, .25) !important;
+  border-radius: 3px !important;
+}
+
+#calendarPanel .stay-chat-card h3 {
+  margin: 0 0 8px;
+  color: #843D3D;
+  font-family: Georgia, serif;
+  font-size: 22px;
+}
+
+#calendarPanel .stay-chat-card > p {
+  font-size: 13px;
+  margin-bottom: 18px;
+}
+
+#calendarPanel #chatMessages {
+  min-height: 220px;
+  max-height: 420px;
+  overflow-y: auto;
+  padding: 16px !important;
+  background: #F8F3E9 !important;
+  border: 1px solid rgba(120, 105, 78, .18) !important;
+  border-radius: 3px !important;
+}
+
+#calendarPanel #chatInput {
+  width: 100%;
+  min-height: 44px;
+  box-sizing: border-box;
+  margin-top: 12px;
+}
+
+#calendarPanel #sendChatBtn {
+  background: #843D3D !important;
+  border-color: #843D3D !important;
+  color: white !important;
+}
+
+#calendarPanel #chatStatus {
+  font-size: 12px;
+  margin-top: 8px;
+}
+
+@media (max-width: 600px) {
+  #calendarPanel .stay-chat-card {
+    padding: 17px !important;
+  }
+
+  #calendarPanel #chatMessages {
+    min-height: 180px;
+    max-height: 360px;
+    padding: 12px !important;
+  }
+}
+/* MEETUP EDITORIAL DESIGN */
+
+#calendarPanel .stay-meetup-card {
+  padding: 26px !important;
+  margin: 28px 0 !important;
+  background: rgba(255, 252, 244, .8);
+  border: 1px solid rgba(120, 105, 78, .25) !important;
+  border-radius: 3px !important;
+}
+
+#calendarPanel .stay-meetup-card h3 {
+  margin: 0 0 10px;
+  color: #843D3D;
+  font-family: Georgia, serif;
+  font-size: 25px;
+}
+
+#calendarPanel .stay-meetup-card > p {
+  font-size: 13px;
+  line-height: 1.8;
+}
+
+#calendarPanel .stay-meetup-card input,
+#calendarPanel .stay-meetup-card textarea {
+  width: 100%;
+  box-sizing: border-box;
+  margin: 7px 0 12px !important;
+  padding: 13px !important;
+  background: #FFFCF5;
+  border: 1px solid rgba(120, 105, 78, .28);
+  border-radius: 2px;
+  font-size: 13px;
+}
+
+#calendarPanel .stay-meetup-card textarea {
+  min-height: 100px;
+  resize: vertical;
+}
+
+#calendarPanel #createMeetupBtn {
+  background: #843D3D !important;
+  border-color: #843D3D !important;
+  color: white !important;
+  padding: 12px 22px;
+}
+
+#calendarPanel #meetupStatus {
+  font-size: 12px;
+}
+
+#calendarPanel #meetupList {
+  margin-top: 26px !important;
+  padding-top: 20px;
+  border-top: 1px solid rgba(120, 105, 78, .25);
+}
+
+#calendarPanel #meetupList > div {
+  padding: 22px !important;
+  margin: 14px 0 !important;
+  background: #F8F3E9 !important;
+  border: 1px solid rgba(120, 105, 78, .2) !important;
+  border-left: 3px solid #843D3D !important;
+  border-radius: 2px !important;
+}
+
+#calendarPanel #meetupList h4 {
+  font-family: Georgia, serif;
+  font-size: 20px;
+  font-weight: 500;
+  color: #843D3D;
+}
+
+@media (max-width: 600px) {
+  #calendarPanel .stay-meetup-card {
+    padding: 18px !important;
+  }
+
+  #calendarPanel #createMeetupBtn {
+    width: 100%;
+  }
+
+  #calendarPanel #meetupList > div {
+    padding: 16px !important;
+  }
+}
 </style>
 
  
@@ -3161,13 +3775,31 @@ header {
 
  
 
-  <h2>📅 교토 체류 달력</h2>
+<div class="stay-hero">
+  <div class="stay-hero-top">
+    <span class="stay-eyebrow">KYOTO AFTER DARK</span>
+    <span class="stay-issue">COMMUNITY · 2026</span>
+  </div>
 
-  <p>교토에 있는 날짜를 등록하고, 같은 날 머무는 사람들과 이야기해 보세요.</p>
+  <div class="stay-hero-main">
+    <p class="stay-kicker">A LITTLE DIARY OF KYOTO</p>
+    <h2>교토에서 머무는 날들<span>.</span></h2>
+    <p class="stay-intro">
+      이 도시를 여행하는 사람들, 잠시 살아가는 사람들.
+      <br>
+      당신의 교토와 누군가의 교토가 만나는 곳.
+    </p>
+  </div>
+
+  <div class="stay-hero-bottom">
+    <span>STAY · MEET · DRINK</span>
+    <span>京都の日々を、ここに。</span>
+  </div>
+</div>
 
  
 
-  <div style="border:1px solid #ddd;border-radius:12px;padding:16px;margin:20px 0;">
+<div class="stay-auth-card" style="border:1px solid #ddd;border-radius:12px;padding:16px;margin:20px 0;">
 
     <h3>커뮤니티 로그인</h3>
 
@@ -3494,7 +4126,7 @@ header {
 
  
 
-  <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin:16px 0;">
+<div class="stay-calendar-heading" style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin:16px 0;">
 
     <button type="button" id="prevMonthBtn">← 이전 달</button>
 
@@ -3506,21 +4138,24 @@ header {
 
  
 
-  <div style="display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:6px;text-align:center;margin-bottom:6px;">
+ <div class="stay-weekdays">
+  <div>일</div>
+  <div>월</div>
+  <div>화</div>
+  <div>수</div>
+  <div>목</div>
+  <div>금</div>
+  <div>토</div>
+</div>
 
-    <div>일</div><div>월</div><div>화</div><div>수</div><div>목</div><div>금</div><div>토</div>
-
-  </div>
-
-  <div id="calendarGrid" style="display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:6px;"></div>
-
+<div id="calendarGrid" style="display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:6px;"></div>
   <p id="selectedDateLabel">선택한 날짜: 없음</p>
 
   <p id="stayCountLabel">날짜별 체류 인원을 불러오는 중...</p>
 
  
 
-  <div style="border:1px solid #ddd;border-radius:12px;padding:16px;margin:20px 0;">
+<div class="stay-date-card" style="border:1px solid #ddd;border-radius:12px;padding:16px;margin:20px 0;">
 
     <h3>내 체류 날짜 등록</h3>
 
@@ -3544,7 +4179,7 @@ header {
 
  
 
-  <div style="border:1px solid #ddd;border-radius:12px;padding:16px;margin:20px 0;">
+<div class="stay-chat-card" style="border:1px solid #ddd;border-radius:12px;padding:16px;margin:20px 0;">
 
     <h3 id="chatHeading">💬 오늘의 교토 채팅</h3>
 
@@ -3570,7 +4205,7 @@ header {
 
  
 
-  <div style="border:1px solid #ddd;border-radius:12px;padding:16px;margin:20px 0;">
+<div class="stay-meetup-card" style="border:1px solid #ddd;border-radius:12px;padding:16px;margin:20px 0;">
 
     <h3>🍻 오늘 술친구 할까요</h3>
 
@@ -3587,6 +4222,9 @@ header {
     <textarea id="meetupDescription" maxlength="1000" rows="3" placeholder="시간, 분위기, 하고 싶은 이야기 등" style="width:100%;box-sizing:border-box;padding:10px;margin:6px 0;"></textarea>
 
     <button type="button" id="createMeetupBtn">모임 글 올리기</button>
+  <button type="button" id="cancelMeetupEditBtn" style="display:none;">
+  수정 취소
+</button>
 
     <p id="meetupStatus" role="status"></p>
 
@@ -8533,6 +9171,105 @@ const { error } = await communityClient
 
 /* 오늘 술친구 할까요 게시판 */
 
+let editingMeetupId = null;
+
+document.getElementById('cancelMeetupEditBtn').addEventListener('click', () => {
+  editingMeetupId = null;
+
+  document.getElementById('meetupTitle').value = '';
+  document.getElementById('meetupDate').value = '';
+  document.getElementById('meetupArea').value = '';
+  document.getElementById('meetupDescription').value = '';
+
+  document.getElementById('createMeetupBtn').textContent = '모임 글 올리기';
+  document.getElementById('cancelMeetupEditBtn').style.display = 'none';
+
+  setCommunityStatus('meetupStatus', '글 수정이 취소됐어요.');
+});
+
+async function loadMeetupComments(meetupId, container) {
+  container.replaceChildren();
+
+  const heading = document.createElement('h5');
+  heading.textContent = '댓글';
+  container.appendChild(heading);
+
+  const { data, error } = await communityClient
+    .from('kyoto_meetup_comments')
+    .select('id,user_id,parent_id,content,created_at')
+    .eq('meetup_id', meetupId)
+    .order('created_at', { ascending: true });
+
+  if (error) {
+    container.textContent = '댓글을 불러오지 못했어요.';
+    console.error(error);
+    return;
+  }
+
+  const commentList = document.createElement('div');
+
+  (data || []).forEach(comment => {
+    const item = document.createElement('div');
+    item.style.cssText = 'padding:10px;margin:8px 0;background:#F8F3E9;border:1px solid #e5dfd2;';
+
+    const author = document.createElement('strong');
+    author.textContent =
+      communityUser && comment.user_id === communityUser.id ? '나' : '교토 방문자';
+
+    const content = document.createElement('p');
+    content.textContent = comment.content;
+
+    const date = document.createElement('small');
+    date.textContent = new Date(comment.created_at).toLocaleString('ja-JP');
+
+    item.append(author, content, date);
+    commentList.appendChild(item);
+  });
+
+  if (!data?.length) {
+    commentList.textContent = '아직 댓글이 없어요. 첫 댓글을 남겨보세요.';
+  }
+
+  container.appendChild(commentList);
+
+  const input = document.createElement('textarea');
+  input.placeholder = communityUser ? '댓글을 남겨보세요.' : '로그인 후 댓글을 작성할 수 있어요.';
+  input.disabled = !communityUser;
+  input.style.cssText = 'width:100%;min-height:65px;box-sizing:border-box;padding:10px;';
+
+  const button = document.createElement('button');
+  button.type = 'button';
+  button.textContent = '댓글 등록';
+  button.disabled = !communityUser;
+
+  button.addEventListener('click', async () => {
+    const content = input.value.trim();
+
+    if (!content) return;
+
+    button.disabled = true;
+
+    const { error } = await communityClient
+      .from('kyoto_meetup_comments')
+      .insert({
+        meetup_id: meetupId,
+        user_id: communityUser.id,
+        content
+      });
+
+    if (error) {
+      alert('댓글 등록에 실패했어요.');
+      console.error(error);
+      button.disabled = false;
+      return;
+    }
+
+    await loadMeetupComments(meetupId, container);
+  });
+
+  container.append(input, button);
+}
+
 async function loadMeetups() {
 
   const list = document.getElementById('meetupList');
@@ -8595,9 +9332,37 @@ async function loadMeetups() {
 
  
 
-    if (communityUser && row.user_id === communityUser.id) {
+if (communityUser && row.user_id === communityUser.id) {
 
-      const deleteButton = document.createElement('button');
+  const editButton = document.createElement('button');
+
+  editButton.type = 'button';
+  editButton.textContent = '글 수정';
+  editButton.style.marginTop = '10px';
+  editButton.style.marginRight = '8px';
+
+  editButton.addEventListener('click', () => {
+    editingMeetupId = row.id;
+
+    document.getElementById('meetupTitle').value = row.title || '';
+    document.getElementById('meetupDate').value = row.meetup_date || '';
+    document.getElementById('meetupArea').value = row.area || '';
+    document.getElementById('meetupDescription').value = row.description || '';
+
+    document.getElementById('createMeetupBtn').textContent = '수정 내용 저장';
+    document.getElementById('cancelMeetupEditBtn').style.display = 'inline-block';
+
+    setCommunityStatus('meetupStatus', '글을 수정하고 있어요. 내용을 변경한 뒤 저장해 주세요.');
+
+    document.getElementById('meetupTitle').scrollIntoView({
+      behavior: 'smooth',
+      block: 'center'
+    });
+  });
+
+  card.appendChild(editButton);
+
+  const deleteButton = document.createElement('button');
 
       deleteButton.type = 'button';
 
@@ -8648,7 +9413,19 @@ async function loadMeetups() {
     }
 
  
+const commentsContainer = document.createElement('div');
 
+commentsContainer.className = 'meetup-comments';
+
+commentsContainer.style.cssText = `
+  margin-top:18px;
+  padding-top:14px;
+  border-top:1px solid rgba(120,105,78,.2);
+`;
+
+card.appendChild(commentsContainer);
+
+loadMeetupComments(row.id, commentsContainer);
     list.appendChild(card);
 
   });
@@ -8688,24 +9465,33 @@ document.getElementById('createMeetupBtn').addEventListener('click', async () =>
   }
 
  
+const wasEditing = Boolean(editingMeetupId);
+let result;
 
-  const { error } = await communityClient
-
+if (editingMeetupId) {
+  result = await communityClient
     .from('kyoto_meetups')
-
-    .insert({
-
-      user_id: communityUser.id,
-
+    .update({
       meetup_date: meetupDate,
-
       title,
-
       area,
-
       description
-
+    })
+    .eq('id', editingMeetupId)
+    .eq('user_id', communityUser.id);
+} else {
+  result = await communityClient
+    .from('kyoto_meetups')
+    .insert({
+      user_id: communityUser.id,
+      meetup_date: meetupDate,
+      title,
+      area,
+      description
     });
+}
+
+const { error } = result;
 
  
 
@@ -8722,7 +9508,9 @@ document.getElementById('createMeetupBtn').addEventListener('click', async () =>
  
 
   selectedDate = meetupDate;
-
+editingMeetupId = null;
+document.getElementById('createMeetupBtn').textContent = '모임 글 올리기';
+  document.getElementById('cancelMeetupEditBtn').style.display = 'none';
   document.getElementById('meetupTitle').value = '';
 
   document.getElementById('meetupArea').value = '';
@@ -8739,7 +9527,10 @@ document.getElementById('createMeetupBtn').addEventListener('click', async () =>
 
  
 
-  setCommunityStatus('meetupStatus', '모임 글을 올렸어요!');
+setCommunityStatus(
+  'meetupStatus',
+  wasEditing ? '모임 글을 수정했어요!' : '모임 글을 올렸어요!'
+);
 
   await renderCalendar();
 
