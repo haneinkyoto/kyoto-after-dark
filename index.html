@@ -4237,7 +4237,69 @@ header {
  
 
 <!-- 개인 메시지: 지도 화면에서도 언제든 열 수 있도록 calendarPanel 바깥에 배치 -->
+<button
+  type="button"
+  id="notificationBtn"
+  aria-label="알림"
+  title="알림"
+  style="
+    position:fixed;
+    right:160px;
+    bottom:24px;
+    z-index:99998;
+    min-height:54px;
+    padding:0 18px;
+    border:1px solid #28251f;
+    border-radius:999px;
+    background:#f7f4ee;
+    color:#28251f;
+    box-shadow:0 10px 28px rgba(38,35,30,.16);
+    font-size:14px;
+    font-weight:700;
+    cursor:pointer;
+  "
+>
+  ♧ 알림
+  <span
+    id="notificationBadge"
+    style="
+      display:none;
+      margin-left:5px;
+      padding:2px 6px;
+      border-radius:20px;
+      background:#a34532;
+      color:white;
+      font-size:11px;
+    "
+  >0</span>
+</button>
+  <div
+  id="notificationPanel"
+  style="
+    display:none;
+    position:fixed;
+    right:24px;
+    bottom:90px;
+    z-index:99999;
+    width:min(360px,calc(100vw - 32px));
+    max-height:420px;
+    overflow-y:auto;
+    padding:18px;
+    background:#f7f4ee;
+    color:#292720;
+    border:1px solid #e5dfd2;
+    box-shadow:0 12px 35px rgba(38,35,30,.18);
+  "
+>
+  <div style="display:flex;justify-content:space-between;align-items:center;">
+    <strong>알림</strong>
+    <button type="button" id="closeNotificationBtn">닫기</button>
+  </div>
 
+  <div id="notificationList" style="margin-top:14px;">
+    <p>알림을 불러오는 중...</p>
+  </div>
+</div>
 <button type="button" id="openDirectChatBtn" class="dm-launcher" aria-label="메시지 열기" title="메시지">
 
   <span aria-hidden="true">✉</span><span class="dm-launcher-label">메시지</span>
@@ -7449,7 +7511,7 @@ console.log('닉네임:', communityUser?.user_metadata?.nickname);
   updateCommunityAuthUI();
 
   await loadMyStays();
-
+await refreshNotificationBadge();
   await loadChatMessages();
 
   await loadMeetups();
@@ -9282,7 +9344,88 @@ async function loadMeetupComments(meetupId, container) {
     const date = document.createElement('small');
     date.textContent = new Date(comment.created_at).toLocaleString('ja-JP');
 
-    item.append(author, content, date);
+  item.append(author, content, date);
+
+if (communityUser && comment.user_id === communityUser.id) {
+  const editButton = document.createElement('button');
+  editButton.type = 'button';
+  editButton.textContent = '수정';
+  editButton.style.cssText = 'margin:8px 5px 0 0;';
+
+  editButton.addEventListener('click', () => {
+    const editInput = document.createElement('textarea');
+    editInput.value = comment.content;
+    editInput.style.cssText = 'width:100%;min-height:60px;box-sizing:border-box;padding:10px;margin-top:8px;';
+
+    const saveButton = document.createElement('button');
+    saveButton.type = 'button';
+    saveButton.textContent = '수정 저장';
+
+    const cancelButton = document.createElement('button');
+    cancelButton.type = 'button';
+    cancelButton.textContent = '취소';
+    cancelButton.style.marginLeft = '6px';
+
+    const editArea = document.createElement('div');
+    editArea.append(editInput, saveButton, cancelButton);
+    item.appendChild(editArea);
+
+    editButton.disabled = true;
+
+    cancelButton.addEventListener('click', () => {
+      editArea.remove();
+      editButton.disabled = false;
+    });
+
+    saveButton.addEventListener('click', async () => {
+      const newContent = editInput.value.trim();
+      if (!newContent) return;
+
+      saveButton.disabled = true;
+
+      const { error } = await communityClient
+        .from('kyoto_meetup_comments')
+        .update({ content: newContent })
+        .eq('id', comment.id)
+        .eq('user_id', communityUser.id);
+
+      if (error) {
+        alert('댓글 수정에 실패했어요.');
+        console.error(error);
+        saveButton.disabled = false;
+        return;
+      }
+
+      await loadMeetupComments(meetupId, container);
+    });
+  });
+
+  item.appendChild(editButton);
+
+  const deleteButton = document.createElement('button');
+  deleteButton.type = 'button';
+  deleteButton.textContent = '삭제';
+
+  deleteButton.addEventListener('click', async () => {
+    if (!confirm('이 댓글을 삭제할까요?')) return;
+
+    const { error } = await communityClient
+      .from('kyoto_meetup_comments')
+      .delete()
+      .eq('id', comment.id)
+      .eq('user_id', communityUser.id);
+
+    if (error) {
+      alert('댓글 삭제에 실패했어요.');
+      console.error(error);
+      return;
+    }
+
+    await loadMeetupComments(meetupId, container);
+  });
+
+  item.appendChild(deleteButton);
+}
 
     if (communityUser) {
       const replyButton = document.createElement('button');
@@ -10322,7 +10465,128 @@ document.getElementById('directBackBtn')?.addEventListener('click', () => {
 });
 
  
+// ===== 알림 기능 =====
 
+async function loadNotifications() {
+  const list = document.getElementById('notificationList');
+  const badge = document.getElementById('notificationBadge');
+
+  if (!list || !badge) return;
+
+  if (!communityUser) {
+    list.textContent = '로그인하면 알림을 확인할 수 있어요.';
+    badge.style.display = 'none';
+    return;
+  }
+
+  const { data, error } = await communityClient
+    .from('kyoto_notifications')
+    .select('id,actor_id,type,meetup_id,comment_id,is_read,created_at')
+    .eq('recipient_id', communityUser.id)
+    .order('created_at', { ascending: false })
+    .limit(30);
+
+  if (error) {
+    list.textContent = '알림을 불러오지 못했어요.';
+    console.error(error);
+    return;
+  }
+
+  const notifications = data || [];
+  const unreadCount = notifications.filter(item => !item.is_read).length;
+
+  badge.textContent = unreadCount > 99 ? '99+' : unreadCount;
+  badge.style.display = unreadCount ? 'inline-block' : 'none';
+
+  list.replaceChildren();
+
+  if (!notifications.length) {
+    list.textContent = '새로운 알림이 없어요.';
+    return;
+  }
+
+  notifications.forEach(notification => {
+    const item = document.createElement('div');
+    item.style.cssText =
+      'padding:12px 4px;border-bottom:1px solid #e5dfd2;cursor:pointer;';
+
+    const title = document.createElement('strong');
+    title.textContent =
+      notification.type === 'comment_reply'
+        ? '내 댓글에 답글이 달렸어요.'
+        : '내 모임 글에 댓글이 달렸어요.';
+
+    const date = document.createElement('small');
+    date.style.display = 'block';
+    date.style.marginTop = '5px';
+    date.style.color = '#777568';
+    date.textContent = new Date(notification.created_at).toLocaleString('ja-JP');
+
+    if (!notification.is_read) {
+      item.style.background = '#eee7d8';
+    }
+
+    item.append(title, date);
+
+    item.addEventListener('click', async () => {
+      const { error } = await communityClient
+        .from('kyoto_notifications')
+        .update({ is_read: true })
+        .eq('id', notification.id)
+        .eq('recipient_id', communityUser.id);
+
+      if (error) {
+        console.error(error);
+        return;
+      }
+
+      await loadNotifications();
+    });
+
+    list.appendChild(item);
+  });
+}
+
+document.getElementById('notificationBtn')?.addEventListener('click', async () => {
+  const panel = document.getElementById('notificationPanel');
+  if (!panel) return;
+
+  const isOpening = panel.style.display === 'none';
+  panel.style.display = isOpening ? 'block' : 'none';
+
+  if (isOpening) {
+    await loadNotifications();
+  }
+});
+
+document.getElementById('closeNotificationBtn')?.addEventListener('click', () => {
+  document.getElementById('notificationPanel').style.display = 'none';
+});
+
+async function refreshNotificationBadge() {
+  if (!communityUser) {
+    const badge = document.getElementById('notificationBadge');
+    if (badge) badge.style.display = 'none';
+    return;
+  }
+
+  const { count, error } = await communityClient
+    .from('kyoto_notifications')
+    .select('id', { count: 'exact', head: true })
+    .eq('recipient_id', communityUser.id)
+    .eq('is_read', false);
+
+  if (error) {
+    console.error('알림 숫자 갱신 실패:', error);
+    return;
+  }
+
+  const badge = document.getElementById('notificationBadge');
+  if (!badge) return;
+
+  badge.textContent = count > 99 ? '99+' : count;
+  badge.style.display = count > 0 ? 'inline-block' : 'none';
+}
 /* 메시지 패널은 지도 화면에서도 항상 열 수 있어요. */
 
 document.getElementById('openDirectChatBtn')?.addEventListener('click', async () => {
