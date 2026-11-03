@@ -3089,25 +3089,6 @@ header {
   /* 모바일: 팝업 위에서도 지도 드래그 허용 */
 @media (max-width: 800px) {
 
-  /* 팝업 자체가 지도 터치를 막지 않도록 설정 */
-  .leaflet-popup,
-  .leaflet-popup-content-wrapper,
-  .leaflet-popup-content {
-    pointer-events: none !important;
-  }
-
-  /* 리뷰 버튼은 정상적으로 터치 가능 */
-  .mobile-review-details summary {
-    pointer-events: auto !important;
-    cursor: pointer;
-    touch-action: manipulation;
-  }
-
-  /* 리뷰 펼침 영역도 지도 드래그를 방해하지 않도록 */
-  .mobile-review-details .restaurant-popup-full-review {
-    pointer-events: none;
-  }
-
 }
 </style>
 
@@ -5070,14 +5051,15 @@ const isMobile = window.matchMedia('(max-width: 800px)').matches;
 
 m.bindPopup(
   isMobile ? mobilePopup(p) : popup(p),
-{
-  maxWidth: isMobile ? 300 : 320,
-  minWidth: isMobile ? 240 : 250,
-  autoPan: true,
-  keepInView: true,
-  closeOnClick: false,
-  autoClose: false
-}
+  {
+    maxWidth: isMobile ? 300 : 320,
+    minWidth: isMobile ? 240 : 250,
+    autoPan: false,
+    closeOnClick: true,
+    autoClose: true,
+    closeButton: true,
+    keepInView: false
+  }
 );
 
  
