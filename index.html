@@ -9207,14 +9207,74 @@ async function loadMeetupComments(meetupId, container) {
   }
 
   const commentList = document.createElement('div');
+  const comments = data || [];
 
-  (data || []).forEach(comment => {
+  const commentMap = new Map();
+  comments.forEach(comment => {
+    commentMap.set(comment.id, { ...comment, children: [] });
+  });
+
+  const roots = [];
+
+  commentMap.forEach(comment => {
+    if (comment.parent_id && commentMap.has(comment.parent_id)) {
+      commentMap.get(comment.parent_id).children.push(comment);
+    } else {
+      roots.push(comment);
+    }
+  });
+
+  function createReplyForm(commentId, wrapper) {
+    const form = document.createElement('div');
+    form.style.cssText = 'margin-top:10px;';
+
+    const input = document.createElement('textarea');
+    input.placeholder = '답글을 남겨보세요.';
+    input.style.cssText = 'width:100%;min-height:55px;box-sizing:border-box;padding:10px;';
+
+    const button = document.createElement('button');
+    button.type = 'button';
+    button.textContent = '답글 등록';
+
+    button.addEventListener('click', async () => {
+      const content = input.value.trim();
+      if (!content || !communityUser) return;
+
+      button.disabled = true;
+
+      const { error } = await communityClient
+        .from('kyoto_meetup_comments')
+        .insert({
+          meetup_id: meetupId,
+          user_id: communityUser.id,
+          parent_id: commentId,
+          content
+        });
+
+      if (error) {
+        alert('답글 등록에 실패했어요.');
+        console.error(error);
+        button.disabled = false;
+        return;
+      }
+
+      await loadMeetupComments(meetupId, container);
+    });
+
+    form.append(input, button);
+    wrapper.appendChild(form);
+  }
+
+  function renderComment(comment, parentElement, depth = 0) {
     const item = document.createElement('div');
-    item.style.cssText = 'padding:10px;margin:8px 0;background:#F8F3E9;border:1px solid #e5dfd2;';
+    item.style.cssText =
+      `padding:10px;margin:8px 0 8px ${Math.min(depth, 4) * 16}px;background:#F8F3E9;border:1px solid #e5dfd2;`;
 
     const author = document.createElement('strong');
     author.textContent =
-      communityUser && comment.user_id === communityUser.id ? '나' : '교토 방문자';
+      communityUser && comment.user_id === communityUser.id
+        ? '나'
+        : '교토 방문자';
 
     const content = document.createElement('p');
     content.textContent = comment.content;
@@ -9223,17 +9283,50 @@ async function loadMeetupComments(meetupId, container) {
     date.textContent = new Date(comment.created_at).toLocaleString('ja-JP');
 
     item.append(author, content, date);
-    commentList.appendChild(item);
+
+    if (communityUser) {
+      const replyButton = document.createElement('button');
+      replyButton.type = 'button';
+      replyButton.textContent = '답글';
+      replyButton.style.cssText = 'margin-left:10px;';
+
+      replyButton.addEventListener('click', () => {
+        const existing = item.querySelector('.reply-form');
+        if (existing) {
+          existing.remove();
+          return;
+        }
+
+        const wrapper = document.createElement('div');
+        wrapper.className = 'reply-form';
+        createReplyForm(comment.id, wrapper);
+        item.appendChild(wrapper);
+      });
+
+      item.appendChild(replyButton);
+    }
+
+    parentElement.appendChild(item);
+
+    comment.children.forEach(child => {
+      renderComment(child, parentElement, depth + 1);
+    });
+  }
+
+  roots.forEach(comment => {
+    renderComment(comment, commentList);
   });
 
-  if (!data?.length) {
+  if (!comments.length) {
     commentList.textContent = '아직 댓글이 없어요. 첫 댓글을 남겨보세요.';
   }
 
   container.appendChild(commentList);
 
   const input = document.createElement('textarea');
-  input.placeholder = communityUser ? '댓글을 남겨보세요.' : '로그인 후 댓글을 작성할 수 있어요.';
+  input.placeholder = communityUser
+    ? '댓글을 남겨보세요.'
+    : '로그인 후 댓글을 작성할 수 있어요.';
   input.disabled = !communityUser;
   input.style.cssText = 'width:100%;min-height:65px;box-sizing:border-box;padding:10px;';
 
@@ -9244,8 +9337,7 @@ async function loadMeetupComments(meetupId, container) {
 
   button.addEventListener('click', async () => {
     const content = input.value.trim();
-
-    if (!content) return;
+    if (!content || !communityUser) return;
 
     button.disabled = true;
 
@@ -9269,7 +9361,6 @@ async function loadMeetupComments(meetupId, container) {
 
   container.append(input, button);
 }
-
 async function loadMeetups() {
 
   const list = document.getElementById('meetupList');
