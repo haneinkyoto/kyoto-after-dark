@@ -3086,6 +3086,29 @@ header {
   }
 
 }
+  /* 모바일: 팝업 위에서도 지도 드래그 허용 */
+@media (max-width: 800px) {
+
+  /* 팝업 자체가 지도 터치를 막지 않도록 설정 */
+  .leaflet-popup,
+  .leaflet-popup-content-wrapper,
+  .leaflet-popup-content {
+    pointer-events: none !important;
+  }
+
+  /* 리뷰 버튼은 정상적으로 터치 가능 */
+  .mobile-review-details summary {
+    pointer-events: auto !important;
+    cursor: pointer;
+    touch-action: manipulation;
+  }
+
+  /* 리뷰 펼침 영역도 지도 드래그를 방해하지 않도록 */
+  .mobile-review-details .restaurant-popup-full-review {
+    pointer-events: none;
+  }
+
+}
 </style>
 
  
@@ -4991,40 +5014,27 @@ function mobilePopup(p) {
         >
       ` : ''}
 
-      <div class="restaurant-popup-preview">
-        ${hasReview
-          ? esc(review.slice(0, 65)) + (review.length > 65 ? '…' : '')
-          : '아직 작성된 리뷰가 없습니다.'}
+      <div class="restaurant-popup-meta">
+        <span>📍 ${esc(p.area || '교토')}</span>
+        ${p.visited ? `<span>방문일 ${esc(p.visited)}</span>` : ''}
       </div>
 
-      <details class="mobile-popup-more">
-        <summary>
-          <span>상세 정보 보기</span>
-          <span class="popup-arrow">＋</span>
-        </summary>
+      ${hasReview ? `
+        <details class="mobile-review-details">
+          <summary>
+            <span>리뷰 전체 보기</span>
+            <span class="popup-arrow">＋</span>
+          </summary>
 
-        <div class="restaurant-popup-meta">
-          <span>📍 ${esc(p.area || '교토')}</span>
-          ${p.visited ? `<span>방문일 ${esc(p.visited)}</span>` : ''}
-        </div>
-
-        ${hasReview ? `
-          <details class="restaurant-popup-details">
-            <summary>
-              <span>리뷰 전체 보기</span>
-              <span class="popup-arrow">＋</span>
-            </summary>
-
-            <div class="restaurant-popup-full-review">
-              ${esc(review)}
-            </div>
-          </details>
-        ` : `
           <div class="restaurant-popup-full-review">
-            아직 작성된 리뷰가 없습니다.
+            ${esc(review)}
           </div>
-        `}
-      </details>
+        </details>
+      ` : `
+        <div class="restaurant-popup-full-review">
+          아직 작성된 리뷰가 없습니다.
+        </div>
+      `}
 
     </div>
   `;
@@ -5060,12 +5070,14 @@ const isMobile = window.matchMedia('(max-width: 800px)').matches;
 
 m.bindPopup(
   isMobile ? mobilePopup(p) : popup(p),
-  {
-    maxWidth: isMobile ? 300 : 320,
-    minWidth: isMobile ? 240 : 250,
-    autoPan: true,
-    keepInView: true
-  }
+{
+  maxWidth: isMobile ? 300 : 320,
+  minWidth: isMobile ? 240 : 250,
+  autoPan: true,
+  keepInView: true,
+  closeOnClick: false,
+  autoClose: false
+}
 );
 
  
