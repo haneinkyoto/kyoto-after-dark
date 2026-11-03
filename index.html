@@ -2975,6 +2975,117 @@ header {
   color: #843D3D;
   letter-spacing: 0.12em;
 }
+/* 모바일 지도 및 목록 사용성 개선 */
+@media (max-width: 800px) {
+
+  .map-wrap {
+    scroll-margin-top: 12px;
+    min-height: 50vh;
+  }
+
+  #map {
+    height: 50vh;
+    min-height: 50vh;
+  }
+
+  .sidebar {
+    padding: 18px 14px 30px;
+  }
+
+  .place-card {
+    padding: 17px 15px;
+    margin-bottom: 3px;
+  }
+
+  .place-card:active {
+    transform: scale(0.99);
+  }
+
+  .sidebar .search {
+    min-height: 52px;
+    font-size: 16px;
+  }
+
+  .place-filters select {
+    min-height: 46px;
+  }
+
+}
+/* 모바일 팝업 상세 정보 버튼 */
+.mobile-restaurant-popup .mobile-popup-more {
+  margin-top: 12px;
+  border-top: 1px solid #D8CBB5;
+}
+
+.mobile-restaurant-popup .mobile-popup-more summary {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  min-height: 50px;
+  padding: 12px 14px;
+  margin-top: 10px;
+  background: #F3EBDD;
+  border: 1px solid #CFC0A5;
+  border-radius: 6px;
+  color: #843D3D;
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+  list-style: none;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.mobile-restaurant-popup .mobile-popup-more summary::-webkit-details-marker {
+  display: none;
+}
+
+.mobile-restaurant-popup .mobile-popup-more[open] summary {
+  background: #E9DDC9;
+}
+
+.mobile-restaurant-popup .mobile-popup-more .restaurant-popup-full-review {
+  padding: 14px 4px;
+  line-height: 1.85;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+
+.mobile-restaurant-popup .popup-arrow {
+  font-size: 20px;
+  transition: transform 0.2s ease;
+}
+
+.mobile-restaurant-popup .mobile-popup-more[open] .popup-arrow {
+  transform: rotate(45deg);
+}
+  /* 모바일 지도 팝업 높이 및 스크롤 개선 */
+@media (max-width: 800px) {
+
+  .leaflet-popup-content {
+    max-height: 55vh;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .leaflet-popup-content-wrapper {
+    max-width: calc(100vw - 40px);
+  }
+
+  .mobile-restaurant-popup {
+    width: 100%;
+  }
+
+  .mobile-restaurant-popup .restaurant-popup-photo {
+    max-height: 130px;
+    object-fit: cover;
+  }
+
+  .mobile-restaurant-popup summary {
+    touch-action: manipulation;
+  }
+
+}
 </style>
 
  
@@ -3761,7 +3872,13 @@ header {
 
  
 
-  <input class="search" id="search" placeholder="가게 이름, 동네, 리뷰 검색…"/>
+<input
+  class="search"
+  id="search"
+  type="search"
+  placeholder="가게 이름 · 음식 · 분위기 · 동네 · 리뷰 검색"
+  autocomplete="off"
+/>
 
    <div class="place-filters">
 
@@ -4742,8 +4859,68 @@ function popup(p) {
     </div>
   `;
 }
- 
+function mobilePopup(p) {
+  const review = String(p.review || '');
+  const hasReview = review.trim().length > 0;
 
+  return `
+    <div class="restaurant-popup mobile-restaurant-popup">
+
+      <div class="restaurant-popup-header">
+        <div class="popup-name">${esc(p.name)}</div>
+        <div class="popup-rating">
+          <span class="popup-stars">${stars(p.rating)}</span>
+          <span>${Number(p.rating) || 0}/5</span>
+        </div>
+      </div>
+
+      ${p.photo_url ? `
+        <img
+          class="restaurant-popup-photo"
+          src="${esc(p.photo_url)}"
+          alt="${esc(p.name)} 사진"
+          onerror="this.style.display='none'"
+        >
+      ` : ''}
+
+      <div class="restaurant-popup-preview">
+        ${hasReview
+          ? esc(review.slice(0, 65)) + (review.length > 65 ? '…' : '')
+          : '아직 작성된 리뷰가 없습니다.'}
+      </div>
+
+      <details class="mobile-popup-more">
+        <summary>
+          <span>상세 정보 보기</span>
+          <span class="popup-arrow">＋</span>
+        </summary>
+
+        <div class="restaurant-popup-meta">
+          <span>📍 ${esc(p.area || '교토')}</span>
+          ${p.visited ? `<span>방문일 ${esc(p.visited)}</span>` : ''}
+        </div>
+
+        ${hasReview ? `
+          <details class="restaurant-popup-details">
+            <summary>
+              <span>리뷰 전체 보기</span>
+              <span class="popup-arrow">＋</span>
+            </summary>
+
+            <div class="restaurant-popup-full-review">
+              ${esc(review)}
+            </div>
+          </details>
+        ` : `
+          <div class="restaurant-popup-full-review">
+            아직 작성된 리뷰가 없습니다.
+          </div>
+        `}
+      </details>
+
+    </div>
+  `;
+}
 function render() {
 
   Object.values(markers).forEach(m => map.removeLayer(m));
@@ -4760,23 +4937,58 @@ function render() {
 
     const m = L.marker([Number(p.lat), Number(p.lng)], { icon: pin }).addTo(map);
 
-    m.bindTooltip(tooltipPreview(p), {
-  direction: 'top',
-  offset: [0, -15],
-  opacity: 1,
-  className: 'place-hover-tooltip'
-});
-    m.bindPopup(popup(p));
+// PC에서는 마우스 오버 툴팁 표시
+// 모바일에서는 첫 터치부터 팝업이 열리도록 툴팁 비활성화
+if (window.matchMedia('(hover: hover) and (pointer: fine)').matches) {
+  m.bindTooltip(tooltipPreview(p), {
+    direction: 'top',
+    offset: [0, -15],
+    opacity: 1,
+    className: 'place-hover-tooltip'
+  });
+}
+// PC와 모바일의 팝업을 구분
+const isMobile = window.matchMedia('(max-width: 800px)').matches;
+
+m.bindPopup(
+  isMobile ? mobilePopup(p) : popup(p),
+  {
+    maxWidth: isMobile ? 300 : 320,
+    minWidth: isMobile ? 240 : 250,
+    autoPan: true,
+    keepInView: true
+  }
+);
 
  
 
-    m.on('click', () => {
+m.on('click', () => {
 
-      activeId = p.id;
+  activeId = p.id;
 
-      renderList();
+  renderList();
 
-    });
+  // 모바일에서는 선택한 가게의 목록 카드도 화면에 표시
+  if (window.matchMedia('(max-width: 800px)').matches) {
+
+    setTimeout(() => {
+
+      const selectedCard = document.querySelector(
+        `.place-card[data-id="${p.id}"]`
+      );
+
+      if (selectedCard) {
+        selectedCard.scrollIntoView({
+          behavior: 'smooth',
+          block: 'center'
+        });
+      }
+
+    }, 100);
+
+  }
+
+});
 
  
 
@@ -5150,17 +5362,24 @@ function renderList() {
 
   const list = places
 
-    .filter(p =>
+.filter(p =>
 
-      [p.name, p.area, p.category, p.review]
+  Object.entries(p)
 
-        .join(' ')
-
-        .toLowerCase()
-
-        .includes(q)
-
+    .filter(([key, value]) =>
+      typeof value === 'string' &&
+      !['id', 'photo_url', 'photo_source', 'created_at', 'updated_at'].includes(key)
     )
+
+    .map(([, value]) => value)
+
+    .join(' ')
+
+    .toLowerCase()
+
+    .includes(q)
+
+)
 
     .filter(p =>
 
@@ -5334,13 +5553,26 @@ Object.entries(markers).forEach(([id, marker]) => {
 
  
 
-      if (markers[p.id]) {
+    if (markers[p.id]) {
 
-        map.setView(markers[p.id].getLatLng(), 16);
+  map.setView(markers[p.id].getLatLng(), 16);
 
-        markers[p.id].openPopup();
+  markers[p.id].openPopup();
 
-      }
+  // 모바일에서 지도가 보이는 위치로 자동 이동
+  if (window.matchMedia('(max-width: 768px)').matches) {
+    document.querySelector('.map-wrap').scrollIntoView({
+      behavior: 'smooth',
+      block: 'start'
+    });
+
+    // 스크롤 후 지도 크기 재계산
+    setTimeout(() => {
+      map.invalidateSize();
+    }, 400);
+  }
+
+}
 
     });
 
