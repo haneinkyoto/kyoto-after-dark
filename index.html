@@ -3938,15 +3938,52 @@ header {
 
  
 
-    <div class="field"><label for="area">동네 / 역</label><input id="area" placeholder="예: 시조오미야"/></div>
+<div class="field full">
+  <label for="area">가게 주소 *</label>
+  <input
+    id="area"
+    placeholder="예: 京都市中京区四条大宮周辺"
+    autocomplete="street-address"
+  />
 
-    <div class="field"><label for="rating">내 별점</label><select id="rating"><option value="5">★★★★★ · 5</option><option value="4">★★★★☆ · 4</option><option value="3">★★★☆☆ · 3</option><option value="2">★★☆☆☆ · 2</option><option value="1">★☆☆☆☆ · 1</option></select></div>
+  <button
+    type="button"
+    id="searchAddressBtn"
+    class="secondary"
+    style="width:100%; margin-top:8px;"
+  >
+    📍 주소로 위치 찾기
+  </button>
 
-    <div class="field"><label for="category">분위기 / 종류</label><input id="category" placeholder="예: 가성비, 해산물, 특이한 메뉴"/></div>
+  <p
+    id="addressSearchStatus"
+    style="font-size:12px; margin-top:8px;"
+  >
+    주소를 검색하면 지도에 위치가 표시됩니다.
+  </p>
+</div>
 
-    <div class="field"><label for="lat">위도 (지도 위치)</label><input id="lat" type="number" step="any" placeholder="지도 클릭으로 자동 입력"/></div>
+<div class="field">
+  <label for="rating">내 별점</label>
+  <select id="rating">
+    <option value="5">★★★★★ · 5</option>
+    <option value="4">★★★★☆ · 4</option>
+    <option value="3">★★★☆☆ · 3</option>
+    <option value="2">★★☆☆☆ · 2</option>
+    <option value="1">★☆☆☆☆ · 1</option>
+  </select>
+</div>
 
-    <div class="field"><label for="lng">경도 (지도 위치)</label><input id="lng" type="number" step="any" placeholder="지도 클릭으로 자동 입력"/></div>
+<div class="field">
+  <label for="category">분위기 / 종류</label>
+  <input
+    id="category"
+    placeholder="예: 가성비, 해산물, 특이한 메뉴"
+  />
+</div>
+
+<input type="hidden" id="lat" />
+<input type="hidden" id="lng" />
 
  <div class="field full">
   <label for="review">나의 리뷰 *</label>
@@ -4620,6 +4657,77 @@ L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
   maxZoom: 19,
   attribution: '&copy; OpenStreetMap contributors'
 }).addTo(map);
+  // 주소 검색 결과를 표시할 임시 마커
+let addressPreviewMarker = null;
+
+// 주소를 위도·경도로 변환
+document.getElementById('searchAddressBtn').addEventListener('click', async () => {
+
+  const address = document.getElementById('area').value.trim();
+  const status = document.getElementById('addressSearchStatus');
+  const button = document.getElementById('searchAddressBtn');
+
+  if (!address) {
+    alert('가게 주소를 먼저 입력해 주세요.');
+    return;
+  }
+
+  button.disabled = true;
+  status.textContent = '주소를 검색하고 있어요...';
+
+  try {
+
+    const url =
+      `https://nominatim.openstreetmap.org/search?format=jsonv2&limit=1&countrycodes=jp&accept-language=ja&q=${encodeURIComponent(address)}`;
+
+    const response = await fetch(url);
+
+    if (!response.ok) {
+      throw new Error('주소 검색 요청에 실패했습니다.');
+    }
+
+    const results = await response.json();
+
+    if (!results.length) {
+      status.textContent = '주소를 찾지 못했어요. 주소를 조금 더 자세히 입력해 주세요.';
+      return;
+    }
+
+    const lat = Number(results[0].lat);
+    const lng = Number(results[0].lon);
+
+    // 숨겨진 좌표 입력란에 자동 저장
+    document.getElementById('lat').value = lat;
+    document.getElementById('lng').value = lng;
+
+    // 이전 검색 마커 제거
+    if (addressPreviewMarker) {
+      map.removeLayer(addressPreviewMarker);
+    }
+
+    // 검색된 위치로 지도 이동
+    map.setView([lat, lng], 17);
+
+    // 검색 위치에 임시 마커 표시
+    addressPreviewMarker = L.marker([lat, lng])
+      .addTo(map)
+      .bindPopup('📍 검색한 가게 위치')
+      .openPopup();
+
+    status.textContent = '위치를 찾았어요! 지도에서 위치가 맞는지 확인해 주세요.';
+
+  } catch (error) {
+
+    console.error('주소 검색 오류:', error);
+    status.textContent = '검색 중 오류가 발생했어요. 잠시 후 다시 시도해 주세요.';
+
+  } finally {
+
+    button.disabled = false;
+
+  }
+
+});
 
  map.on('click', function (e) {
 
