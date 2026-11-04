@@ -3429,15 +3429,23 @@ header {
   color: #292923;
 }
 
-.stay-weekdays {
-  display: grid;
-  grid-template-columns: repeat(7, minmax(0, 1fr));
-  gap: 5px;
+#calendarPanel .stay-weekdays {
+  display: grid !important;
+  width: 100% !important;
+  grid-template-columns: repeat(7, minmax(0, 1fr)) !important;
+  gap: 6px;
+  box-sizing: border-box;
   text-align: center;
   padding: 12px 0 7px;
   color: #777568;
   font-size: 11px;
   letter-spacing: 1px;
+}
+
+#calendarPanel #calendarGrid {
+  width: 100% !important;
+  grid-template-columns: repeat(7, minmax(0, 1fr)) !important;
+  box-sizing: border-box;
 }
 
 .stay-weekdays > div:first-child {
