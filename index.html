@@ -3860,6 +3860,32 @@ body.kyd-tab-chat #directChatPanel.is-open{
   .kyd-screen-enter{animation:none !important}
   #kyotoTabBar button,#kyotoTabBar .kyd-tab-icon{transition:none !important}
 }
+
+/* iOS Safari date input overflow fix */
+@media (max-width: 600px){
+  #calendarPanel .stay-date-card,
+  #calendarPanel .stay-meetup-card{
+    width:100% !important;
+    max-width:100% !important;
+    min-width:0 !important;
+    overflow:hidden;
+  }
+  #calendarPanel .stay-date-card input[type="date"],
+  #calendarPanel .stay-meetup-card input[type="date"]{
+    display:block !important;
+    width:100% !important;
+    min-width:0 !important;
+    max-width:100% !important;
+    inline-size:100% !important;
+    box-sizing:border-box !important;
+    -webkit-box-sizing:border-box !important;
+    margin-left:0 !important;
+    margin-right:0 !important;
+    padding-left:10px !important;
+    padding-right:10px !important;
+    font-size:16px !important;
+  }
+}
 </style>
 
 </head>
