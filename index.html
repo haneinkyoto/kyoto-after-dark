@@ -3746,6 +3746,122 @@ body.kyd-tab-chat main{display:block}
 @media(min-width:801px){#kyotoTabBar{left:50%;right:auto;transform:translateX(-50%);width:min(560px,calc(100% - 32px));border:1px solid var(--kyd-line);border-bottom:0;border-radius:16px 16px 0 0}}
 </style>
 
+
+<style id="kyoto-five-tab-mobile-fixes">
+/* 화면 너비와 관계없이 캘린더를 항상 7열로 유지 */
+#calendarPanel #calendarGrid{
+  display:grid !important;
+  width:100% !important;
+  max-width:100% !important;
+  min-width:0 !important;
+  grid-template-columns:repeat(7,minmax(0,1fr)) !important;
+  align-items:stretch !important;
+  justify-items:stretch !important;
+  gap:clamp(3px,1vw,7px) !important;
+  box-sizing:border-box !important;
+}
+#calendarPanel #calendarGrid > button,
+#calendarPanel #calendarGrid > div{
+  width:100% !important;
+  min-width:0 !important;
+  max-width:100% !important;
+  box-sizing:border-box !important;
+}
+#calendarPanel #calendarGrid > button{
+  min-height:clamp(58px,15vw,82px) !important;
+  padding:7px 1px !important;
+  display:flex !important;
+  flex-direction:column !important;
+  align-items:center !important;
+  justify-content:flex-start !important;
+  gap:4px !important;
+  overflow:hidden !important;
+  overflow-wrap:anywhere !important;
+}
+#calendarPanel .stay-weekdays{
+  display:grid !important;
+  width:100% !important;
+  grid-template-columns:repeat(7,minmax(0,1fr)) !important;
+  box-sizing:border-box !important;
+}
+#calendarPanel .stay-weekdays > div{min-width:0;text-align:center}
+#calendarPanel .stay-calendar-heading{width:100%;min-width:0}
+#calendarPanel .stay-calendar-heading h3{flex:1;text-align:center;min-width:0}
+
+/* 폼과 카드가 모바일 화면 밖으로 튀어나오지 않도록 통일 */
+#calendarPanel,
+#calendarPanel *{box-sizing:border-box}
+#calendarPanel .stay-auth-card,
+#calendarPanel #profileSection,
+#calendarPanel .stay-date-card,
+#calendarPanel .stay-chat-card,
+#calendarPanel .stay-meetup-card{
+  width:100% !important;
+  max-width:100% !important;
+  min-width:0 !important;
+}
+#calendarPanel input:not([type="checkbox"]),
+#calendarPanel input[type="date"],
+#calendarPanel select,
+#calendarPanel textarea,
+#calendarPanel button{
+  max-width:100%;
+}
+#calendarPanel input:not([type="checkbox"]),
+#calendarPanel input[type="date"],
+#calendarPanel select,
+#calendarPanel textarea{
+  width:100% !important;
+  min-width:0 !important;
+}
+#calendarPanel .stay-meetup-card > *,
+#calendarPanel .stay-date-card > *,
+#calendarPanel .stay-chat-card > *{min-width:0;max-width:100%}
+#calendarPanel .stay-meetup-card textarea,
+#calendarPanel .stay-chat-card textarea{display:block;width:100% !important}
+
+/* 메시지는 채팅 탭에서만 열리고, 다른 탭에서는 화면을 덮지 않음 */
+#directChatPanel[aria-hidden="true"]{visibility:hidden !important;pointer-events:none !important}
+#directChatPanel.is-open[aria-hidden="false"]{visibility:visible !important;pointer-events:auto !important}
+body:not(.kyd-tab-chat) #directChatPanel{
+  transform:translateX(105%) !important;
+  visibility:hidden !important;
+  pointer-events:none !important;
+}
+body.kyd-tab-chat #directChatPanel.is-open{
+  transform:translateX(0) !important;
+  visibility:visible !important;
+  pointer-events:auto !important;
+}
+
+/* 탭 화면 전환: 짧고 절제된 페이드 + 위로 살짝 이동 */
+.kyd-screen-enter{animation:kydScreenEnter .34s cubic-bezier(.22,.7,.25,1) both}
+@keyframes kydScreenEnter{
+  from{opacity:.0;transform:translateY(9px)}
+  to{opacity:1;transform:translateY(0)}
+}
+#kyotoTabBar button{transition:color .22s ease,transform .22s ease}
+#kyotoTabBar button:active{transform:scale(.94)}
+#kyotoTabBar button[aria-selected="true"] .kyd-tab-icon{
+  transform:translateY(-2px);
+  transition:transform .25s cubic-bezier(.2,.8,.2,1);
+}
+#kyotoTabBar .kyd-tab-icon{transition:transform .25s ease}
+@media(max-width:600px){
+  #calendarPanel.kyd-tab-panel{padding:16px 12px calc(30px + env(safe-area-inset-bottom,0px)) !important}
+  #calendarPanel .stay-meetup-card,
+  #calendarPanel .stay-date-card,
+  #calendarPanel .stay-chat-card,
+  #calendarPanel #profileSection{padding:14px !important}
+  #calendarPanel input[type="date"]{font-size:16px !important}
+  #calendarPanel #calendarGrid > button{font-size:12px !important}
+}
+@media(prefers-reduced-motion:reduce){
+  .kyd-screen-enter{animation:none !important}
+  #kyotoTabBar button,#kyotoTabBar .kyd-tab-icon{transition:none !important}
+}
+</style>
+
 </head>
 
 <body>
@@ -10940,45 +11056,84 @@ localStorage.setItem(
   const mapParts=[document.querySelector('.sidebar'),document.querySelector('.map-wrap')];
   const selectors=['.stay-hero','.stay-auth-card','#profileSection','.stay-calendar-heading','.stay-weekdays','#calendarGrid','#selectedDateLabel','#stayCountLabel','.stay-date-card','.stay-chat-card','.stay-meetup-card'];
   const parts=Object.fromEntries(selectors.map(s=>[s,panel.querySelector(s)]));
-  function showPart(selector,show){const el=parts[selector];if(el)el.style.display=show?'':'none';}
+  let activeTab='map';
+  function closeFloatingPanels(){
+    const dm=document.getElementById('directChatPanel');
+    if(dm){dm.classList.remove('is-open');dm.setAttribute('aria-hidden','true');}
+    const notice=document.getElementById('notificationPanel');
+    if(notice) notice.style.display='none';
+  }
+  function animate(target){
+    if(!target)return;
+    target.classList.remove('kyd-screen-enter');
+    void target.offsetWidth;
+    target.classList.add('kyd-screen-enter');
+    window.setTimeout(()=>target.classList.remove('kyd-screen-enter'),420);
+  }
+  function showPart(selector,show){
+    const el=parts[selector];
+    if(el)el.style.display=show?'':'none';
+  }
   function setTab(tab){
+    if(!['map','stay','meetup','chat','my'].includes(tab))return;
+    const changed=tab!==activeTab;
+    if(tab!=='chat')closeFloatingPanels();
+    activeTab=tab;
     document.body.classList.remove('kyd-tab-map','kyd-tab-sub','kyd-tab-chat');
-    bar.querySelectorAll('button[data-kyd-tab]').forEach(b=>b.setAttribute('aria-selected',String(b.dataset.kydTab===tab)));
+    bar.querySelectorAll('button[data-kyd-tab]').forEach(b=>{
+      b.setAttribute('aria-selected',String(b.dataset.kydTab===tab));
+    });
     if(tab==='map'){
-      panel.style.display='none';mapParts.forEach(el=>{if(el)el.style.display=''});document.body.classList.add('kyd-tab-map');
-      if(window.map&&typeof window.map.invalidateSize==='function')setTimeout(()=>window.map.invalidateSize(),80);
-      return;
+      panel.style.display='none';
+      mapParts.forEach(el=>{if(el)el.style.display='';});
+      document.body.classList.add('kyd-tab-map');
+      if(changed)animate(document.querySelector('main'));
+      if(window.map&&typeof window.map.invalidateSize==='function'){
+        window.requestAnimationFrame(()=>window.map.invalidateSize());
+        window.setTimeout(()=>window.map.invalidateSize(),180);
+      }
+    }else{
+      mapParts.forEach(el=>{if(el)el.style.display='none';});
+      document.body.classList.add('kyd-tab-sub');
+      const isChat=tab==='chat';
+      panel.style.display=isChat?'none':'block';
+      showPart('.stay-hero',tab==='stay');
+      showPart('.stay-auth-card',tab!=='chat');
+      showPart('#profileSection',tab==='my');
+      showPart('.stay-calendar-heading',tab==='stay');
+      showPart('.stay-weekdays',tab==='stay');
+      showPart('#calendarGrid',tab==='stay');
+      showPart('#selectedDateLabel',tab==='stay');
+      showPart('#stayCountLabel',tab==='stay');
+      showPart('.stay-date-card',tab==='stay');
+      showPart('.stay-chat-card',tab==='stay');
+      showPart('.stay-meetup-card',tab==='meetup');
+      if(changed&&!isChat)animate(panel);
+      if(tab==='stay'){
+        if(typeof window.refreshCommunityUser==='function')window.refreshCommunityUser();
+        if(typeof window.loadChatMessages==='function')window.loadChatMessages();
+      }
+      if(tab==='meetup'&&typeof window.loadMeetups==='function')window.loadMeetups();
+      if(tab==='chat'){
+        document.body.classList.add('kyd-tab-chat');
+        const open=document.getElementById('openDirectChatBtn');
+        if(open)open.click();
+      }
+      if(tab==='my'&&typeof window.refreshCommunityUser==='function')window.refreshCommunityUser();
     }
-    mapParts.forEach(el=>{if(el)el.style.display='none'});
-    panel.style.display='block';document.body.classList.add('kyd-tab-sub');
-    showPart('.stay-hero',tab==='stay');
-    showPart('.stay-auth-card',true);
-    showPart('#profileSection',tab==='my');
-    showPart('.stay-calendar-heading',tab==='stay');
-    showPart('.stay-weekdays',tab==='stay');
-    showPart('#calendarGrid',tab==='stay');
-    showPart('#selectedDateLabel',tab==='stay');
-    showPart('#stayCountLabel',tab==='stay');
-    showPart('.stay-date-card',tab==='stay');
-    showPart('.stay-chat-card',tab==='stay');
-    showPart('.stay-meetup-card',tab==='meetup');
-    if(tab==='stay'){
-      if(typeof window.refreshCommunityUser==='function')window.refreshCommunityUser();
-      if(typeof window.loadChatMessages==='function')window.loadChatMessages();
-    }
-    if(tab==='meetup'&&typeof window.loadMeetups==='function')window.loadMeetups();
-    if(tab==='chat'){
-      document.body.classList.add('kyd-tab-chat');
-      const open=document.getElementById('openDirectChatBtn');if(open)open.click();
-    }
-    if(tab==='my'&&typeof window.refreshCommunityUser==='function')window.refreshCommunityUser();
     window.scrollTo({top:0,behavior:'instant'});
   }
-  bar.addEventListener('click',e=>{const b=e.target.closest('button[data-kyd-tab]');if(b)setTab(b.dataset.kydTab)});
+  bar.addEventListener('click',e=>{
+    const b=e.target.closest('button[data-kyd-tab]');
+    if(b)setTab(b.dataset.kydTab);
+  });
   window.kyotoAfterDarkSetTab=setTab;
-  // 기존 헤더/내부 버튼도 새 탭과 충돌하지 않도록 연결
-  const oldBack=document.getElementById('calendarBackBtn');if(oldBack)oldBack.addEventListener('click',()=>setTab('map'));
-  const oldToggle=document.getElementById('calendarToggleBtn');if(oldToggle)oldToggle.addEventListener('click',()=>setTab('stay'));
+  const oldBack=document.getElementById('calendarBackBtn');
+  if(oldBack)oldBack.addEventListener('click',()=>setTab('map'));
+  const oldToggle=document.getElementById('calendarToggleBtn');
+  if(oldToggle)oldToggle.addEventListener('click',()=>setTab('stay'));
+  const dmClose=document.getElementById('closeDirectChatBtn');
+  if(dmClose)dmClose.addEventListener('click',()=>{if(activeTab==='chat')setTab('map');});
   setTab('map');
 })();
 </script>
