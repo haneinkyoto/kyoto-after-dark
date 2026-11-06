@@ -3724,6 +3724,28 @@ header {
 
  
 
+
+<style id="kyoto-five-tab-navigation">
+:root{--kyd-ink:#292720;--kyd-paper:#f7f4ee;--kyd-line:#e5dfd2;--kyd-accent:#8d4937}
+body{padding-bottom:calc(76px + env(safe-area-inset-bottom,0px))}
+#kyotoTabBar{position:fixed;z-index:100000;left:0;right:0;bottom:0;display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:0;padding:8px 8px calc(8px + env(safe-area-inset-bottom,0px));background:rgba(247,244,238,.97);border-top:1px solid var(--kyd-line);backdrop-filter:blur(14px);box-shadow:0 -5px 22px rgba(40,35,25,.08)}
+#kyotoTabBar button{appearance:none;border:0;background:transparent;color:#777064;min-width:0;padding:6px 2px 4px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;font:600 11px/1.2 'Noto Sans KR','Noto Sans JP',sans-serif;cursor:pointer}
+#kyotoTabBar button .kyd-tab-icon{font-size:19px;line-height:1.1}
+#kyotoTabBar button[aria-selected="true"]{color:var(--kyd-accent)}
+#kyotoTabBar button[aria-selected="true"] .kyd-tab-label{font-weight:800}
+#calendarPanel.kyd-tab-panel{max-width:900px;width:100%;box-sizing:border-box;margin:0 auto;padding:20px 16px 30px!important;min-height:calc(100vh - 100px)}
+body.kyd-tab-map main{grid-template-columns:minmax(300px,390px) minmax(0,1fr)}
+body.kyd-tab-map .sidebar{display:block!important}
+body.kyd-tab-map .map-wrap{display:block!important}
+body.kyd-tab-sub main{display:block;min-height:calc(100vh - 80px)}
+body.kyd-tab-sub #calendarPanel{display:block!important}
+body.kyd-tab-sub .sidebar,body.kyd-tab-sub .map-wrap{display:none!important}
+body.kyd-tab-sub #calendarBackBtn{display:none!important}
+body.kyd-tab-chat main{display:block}
+@media(max-width:800px){body.kyd-tab-map main{display:flex;flex-direction:column}body.kyd-tab-map .map-wrap{order:0;min-height:48vh}body.kyd-tab-map #map{height:48vh;min-height:48vh}body.kyd-tab-map .sidebar{order:1;max-height:none}#kyotoTabBar button{font-size:10px}}
+@media(min-width:801px){#kyotoTabBar{left:50%;right:auto;transform:translateX(-50%);width:min(560px,calc(100% - 32px));border:1px solid var(--kyd-line);border-bottom:0;border-radius:16px 16px 0 0}}
+</style>
+
 </head>
 
 <body>
@@ -10899,6 +10921,66 @@ localStorage.setItem(
     drawSakeFortune.style.display = 'none';
   });
 }
+</script>
+
+
+<nav id="kyotoTabBar" aria-label="주요 메뉴">
+  <button type="button" data-kyd-tab="map" aria-selected="true"><span class="kyd-tab-icon">⌖</span><span class="kyd-tab-label">지도</span></button>
+  <button type="button" data-kyd-tab="stay" aria-selected="false"><span class="kyd-tab-icon">▦</span><span class="kyd-tab-label">체류</span></button>
+  <button type="button" data-kyd-tab="meetup" aria-selected="false"><span class="kyd-tab-icon">♧</span><span class="kyd-tab-label">모임</span></button>
+  <button type="button" data-kyd-tab="chat" aria-selected="false"><span class="kyd-tab-icon">✉</span><span class="kyd-tab-label">채팅</span></button>
+  <button type="button" data-kyd-tab="my" aria-selected="false"><span class="kyd-tab-icon">◎</span><span class="kyd-tab-label">MY</span></button>
+</nav>
+<script id="kyoto-five-tab-controller">
+(function(){
+  const bar=document.getElementById('kyotoTabBar');
+  const panel=document.getElementById('calendarPanel');
+  if(!bar||!panel)return;
+  panel.classList.add('kyd-tab-panel');
+  const mapParts=[document.querySelector('.sidebar'),document.querySelector('.map-wrap')];
+  const selectors=['.stay-hero','.stay-auth-card','#profileSection','.stay-calendar-heading','.stay-weekdays','#calendarGrid','#selectedDateLabel','#stayCountLabel','.stay-date-card','.stay-chat-card','.stay-meetup-card'];
+  const parts=Object.fromEntries(selectors.map(s=>[s,panel.querySelector(s)]));
+  function showPart(selector,show){const el=parts[selector];if(el)el.style.display=show?'':'none';}
+  function setTab(tab){
+    document.body.classList.remove('kyd-tab-map','kyd-tab-sub','kyd-tab-chat');
+    bar.querySelectorAll('button[data-kyd-tab]').forEach(b=>b.setAttribute('aria-selected',String(b.dataset.kydTab===tab)));
+    if(tab==='map'){
+      panel.style.display='none';mapParts.forEach(el=>{if(el)el.style.display=''});document.body.classList.add('kyd-tab-map');
+      if(window.map&&typeof window.map.invalidateSize==='function')setTimeout(()=>window.map.invalidateSize(),80);
+      return;
+    }
+    mapParts.forEach(el=>{if(el)el.style.display='none'});
+    panel.style.display='block';document.body.classList.add('kyd-tab-sub');
+    showPart('.stay-hero',tab==='stay');
+    showPart('.stay-auth-card',true);
+    showPart('#profileSection',tab==='my');
+    showPart('.stay-calendar-heading',tab==='stay');
+    showPart('.stay-weekdays',tab==='stay');
+    showPart('#calendarGrid',tab==='stay');
+    showPart('#selectedDateLabel',tab==='stay');
+    showPart('#stayCountLabel',tab==='stay');
+    showPart('.stay-date-card',tab==='stay');
+    showPart('.stay-chat-card',tab==='stay');
+    showPart('.stay-meetup-card',tab==='meetup');
+    if(tab==='stay'){
+      if(typeof window.refreshCommunityUser==='function')window.refreshCommunityUser();
+      if(typeof window.loadChatMessages==='function')window.loadChatMessages();
+    }
+    if(tab==='meetup'&&typeof window.loadMeetups==='function')window.loadMeetups();
+    if(tab==='chat'){
+      document.body.classList.add('kyd-tab-chat');
+      const open=document.getElementById('openDirectChatBtn');if(open)open.click();
+    }
+    if(tab==='my'&&typeof window.refreshCommunityUser==='function')window.refreshCommunityUser();
+    window.scrollTo({top:0,behavior:'instant'});
+  }
+  bar.addEventListener('click',e=>{const b=e.target.closest('button[data-kyd-tab]');if(b)setTab(b.dataset.kydTab)});
+  window.kyotoAfterDarkSetTab=setTab;
+  // 기존 헤더/내부 버튼도 새 탭과 충돌하지 않도록 연결
+  const oldBack=document.getElementById('calendarBackBtn');if(oldBack)oldBack.addEventListener('click',()=>setTab('map'));
+  const oldToggle=document.getElementById('calendarToggleBtn');if(oldToggle)oldToggle.addEventListener('click',()=>setTab('stay'));
+  setTab('map');
+})();
 </script>
 
 </body>
