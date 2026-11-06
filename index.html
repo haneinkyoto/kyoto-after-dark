@@ -16,7 +16,7 @@
 
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 
-<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700&family=Noto+Sans+JP:wght@400;500;600;700&family=Noto+Sans+KR:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400;0,500;0,600;1,400;1,500&family=Manrope:wght@400;500;600;700&family=Noto+Sans+JP:wght@400;500;600;700&family=Noto+Sans+KR:wght@400;500;600;700&family=Noto+Serif+JP:wght@400;500;600&family=Noto+Serif+KR:wght@400;500;600&display=swap" rel="stylesheet">
 
 <style>
 
@@ -3861,14 +3861,14 @@ body.kyd-tab-chat #directChatPanel.is-open{
   #kyotoTabBar button,#kyotoTabBar .kyd-tab-icon{transition:none !important}
 }
 
-/* iOS Safari date input overflow fix */
+/* iOS Safari 날짜 입력창: 부모에서 잘라내지 않고 입력창 자체를 카드 안에 맞춤 */
 @media (max-width: 600px){
   #calendarPanel .stay-date-card,
   #calendarPanel .stay-meetup-card{
     width:100% !important;
     max-width:100% !important;
     min-width:0 !important;
-    overflow:hidden;
+    overflow:visible !important;
   }
   #calendarPanel .stay-date-card input[type="date"],
   #calendarPanel .stay-meetup-card input[type="date"]{
@@ -3879,12 +3879,91 @@ body.kyd-tab-chat #directChatPanel.is-open{
     inline-size:100% !important;
     box-sizing:border-box !important;
     -webkit-box-sizing:border-box !important;
-    margin-left:0 !important;
-    margin-right:0 !important;
-    padding-left:10px !important;
-    padding-right:10px !important;
+    margin:6px 0 12px !important;
+    padding:8px 10px !important;
     font-size:16px !important;
+    font-family:inherit !important;
   }
+}
+</style>
+
+
+
+<style id="kyoto-serif-elegance-and-date-sizing-v5">
+/* D. Serif Elegance — Lora display + readable Korean/Japanese sans body */
+:root{
+  --kyd-display-font:"Lora","Noto Serif KR","Noto Serif JP",Georgia,serif;
+  --kyd-body-font:"Noto Sans KR","Noto Sans JP",Manrope,-apple-system,BlinkMacSystemFont,sans-serif;
+}
+html,body,button,input,select,textarea{
+  font-family:var(--kyd-body-font) !important;
+}
+/* English headings render in Lora; Korean/Japanese glyphs fall back to Noto Serif. */
+h1,h2,h3,h4,
+.brand h1,
+.modal h2,
+.section-title,
+.stat strong,
+.stay-calendar-heading h3,
+.night-intro h2,
+.night-intro h3{
+  font-family:var(--kyd-display-font) !important;
+  font-weight:500;
+  letter-spacing:-0.025em;
+}
+.brand small,.subtitle,.section-title,
+button,.button,.field label,
+#kyotoTabBar button{
+  font-family:var(--kyd-body-font) !important;
+}
+/* Keep body copy, labels, map cards and controls crisp and legible. */
+.place-card,.popup-review,.leaflet-popup-content,
+#calendarPanel p,#calendarPanel label,
+#calendarPanel input,#calendarPanel textarea,
+#calendarPanel select{
+  font-family:var(--kyd-body-font) !important;
+}
+
+/* Date controls: size the control itself to the content box, never mask overflow. */
+#calendarPanel .stay-date-card,
+#calendarPanel .stay-meetup-card{
+  box-sizing:border-box !important;
+  width:100% !important;
+  max-width:100% !important;
+  min-width:0 !important;
+  overflow:visible !important;
+}
+#calendarPanel .stay-date-card input[type="date"],
+#calendarPanel .stay-meetup-card input[type="date"],
+#calendarPanel input[type="date"]{
+  display:block !important;
+  box-sizing:border-box !important;
+  -webkit-box-sizing:border-box !important;
+  width:100% !important;
+  min-width:0 !important;
+  max-width:100% !important;
+  min-inline-size:0 !important;
+  inline-size:100% !important;
+  flex:1 1 0% !important;
+  margin:6px 0 12px !important;
+  padding:8px 6px !important;
+  font-size:16px !important;
+  line-height:1.35 !important;
+  border:1px solid var(--line,#e4e0d6) !important;
+  border-radius:6px !important;
+  background:#FFFCF5 !important;
+  color:var(--ink,#26251f) !important;
+}
+#calendarPanel .stay-date-card,
+#calendarPanel .stay-meetup-card,
+#calendarPanel .stay-date-card > *,
+#calendarPanel .stay-meetup-card > *{
+  min-width:0 !important;
+}
+@media(max-width:600px){
+  #calendarPanel .stay-date-card,
+  #calendarPanel .stay-meetup-card{padding:14px !important}
+  #calendarPanel input[type="date"]{font-size:16px !important;padding-inline:5px !important}
 }
 </style>
 
