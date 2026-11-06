@@ -3731,6 +3731,10 @@ body{padding-bottom:calc(76px + env(safe-area-inset-bottom,0px))}
 #kyotoTabBar{position:fixed;z-index:100000;left:0;right:0;bottom:0;display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:0;padding:8px 8px calc(8px + env(safe-area-inset-bottom,0px));background:rgba(247,244,238,.97);border-top:1px solid var(--kyd-line);backdrop-filter:blur(14px);box-shadow:0 -5px 22px rgba(40,35,25,.08)}
 #kyotoTabBar button{appearance:none;border:0;background:transparent;color:#777064;min-width:0;padding:6px 2px 4px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;font:600 11px/1.2 'Noto Sans KR','Noto Sans JP',sans-serif;cursor:pointer}
 #kyotoTabBar button .kyd-tab-icon{font-size:19px;line-height:1.1}
+#kyotoTabBar button[data-kyd-tab="chat"] .kyd-tab-icon{position:relative;display:inline-block}
+#kyotoTabBar .kyd-message-badge{position:absolute;top:-8px;right:-15px;min-width:17px;height:17px;padding:0 4px;box-sizing:border-box;display:inline-flex;align-items:center;justify-content:center;border:2px solid var(--kyd-paper);border-radius:999px;background:#a34532;color:#fff;font:700 9px/1 'Noto Sans KR','Noto Sans JP',sans-serif;letter-spacing:-.02em;box-shadow:0 1px 4px rgba(30,20,10,.18)}
+#notificationBtn,#notificationPanel{display:none!important}
+
 #kyotoTabBar button[aria-selected="true"]{color:var(--kyd-accent)}
 #kyotoTabBar button[aria-selected="true"] .kyd-tab-label{font-weight:800}
 #calendarPanel.kyd-tab-panel{max-width:900px;width:100%;box-sizing:border-box;margin:0 auto;padding:20px 16px 30px!important;min-height:calc(100vh - 100px)}
@@ -7762,7 +7766,7 @@ console.log('닉네임:', communityUser?.user_metadata?.nickname);
   updateCommunityAuthUI();
 
   await loadMyStays();
-await refreshNotificationBadge();
+await refreshDirectMessageBadge();
   await loadChatMessages();
 
   await loadMeetups();
@@ -10189,6 +10193,8 @@ async function openDirectConversation(otherUserId, otherName) {
 
   activeDirectConversationId = conversation.id;
 
+  markDirectMessagesSeen();
+
   activeDirectOtherUserId = otherUserId;
 
   activeDirectOtherName = otherName || '사용자';
@@ -10814,30 +10820,69 @@ document.getElementById('closeNotificationBtn')?.addEventListener('click', () =>
   document.getElementById('notificationPanel').style.display = 'none';
 });
 
-async function refreshNotificationBadge() {
+function directMessageReadKey() {
+  return communityUser ? `kyd_direct_messages_last_seen_${communityUser.id}` : null;
+}
+
+function markDirectMessagesSeen() {
+  if (!communityUser) return;
+  try {
+    localStorage.setItem(directMessageReadKey(), new Date().toISOString());
+  } catch (error) {
+    console.warn('메시지 읽음 상태를 저장하지 못했어요.', error);
+  }
+  const badge = document.getElementById('directMessageBadge');
+  if (badge) badge.style.display = 'none';
+}
+
+async function refreshDirectMessageBadge() {
+  const badge = document.getElementById('directMessageBadge');
+  if (!badge) return;
+
   if (!communityUser) {
-    const badge = document.getElementById('notificationBadge');
-    if (badge) badge.style.display = 'none';
+    badge.style.display = 'none';
+    return;
+  }
+
+  // 채팅 화면을 열어 둔 동안에는 확인한 것으로 처리합니다.
+  if (document.body.classList.contains('kyd-tab-chat')) {
+    markDirectMessagesSeen();
+    return;
+  }
+
+  const key = directMessageReadKey();
+  let lastSeen = null;
+  try {
+    lastSeen = localStorage.getItem(key);
+    // 기능을 처음 사용하는 시점 이전의 과거 대화가 한꺼번에 미확인으로 뜨지 않게 합니다.
+    if (!lastSeen) {
+      lastSeen = new Date().toISOString();
+      localStorage.setItem(key, lastSeen);
+    }
+  } catch (error) {
+    console.warn('메시지 읽음 기준을 불러오지 못했어요.', error);
+    badge.style.display = 'none';
     return;
   }
 
   const { count, error } = await communityClient
-    .from('kyoto_notifications')
+    .from('kyoto_direct_messages')
     .select('id', { count: 'exact', head: true })
-    .eq('recipient_id', communityUser.id)
-    .eq('is_read', false);
+    .neq('sender_id', communityUser.id)
+    .gt('created_at', lastSeen);
 
   if (error) {
-    console.error('알림 숫자 갱신 실패:', error);
+    console.error('읽지 않은 메시지 수를 불러오지 못했어요.', error);
     return;
   }
 
-  const badge = document.getElementById('notificationBadge');
-  if (!badge) return;
-
-  badge.textContent = count > 99 ? '99+' : count;
-  badge.style.display = count > 0 ? 'inline-block' : 'none';
+  const unread = count || 0;
+  badge.textContent = unread > 99 ? '99+' : String(unread);
+  badge.style.display = unread > 0 ? 'inline-flex' : 'none';
+  badge.setAttribute('aria-label', `읽지 않은 메시지 ${unread}개`);
 }
+
+window.setInterval(refreshDirectMessageBadge, 45000);
 /* 메시지 패널은 지도 화면에서도 항상 열 수 있어요. */
 
 document.getElementById('openDirectChatBtn')?.addEventListener('click', async () => {
@@ -11149,7 +11194,7 @@ localStorage.setItem(
   <button type="button" data-kyd-tab="map" aria-selected="true"><span class="kyd-tab-icon">⌖</span><span class="kyd-tab-label">지도</span></button>
   <button type="button" data-kyd-tab="stay" aria-selected="false"><span class="kyd-tab-icon">▦</span><span class="kyd-tab-label">체류</span></button>
   <button type="button" data-kyd-tab="meetup" aria-selected="false"><span class="kyd-tab-icon">♧</span><span class="kyd-tab-label">모임</span></button>
-  <button type="button" data-kyd-tab="chat" aria-selected="false"><span class="kyd-tab-icon">✉</span><span class="kyd-tab-label">채팅</span></button>
+  <button type="button" data-kyd-tab="chat" aria-selected="false"><span class="kyd-tab-icon">✉<span id="directMessageBadge" class="kyd-message-badge" aria-label="읽지 않은 메시지" style="display:none">0</span></span><span class="kyd-tab-label">채팅</span></button>
   <button type="button" data-kyd-tab="my" aria-selected="false"><span class="kyd-tab-icon">◎</span><span class="kyd-tab-label">MY</span></button>
 </nav>
 <script id="kyoto-five-tab-controller">
@@ -11221,6 +11266,7 @@ localStorage.setItem(
       if(tab==='meetup'&&typeof window.loadMeetups==='function')window.loadMeetups();
       if(tab==='chat'){
         document.body.classList.add('kyd-tab-chat');
+        markDirectMessagesSeen();
         const open=document.getElementById('openDirectChatBtn');
         if(open)open.click();
       }
