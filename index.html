@@ -4011,6 +4011,13 @@ button,.button,.field label,
 @media(prefers-reduced-motion:reduce){.sidebar .place-card{transition:none!important}}
 </style>
 
+<style id="kyd-review-translation-styles">
+.review-translation-note{margin:7px 0 0;color:#8a806f;font-size:11px;line-height:1.65}
+#translateExistingReviewsBtn{font-size:11px;padding:9px 12px;border-style:dashed}
+#translateExistingReviewsBtn:disabled{opacity:.55;cursor:wait}
+html[lang="ja"] .review-translation-note{color:#827763}
+</style>
+
 <style id="kyd-i18n-styles">
 .kyd-language-switch{display:flex;align-items:center;gap:7px;align-self:center;margin-right:4px;padding:4px 7px;border:1px solid var(--line);background:rgba(255,253,248,.72);border-radius:3px;color:var(--muted);font-size:11px;white-space:nowrap}
 .kyd-language-switch button{border:0!important;background:transparent!important;color:var(--muted)!important;padding:5px 3px!important;font-size:11px!important;font-weight:500;letter-spacing:.02em}
@@ -5053,6 +5060,12 @@ html[lang="ja"] .sidebar .search{text-align:left;text-align-last:left}
     required
     placeholder="이곳에 직접 방문한 느낌과 솔직한 리뷰를 작성해 주세요."
   ></textarea>
+  <p id="reviewTranslationStatus" class="review-translation-note" aria-live="polite">
+    한국어 리뷰 원문은 그대로 보존하고, 일본어 번역을 별도로 저장합니다.
+  </p>
+  <button type="button" id="translateExistingReviewsBtn" class="secondary" style="width:100%;margin-top:8px;">
+    기존 리뷰 일본어 번역하기
+  </button>
 </div>
  
 
@@ -5919,6 +5932,18 @@ function esc(s = '') {
 
  
 
+function getLocalizedReview(place) {
+  const language = window.KYOTO_AFTER_DARK_I18N?.getLanguage?.()
+    || document.documentElement.lang
+    || 'ko';
+  const original = String(place?.review || '');
+  if (language === 'ja') {
+    const translated = String(place?.review_ja || '').trim();
+    return translated || original;
+  }
+  return original;
+}
+
 function stars(n) {
 
   n = Math.max(0, Math.min(5, Number(n) || 0));
@@ -5930,7 +5955,7 @@ function stars(n) {
  
 
 function tooltipPreview(p) {
-  const review = String(p.review || '');
+  const review = getLocalizedReview(p);
 
   return `
     <div class="popup-name">${esc(p.name)}</div>
@@ -5955,7 +5980,7 @@ function tooltipPreview(p) {
 }
 
 function popup(p) {
-  const review = String(p.review || '');
+  const review = getLocalizedReview(p);
   const hasReview = review.trim().length > 0;
 
   return `
@@ -6010,7 +6035,7 @@ function popup(p) {
   `;
 }
 function mobilePopup(p) {
-  const review = String(p.review || '');
+  const review = getLocalizedReview(p);
   const hasReview = review.trim().length > 0;
 
   return `
@@ -6665,7 +6690,7 @@ Object.entries(markers).forEach(([id, marker]) => {
 
         ${p.photo_url ? `<img src="${esc(p.photo_url)}" alt="${esc(p.name)} 사진" style="width:100%; max-height:220px; object-fit:cover; border-radius:10px; margin:10px 0;" loading="lazy" onerror="this.style.display='none'">` : ''}
 
-        <div class="place-note">${esc(p.review || '')}</div>
+        <div class="place-note">${esc(getLocalizedReview(p))}</div>
 
         ${p.category ? `<span class="tag">${esc(p.category)}</span>` : ''}
 
@@ -6850,6 +6875,65 @@ Object.entries(markers).forEach(([id, marker]) => {
 
 }
 
+async function requestJapaneseReviewTranslation(text) {
+  const cleanText = String(text || '').trim();
+  if (!cleanText) return '';
+  const { data, error } = await supabaseClient.functions.invoke('translate-review', {
+    body: { text: cleanText }
+  });
+  if (error) throw error;
+  const translated = String(data?.translatedText || '').trim();
+  if (!translated) throw new Error('翻訳結果が空でした。');
+  return translated;
+}
+
+function reviewUiText(korean, japanese) {
+  const lang = window.KYOTO_AFTER_DARK_I18N?.getLanguage?.() || document.documentElement.lang || 'ko';
+  return lang === 'ja' ? japanese : korean;
+}
+
+function setReviewTranslationStatus(message, isError = false) {
+  const el = document.getElementById('reviewTranslationStatus');
+  if (!el) return;
+  el.textContent = message;
+  el.style.color = isError ? '#a34532' : '';
+}
+
+async function translateExistingJapaneseReviews() {
+  const button = document.getElementById('translateExistingReviewsBtn');
+  const pending = places.filter(p => String(p.review || '').trim() && !String(p.review_ja || '').trim());
+  if (!pending.length) {
+    setReviewTranslationStatus(reviewUiText('번역이 필요한 기존 리뷰가 없어요.', '翻訳が必要な既存口コミはありません。'));
+    return;
+  }
+  if (!confirm(reviewUiText(`번역되지 않은 리뷰 ${pending.length}개를 일본어로 번역할까요?`, `未翻訳の口コミ${pending.length}件を日本語に翻訳しますか？`))) return;
+  button.disabled = true;
+  let completed = 0;
+  let failed = 0;
+  try {
+    for (const place of pending) {
+      setReviewTranslationStatus(reviewUiText(`기존 리뷰 번역 중… ${completed + failed + 1}/${pending.length}`, `既存口コミを翻訳中… ${completed + failed + 1}/${pending.length}`));
+      try {
+        const review_ja = await requestJapaneseReviewTranslation(place.review);
+        const { error } = await supabaseClient.from('places').update({ review_ja }).eq('id', place.id);
+        if (error) throw error;
+        place.review_ja = review_ja;
+        completed++;
+      } catch (error) {
+        console.error('既存レビューの翻訳に失敗:', place.id, error);
+        failed++;
+      }
+    }
+    render();
+    setReviewTranslationStatus(reviewUiText(`일본어 번역 완료: ${completed}개${failed ? ` / 실패: ${failed}개` : ''}`, `日本語訳が完了しました：${completed}件${failed ? `／失敗：${failed}件` : ''}`));
+    alert(reviewUiText(`일본어 번역이 완료됐어요.\n성공: ${completed}개\n실패: ${failed}개`, `日本語訳が完了しました。\n成功：${completed}件\n失敗：${failed}件`));
+  } finally {
+    button.disabled = false;
+  }
+}
+
+document.getElementById('translateExistingReviewsBtn')?.addEventListener('click', translateExistingJapaneseReviews);
+
 document.getElementById('placeForm').addEventListener('submit', async (e) => {
 
   e.preventDefault();
@@ -6912,6 +6996,16 @@ document.getElementById('placeForm').addEventListener('submit', async (e) => {
 
  
 
+  let review_ja = null;
+  setReviewTranslationStatus('일본어로 번역하고 있어요…');
+  try {
+    review_ja = await requestJapaneseReviewTranslation(review);
+    setReviewTranslationStatus('일본어 번역을 완료했어요. 원문과 번역문을 함께 저장합니다.');
+  } catch (translationError) {
+    console.warn('일본어 리뷰 번역 실패:', translationError);
+    setReviewTranslationStatus('번역에 실패했어요. 한국어 원문은 저장하고, 일본어 번역은 나중에 다시 시도할 수 있어요.', true);
+  }
+
   const row = {
 
     name,
@@ -6923,6 +7017,8 @@ document.getElementById('placeForm').addEventListener('submit', async (e) => {
     longitude: lng,
 
     review,
+
+    review_ja,
 
     rating,
 
@@ -6970,9 +7066,19 @@ document.getElementById('placeForm').addEventListener('submit', async (e) => {
 
  
 
-  const { data, error } = result;
+  let { data, error } = result;
 
- 
+  if (error && /review_ja|column .* does not exist|schema cache/i.test(String(error.message || error.details || ''))) {
+    console.warn('review_ja 컬럼이 없어 원문만 다시 저장합니다. SQL 마이그레이션이 필요합니다.', error);
+    const originalOnlyRow = { ...row };
+    delete originalOnlyRow.review_ja;
+    result = placeId
+      ? await supabaseClient.from('places').update(originalOnlyRow).eq('id', placeId).select().single()
+      : await supabaseClient.from('places').insert(originalOnlyRow).select().single();
+    data = result.data;
+    error = result.error;
+    if (!error) setReviewTranslationStatus('한국어 원문은 저장했어요. 일본어 번역 저장을 위해 Supabase SQL 설정이 필요합니다.', true);
+  }
 
   if (error) {
 
@@ -6995,6 +7101,8 @@ document.getElementById('placeForm').addEventListener('submit', async (e) => {
     lng: data.longitude,
 
     area: data.address || '교토',
+
+    review_ja: data.review_ja || '',
 
     category: data.category || '',
 
@@ -11587,7 +11695,13 @@ localStorage.setItem(
     '위치 정보를 가져오는 중...':'位置情報を取得中…', '주소를 검색하고 있어요...':'住所を検索中…', '사진을 검색하고 있어요...':'画像を検索中…',
     '로그인하면 체류 날짜, 채팅, 모임 글을 등록할 수 있어요.':'ログインすると滞在日、チャット、飲み友募集を登録できます。',
     '로그인했어요. 체류 날짜와 채팅, 모임 글을 등록할 수 있어요.':'ログインしました。滞在日、チャット、飲み友募集を登録できます。',
-    '교토':'京都', '일':'日', '월':'月', '화':'火', '수':'水', '목':'木', '금':'金', '토':'土'
+    '교토':'京都', '일':'日', '월':'月', '화':'火', '수':'水', '목':'木', '금':'金', '토':'土',
+    '한국어 리뷰 원문은 그대로 보존하고, 일본어 번역을 별도로 저장합니다.':'韓国語の原文はそのまま保存し、日本語訳を別途保存します。',
+    '기존 리뷰 일본어 번역하기':'既存の口コミを日本語に翻訳する',
+    '일본어로 번역하고 있어요…':'日本語に翻訳しています…',
+    '일본어 번역을 완료했어요. 원문과 번역문을 함께 저장합니다.':'日本語訳が完了しました。原文と翻訳文を一緒に保存します。',
+    '번역에 실패했어요. 한국어 원문은 저장하고, 일본어 번역은 나중에 다시 시도할 수 있어요.':'翻訳に失敗しました。韓国語の原文は保存し、日本語訳は後から再試行できます。',
+    '한국어 원문은 저장했어요. 일본어 번역 저장을 위해 Supabase SQL 설정이 필요합니다.':'韓国語の原文を保存しました。日本語訳の保存にはSupabaseのSQL設定が必要です。'
   };
   const placeholders = {
     '닉네임 (회원가입 시 입력)':'ニックネーム（新規登録時に入力）','이메일':'メールアドレス','비밀번호 (6자 이상)':'パスワード（6文字以上）',
@@ -11680,6 +11794,7 @@ localStorage.setItem(
   window.alert=(message)=>nativeAlert(translateText(String(message)));
   window.confirm=(message)=>nativeConfirm(translateText(String(message)));
   window.KYOTO_AFTER_DARK_I18N={setLanguage,getLanguage:()=>currentLang};
+  document.addEventListener('kyd:languagechange',()=>{ if(typeof render==='function') render(); });
 })();
 </script>
 </body>
