@@ -3971,31 +3971,10 @@ button,.button,.field label,
 }
 </style>
 
-
-<style id="kyoto-phase2-ux">
-.kyd-welcome[hidden]{display:none!important}
-.kyd-welcome{position:relative;display:flex;gap:12px;align-items:flex-start;margin:0 0 16px;padding:17px 38px 16px 16px;background:linear-gradient(135deg,#f0e9dc 0%,#faf7f0 72%);border:1px solid #e4d9c8;border-radius:5px;color:#302b24}
-.kyd-welcome-copy{min-width:0}.kyd-eyebrow{display:block;margin-bottom:6px;color:#94604c;font:700 9px/1.4 'Manrope','Noto Sans KR',sans-serif;letter-spacing:.16em}
-.kyd-welcome strong{display:block;font:500 17px/1.45 'Noto Serif KR','Noto Serif JP',serif;letter-spacing:.01em}
-.kyd-welcome p{margin:5px 0 10px;color:#71685d;font-size:11px;line-height:1.65}
-.kyd-welcome-steps{display:flex;flex-wrap:wrap;gap:6px 12px;color:#8b5948;font-size:10px;font-weight:600}
-.kyd-welcome-close{position:absolute;top:8px;right:8px;width:28px;height:28px;padding:0;border:0;background:transparent;color:#7b7063;font-size:21px;line-height:1}
-.kyd-tab-intro{margin:2px 0 17px;padding:5px 2px 15px;border-bottom:1px solid var(--line)}
-.kyd-tab-intro h2{margin:0 0 5px;font-size:clamp(21px,3vw,27px);line-height:1.35}
-.kyd-tab-intro h2 span{color:var(--accent)}
-.kyd-tab-intro p{margin:0;color:var(--muted);font-size:12px;line-height:1.75}
-.kyd-visually-hidden{position:absolute!important;width:1px!important;height:1px!important;padding:0!important;margin:-1px!important;overflow:hidden!important;clip:rect(0,0,0,0)!important;white-space:nowrap!important;border:0!important}
-:where(button,input,textarea,select,a,[tabindex]):focus-visible{outline:2px solid #a34532!important;outline-offset:3px!important}
-#calendarPanel [role="status"]{min-height:0;margin:9px 0 0;padding:0;color:var(--muted);font-size:11px;line-height:1.6;overflow-wrap:anywhere}
-#calendarPanel [role="status"]:not(:empty){padding:8px 10px;background:#f5f0e8;border-left:2px solid #b18a69;border-radius:2px}
-#calendarPanel button:disabled{opacity:.55;cursor:wait}
-#calendarPanel input,#calendarPanel textarea,#calendarPanel select{max-width:100%;min-width:0}
-#meetupList:empty{display:none}
-#meetupList>div[aria-hidden="true"]{display:none}
-@media(max-width:800px){.kyd-welcome{margin-bottom:12px;padding:14px 36px 13px 13px}.kyd-welcome strong{font-size:15px}.kyd-welcome p{font-size:10px}.kyd-tab-intro{margin-bottom:13px}.kyd-tab-intro p{font-size:11px}}
-@media(prefers-reduced-motion:reduce){*,*::before,*::after{scroll-behavior:auto!important;animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important}}
+<style id="my-page-redesign">
+#profileSection{padding:clamp(16px,3vw,28px)!important;border:1px solid #ded4c4!important;border-radius:5px!important;background:#f8f4eb!important;color:#332e27}.my-page-heading{padding:8px 0 22px;border-bottom:1px solid #d8cbb8;margin-bottom:22px}.my-page-eyebrow,.my-overline{display:block;color:#987d61;font-size:9px;letter-spacing:.19em;font-weight:700}.my-page-heading h2{margin:7px 0 4px;color:#342d25;font-family:'Lora','Noto Serif KR',serif;font-size:clamp(28px,5vw,39px);font-weight:500;letter-spacing:.04em}.my-page-heading h2 span{color:#a56e55;font-style:italic}.my-page-heading>p:last-child{margin:0;color:#817668;font-size:12px;line-height:1.7}.my-dashboard{display:grid;gap:15px}.my-profile-overview{display:flex;align-items:center;gap:15px;padding:19px;background:#eee5d6;border:1px solid #e0d4c2;min-width:0}.my-avatar{width:58px;height:58px;flex:0 0 58px;display:grid;place-items:center;border-radius:50%;background:#78634d;color:#fffaf1;font-family:'Lora',serif;font-size:24px}.my-profile-copy{min-width:0;flex:1}.my-profile-copy h3{margin:4px 0 5px;font-family:'Noto Serif KR','Noto Serif JP',serif;font-size:19px;color:#332e27;overflow-wrap:anywhere}.my-profile-copy p{margin:0;color:#766b5d;font-size:11px;line-height:1.65;overflow-wrap:anywhere}.my-profile-tags{display:flex;flex-wrap:wrap;gap:5px;margin-top:9px}.my-profile-tags span{padding:4px 7px;border:1px solid #d2c2ad;color:#806c55;font-size:9px}.my-profile-state{align-self:flex-start;padding:4px 7px;border:1px solid #c9b79e;color:#806c55;font-size:9px;white-space:nowrap}.my-stats-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}.my-stat{padding:13px 12px;background:#fffdf8;border:1px solid #e4dbce;min-width:0}.my-stat span{display:block;color:#a0876c;font-size:8px;letter-spacing:.12em}.my-stat strong{display:block;margin:5px 0 2px;color:#42382d;font-family:'Lora',serif;font-size:25px;font-weight:500}.my-stat small{color:#918575;font-size:9px}.my-dashboard-columns{display:grid;grid-template-columns:1fr 1fr;gap:10px}.my-info-card{padding:17px;background:#fffdf8;border:1px solid #e4dbce;min-width:0}.my-card-heading{display:flex;justify-content:space-between;padding-bottom:12px;border-bottom:1px solid #eee6da}.my-card-heading h4{margin:4px 0 0;color:#3d342b;font-family:'Noto Serif KR','Noto Serif JP',serif;font-size:16px}.my-card-mark{color:#b9a68d;font-family:'Lora',serif;font-size:17px}.my-info-list{margin:0}.my-info-list>div{display:grid;grid-template-columns:78px minmax(0,1fr);gap:8px;padding:9px 0;border-bottom:1px solid #f0eae1}.my-info-list>div:last-child{border:0}.my-info-list dt{color:#9a8a78;font-size:10px}.my-info-list dd{margin:0;color:#51483d;font-size:11px;text-align:right;overflow-wrap:anywhere}.my-privacy-card>p{min-height:62px;margin:13px 0;color:#817668;font-size:10px;line-height:1.7}.my-setting-row{display:flex;justify-content:space-between;padding:8px 0;border-top:1px solid #f0eae1;font-size:10px}.my-setting-row span{color:#948575}.my-setting-row strong{color:#76634c}.my-text-button{margin-top:10px;padding:9px 0;border:0;border-bottom:1px solid #bca58a;background:transparent;color:#725b43;font-size:11px;cursor:pointer}.my-shortcuts{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}.my-shortcuts button{display:flex;flex-direction:column;align-items:flex-start;gap:6px;padding:13px 12px;border:1px solid #dfd4c4;background:#f1eadf;color:#453a2e;text-align:left;cursor:pointer;min-width:0}.my-shortcuts button span{color:#9a8064;font-size:8px;letter-spacing:.12em}.my-shortcuts button strong{font-family:'Noto Serif KR','Noto Serif JP',serif;font-size:12px}.my-shortcuts button small{color:#877a69;font-size:9px;line-height:1.5}.my-edit-heading{margin-top:26px;padding-top:20px;border-top:1px solid #d8cbb8}.my-edit-heading h3{margin:4px 0;color:#3c342b;font-family:'Noto Serif KR','Noto Serif JP',serif;font-size:17px}.my-edit-heading p{margin:0;color:#8b7e6d;font-size:10px}.my-edit-toggle{margin-top:13px;padding:10px 16px;border:1px solid #8d775d;background:#78634d;color:#fffaf1;font-size:11px;cursor:pointer}#profileFormWrap{padding-top:17px;border-top:1px solid #e1d7c8}#profileFormWrap label{color:#756958;font-size:11px}#profileFormWrap input:not([type=checkbox]),#profileFormWrap textarea,#profileFormWrap select{max-width:100%;box-sizing:border-box}
+@media(max-width:640px){.my-profile-overview{align-items:flex-start;padding:15px 12px;gap:11px}.my-avatar{width:48px;height:48px;flex-basis:48px;font-size:21px}.my-profile-copy h3{font-size:16px}.my-profile-state{font-size:8px}.my-stats-grid{gap:6px}.my-stat{padding:11px 8px}.my-stat strong{font-size:22px}.my-stat small{font-size:8px}.my-dashboard-columns{grid-template-columns:1fr}.my-privacy-card>p{min-height:0}.my-shortcuts{grid-template-columns:1fr}.my-shortcuts button{display:grid;grid-template-columns:90px minmax(0,1fr);align-items:center;gap:4px 8px}.my-shortcuts button span{grid-row:1/3}.my-shortcuts button small{grid-column:2}}
 </style>
-
 </head>
 
 <body>
@@ -4188,21 +4167,18 @@ button,.button,.field label,
 
 </div>
 
-<section class="kyd-tab-intro" id="kydMyIntro" aria-label="마이페이지 안내">
-  <span class="kyd-eyebrow">YOUR KYOTO JOURNAL</span>
-  <h2>MY <span>—</span> 나의 교토 기록</h2>
-  <p>프로필과 체류 정보, 교토에서의 나만의 기록을 관리하는 공간이에요.</p>
-</section>
-
 <div id="profileSection" style="margin:16px 0;padding:16px;border:1px solid #ddd;border-radius:12px;">
 
-  <h3>👤 내 프로필</h3>
-
-  <p>교토에서 만날 사람들에게 나를 소개해 보세요.</p>
-
- 
-
-  <button type="button" id="profileToggleBtn">프로필 작성 / 수정</button>
+  <div class="my-page-heading"><p class="my-page-eyebrow">YOUR KYOTO JOURNAL</p><h2>MY <span>PAGE</span></h2><p>교토에서의 시간과 취향, 사람들과의 기록을 한곳에 모아요.</p></div>
+  <section id="myDashboard" class="my-dashboard" aria-label="나의 교토 대시보드">
+    <div class="my-profile-overview"><div class="my-avatar" id="myAvatar" aria-hidden="true">K</div><div class="my-profile-copy"><span class="my-overline">MY PROFILE</span><h3 id="myDisplayName">로그인 후 나를 소개해 보세요</h3><p id="myDisplayBio">프로필을 작성하면 이곳에 나의 교토 소개가 표시됩니다.</p><div class="my-profile-tags" id="myProfileTags"><span>KYOTO AFTER DARK MEMBER</span></div></div><span class="my-profile-state" id="myProfileState">미작성</span></div>
+    <div class="my-stats-grid"><article class="my-stat"><span>STAY DAYS</span><strong id="myStayStat">—</strong><small>등록한 체류 날짜</small></article><article class="my-stat"><span>MEETUP POSTS</span><strong id="myMeetupStat">—</strong><small>내가 올린 모임</small></article><article class="my-stat"><span>PROFILE</span><strong id="myProfileStat">0%</strong><small>프로필 완성도</small></article></div>
+    <div class="my-dashboard-columns"><section class="my-info-card"><div class="my-card-heading"><div><span class="my-overline">A LITTLE ABOUT ME</span><h4>나의 취향</h4></div><span class="my-card-mark">01</span></div><dl class="my-info-list"><div><dt>좋아하는 술</dt><dd id="myFavoriteDrinks">아직 등록하지 않았어요</dd></div><div><dt>음주 스타일</dt><dd id="myDrinkingStyle">—</dd></div><div><dt>MBTI</dt><dd id="myMbti">—</dd></div><div><dt>교토 체류</dt><dd id="myStayPeriod">일정을 등록해 보세요</dd></div><div><dt>활동 지역</dt><dd id="myArea">아직 등록하지 않았어요</dd></div></dl></section>
+    <section class="my-info-card my-privacy-card"><div class="my-card-heading"><div><span class="my-overline">YOUR SPACE</span><h4>계정과 공개 설정</h4></div><span class="my-card-mark">02</span></div><p>프로필과 위치는 공개 여부를 직접 선택할 수 있어요. 위치 공개는 지도에서 다른 사용자에게 내 위치를 보여주는 기능입니다.</p><div class="my-setting-row"><span>프로필 공개</span><strong id="myPublicState">비공개</strong></div><div class="my-setting-row"><span>지도 위치 공개</span><strong id="myLocationState">비공개</strong></div><button type="button" class="my-text-button" id="myEditProfileBtn">프로필 설정 열기 <span>↗</span></button></section></div>
+    <div class="my-shortcuts"><button type="button" data-my-shortcut="stay"><span>02 / STAY</span><strong>체류 일정 관리</strong><small>교토에 머무는 날짜를 기록해요 ↗</small></button><button type="button" data-my-shortcut="meetup"><span>03 / MEET</span><strong>술친구 모임 보기</strong><small>함께할 사람을 찾아보세요 ↗</small></button><button type="button" data-my-shortcut="chat"><span>04 / MESSAGE</span><strong>대화 확인하기</strong><small>받은 메시지를 확인해요 ↗</small></button></div>
+  </section>
+  <div class="my-edit-heading"><span class="my-overline">PROFILE SETTINGS</span><h3>프로필 관리</h3><p>다른 사용자에게 보여줄 정보를 수정할 수 있어요.</p></div>
+  <button type="button" id="profileToggleBtn" class="my-edit-toggle">프로필 작성 / 수정</button>
 
  
 
@@ -4435,9 +4411,9 @@ button,.button,.field label,
 </div>
 
 <div id="calendarGrid" style="display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:6px;"></div>
-  <p id="selectedDateLabel" aria-live="polite">선택한 날짜: 없음</p>
+  <p id="selectedDateLabel">선택한 날짜: 없음</p>
 
-  <p id="stayCountLabel" aria-live="polite">날짜별 체류 인원을 불러오는 중...</p>
+  <p id="stayCountLabel">날짜별 체류 인원을 불러오는 중...</p>
 
  
 
@@ -4471,10 +4447,9 @@ button,.button,.field label,
 
     <p>달력에서 날짜를 선택하면 해당 날짜의 채팅을 볼 수 있어요.</p>
 
-    <div id="chatMessages" role="log" aria-live="polite" aria-relevant="additions" style="max-height:300px;overflow:auto;border:1px solid #eee;padding:12px;border-radius:8px;overflow-wrap:anywhere;"></div>
+    <div id="chatMessages" style="max-height:300px;overflow:auto;border:1px solid #eee;padding:12px;border-radius:8px;overflow-wrap:anywhere;"></div>
 
-    <label class="kyd-visually-hidden" for="chatInput">날짜별 채팅 메시지</label>
-    <textarea id="chatInput" maxlength="500" rows="3" aria-label="날짜별 채팅 메시지" placeholder="이 날짜에 교토에 있는 사람들에게 메시지를 남겨 보세요." style="width:100%;box-sizing:border-box;margin-top:10px;padding:10px;"></textarea>
+    <textarea id="chatInput" maxlength="500" rows="3" placeholder="이 날짜에 교토에 있는 사람들에게 메시지를 남겨 보세요." style="width:100%;box-sizing:border-box;margin-top:10px;padding:10px;"></textarea>
 
     <button type="button" id="sendChatBtn">메시지 보내기</button>
 
@@ -4492,27 +4467,19 @@ button,.button,.field label,
 
  
 
-<section class="kyd-tab-intro" id="kydMeetupIntro" aria-label="모임 안내">
-  <span class="kyd-eyebrow">MEET SOMEONE IN KYOTO</span>
-  <h2>오늘 밤, 함께 한잔할까요?</h2>
-  <p>날짜와 동네를 정해 모임을 만들거나, 다른 사람이 올린 약속에 참여해 보세요.</p>
-</section>
-
 <div class="stay-meetup-card" style="border:1px solid #ddd;border-radius:12px;padding:16px;margin:20px 0;">
 
     <h3>🍻 오늘 술친구 할까요</h3>
 
     <p>같이 한잔할 사람을 찾아보세요. 만날 장소는 구체적인 집 주소 대신 지역이나 가게 이름 정도로 적어 주세요.</p>
 
-    <label class="kyd-visually-hidden" for="meetupTitle">모임 제목</label>
-    <input id="meetupTitle" maxlength="100" autocomplete="off" placeholder="제목 (예: 오늘 가와라마치에서 한잔!)" style="width:100%;box-sizing:border-box;padding:10px;margin:6px 0;">
+    <input id="meetupTitle" maxlength="100" placeholder="제목 (예: 오늘 가와라마치에서 한잔!)" style="width:100%;box-sizing:border-box;padding:10px;margin:6px 0;">
 
     <label for="meetupDate">모임 날짜</label>
 
-    <input type="date" id="meetupDate" aria-label="모임 날짜" style="display:block;padding:8px;margin:6px 0 12px;">
+    <input type="date" id="meetupDate" style="display:block;padding:8px;margin:6px 0 12px;">
 
-    <label class="kyd-visually-hidden" for="meetupArea">모임 지역</label>
-    <input id="meetupArea" maxlength="100" autocomplete="off" placeholder="지역 (예: 가와라마치)" style="width:100%;box-sizing:border-box;padding:10px;margin:6px 0;">
+    <input id="meetupArea" maxlength="100" placeholder="지역 (예: 가와라마치)" style="width:100%;box-sizing:border-box;padding:10px;margin:6px 0;">
 
     <textarea id="meetupDescription" maxlength="1000" rows="3" placeholder="시간, 분위기, 하고 싶은 이야기 등" style="width:100%;box-sizing:border-box;padding:10px;margin:6px 0;"></textarea>
 
@@ -4523,7 +4490,7 @@ button,.button,.field label,
 
     <p id="meetupStatus" role="status"></p>
 
-    <div id="meetupList" style="margin-top:16px;" aria-live="polite" aria-label="모임 목록"></div>
+    <div id="meetupList" style="margin-top:16px;"></div>
 
   </div>
 
@@ -4659,7 +4626,7 @@ button,.button,.field label,
 
       </div>
 
-      <div id="directMessages" role="log" aria-live="polite" aria-relevant="additions" class="dm-messages" aria-live="polite" aria-label="메시지 내역"></div>
+      <div id="directMessages" class="dm-messages" aria-live="polite" aria-label="메시지 내역"></div>
 
       <form id="directMessageForm" class="dm-composer">
 
@@ -4871,17 +4838,6 @@ button,.button,.field label,
 
  
 
-<section class="kyd-welcome" id="kydWelcome" aria-label="사이트 이용 안내">
-  <div class="kyd-welcome-copy">
-    <span class="kyd-eyebrow">WELCOME TO KYOTO AFTER DARK</span>
-    <strong>교토의 밤을, 나답게 찾아보세요.</strong>
-    <p>술집을 탐색하고, 체류 날짜를 공유하고, 함께 한잔할 사람을 만나보세요.</p>
-    <div class="kyd-welcome-steps"><span>01 술집 찾기</span><span>02 일정 공유</span><span>03 함께 마시기</span></div>
-  </div>
-  <button type="button" class="kyd-welcome-close" id="kydWelcomeClose" aria-label="안내 닫기">×</button>
-</section>
-
-<label class="kyd-visually-hidden" for="search">술집 이름, 음식, 키워드 검색</label>
 <input
   class="search"
   id="search"
@@ -4912,7 +4868,7 @@ button,.button,.field label,
 
   <div class="section-title"><span>나의 술집 기록</span><span id="resultCount">0곳</span></div>
 
-  <div class="place-list" id="placeList" aria-live="polite" aria-label="술집 검색 결과"></div>
+  <div class="place-list" id="placeList"></div>
 
  <div class="hint">마커에 마우스를 올리면 리뷰 미리보기가 나와요. 가게를 클릭하면 상세 기록을 볼 수 있습니다. 이 지도는 교토의 술집을 직접 기록하는 개인 가이드입니다.</div>
 
@@ -5102,7 +5058,7 @@ button,.button,.field label,
 
  
 
-
+<div id="manualPhotoSourcePreview" style="margin-top:10px;"></div>
 
  
 
@@ -7802,6 +7758,18 @@ function updateCommunityAuthUI() {
 
  
 
+function formatMyDate(value){if(!value)return '';const d=new Date(value+'T12:00:00');if(Number.isNaN(d.getTime()))return value;return new Intl.DateTimeFormat('ko-KR',{month:'short',day:'numeric'}).format(d)}
+async function refreshMyDashboard(){
+ const loggedIn=Boolean(communityUser);const nameEl=document.getElementById('myDisplayName');
+ if(!loggedIn){nameEl.textContent='로그인 후 나를 소개해 보세요';document.getElementById('myDisplayBio').textContent='프로필을 작성하면 이곳에 나의 교토 소개가 표시됩니다.';document.getElementById('myAvatar').textContent='K';document.getElementById('myProfileState').textContent='로그인 필요';document.getElementById('myStayStat').textContent='—';document.getElementById('myMeetupStat').textContent='—';document.getElementById('myProfileStat').textContent='0%';return}
+ const val=id=>document.getElementById(id)?.value?.trim()||'';const nickname=val('profileNickname')||communityUser.user_metadata?.nickname||communityUser.email?.split('@')[0]||'사용자';const bio=val('profileBio'),age=val('profileAge'),gender=val('profileGender'),mbti=val('profileMbti'),drinking=val('profileDrinking'),drinks=val('profileDrinks'),start=val('profileStayStart'),end=val('profileStayEnd'),area=val('profileLocationLabel');const isPublic=document.getElementById('profileIsPublic').checked,locationPublic=document.getElementById('profileLocationPublic').checked;
+ nameEl.textContent=nickname;document.getElementById('myAvatar').textContent=Array.from(nickname)[0]?.toUpperCase()||'K';document.getElementById('myDisplayBio').textContent=bio||'아직 자기소개가 없어요. 나를 한 줄로 소개해 보세요.';document.getElementById('myProfileState').textContent=isPublic?'프로필 공개':'프로필 비공개';document.getElementById('myFavoriteDrinks').textContent=drinks||'아직 등록하지 않았어요';document.getElementById('myDrinkingStyle').textContent=drinking||'미등록';document.getElementById('myMbti').textContent=mbti||'미등록';document.getElementById('myStayPeriod').textContent=start||end?`${start?formatMyDate(start):'미정'} — ${end?formatMyDate(end):'미정'}`:'일정을 등록해 보세요';document.getElementById('myArea').textContent=area||'아직 등록하지 않았어요';document.getElementById('myPublicState').textContent=isPublic?'공개 중':'비공개';document.getElementById('myLocationState').textContent=isPublic&&locationPublic?'공개 중':'비공개';
+ const tags=[age?`${age}세`:'',gender,mbti,drinking].filter(Boolean);document.getElementById('myProfileTags').replaceChildren(...(tags.length?tags:['KYOTO AFTER DARK MEMBER']).map(label=>{const span=document.createElement('span');span.textContent=label;return span}));const filled=[nickname,bio,age,gender,mbti,drinking,drinks,start,end,area].filter(Boolean).length;document.getElementById('myProfileStat').textContent=`${Math.round(filled/10*100)}%`;document.getElementById('myStayStat').textContent=String(myStayDates?.size||0);
+ const {count,error}=await communityClient.from('kyoto_meetups').select('id',{count:'exact',head:true}).eq('user_id',communityUser.id);document.getElementById('myMeetupStat').textContent=error?'—':String(count||0);
+}
+document.getElementById('myEditProfileBtn')?.addEventListener('click',()=>{const wrap=document.getElementById('profileFormWrap');if(!communityUser){document.getElementById('communityAuthStatus').textContent='프로필을 수정하려면 먼저 로그인해 주세요.';return}wrap.style.display='block';document.getElementById('profileToggleBtn').textContent='프로필 설정 닫기';wrap.scrollIntoView({behavior:'smooth',block:'start'})});
+document.querySelectorAll('[data-my-shortcut]').forEach(button=>button.addEventListener('click',()=>{if(typeof window.kyotoAfterDarkSetTab==='function')window.kyotoAfterDarkSetTab(button.dataset.myShortcut)}));
+
 async function refreshCommunityUser() {
 
   const { data, error } = await communityClient.auth.getUser();
@@ -7823,6 +7791,7 @@ await refreshDirectMessageBadge();
   await loadMeetups();
 
   await loadMyProfile();
+  await refreshMyDashboard();
 
   await loadDirectInbox();
 
@@ -7842,7 +7811,9 @@ document.getElementById('profileToggleBtn')?.addEventListener('click', () => {
     return;
   }
 
-  wrap.style.display = wrap.style.display === 'none' ? 'block' : 'none';
+  const opening = wrap.style.display === 'none';
+  wrap.style.display = opening ? 'block' : 'none';
+  document.getElementById('profileToggleBtn').textContent = opening ? '프로필 설정 닫기' : '프로필 작성 / 수정';
 });
 
  
@@ -11241,26 +11212,13 @@ localStorage.setItem(
 </script>
 
 
-<nav id="kyotoTabBar" aria-label="주요 메뉴" role="tablist">
-  <button type="button" data-kyd-tab="map" role="tab" aria-selected="true"><span class="kyd-tab-icon">⌖</span><span class="kyd-tab-label">지도</span></button>
-  <button type="button" data-kyd-tab="stay" role="tab" aria-selected="false"><span class="kyd-tab-icon">▦</span><span class="kyd-tab-label">체류</span></button>
-  <button type="button" data-kyd-tab="meetup" role="tab" aria-selected="false"><span class="kyd-tab-icon">♧</span><span class="kyd-tab-label">모임</span></button>
-  <button type="button" data-kyd-tab="chat" role="tab" aria-selected="false"><span class="kyd-tab-icon">✉<span id="directMessageBadge" class="kyd-message-badge" aria-label="읽지 않은 메시지" style="display:none">0</span></span><span class="kyd-tab-label">채팅</span></button>
-  <button type="button" data-kyd-tab="my" role="tab" aria-selected="false"><span class="kyd-tab-icon">◎</span><span class="kyd-tab-label">MY</span></button>
+<nav id="kyotoTabBar" aria-label="주요 메뉴">
+  <button type="button" data-kyd-tab="map" aria-selected="true"><span class="kyd-tab-icon">⌖</span><span class="kyd-tab-label">지도</span></button>
+  <button type="button" data-kyd-tab="stay" aria-selected="false"><span class="kyd-tab-icon">▦</span><span class="kyd-tab-label">체류</span></button>
+  <button type="button" data-kyd-tab="meetup" aria-selected="false"><span class="kyd-tab-icon">♧</span><span class="kyd-tab-label">모임</span></button>
+  <button type="button" data-kyd-tab="chat" aria-selected="false"><span class="kyd-tab-icon">✉<span id="directMessageBadge" class="kyd-message-badge" aria-label="읽지 않은 메시지" style="display:none">0</span></span><span class="kyd-tab-label">채팅</span></button>
+  <button type="button" data-kyd-tab="my" aria-selected="false"><span class="kyd-tab-icon">◎</span><span class="kyd-tab-label">MY</span></button>
 </nav>
-<script id="kyoto-phase2-welcome">
-(function(){
-  const card=document.getElementById('kydWelcome');
-  const close=document.getElementById('kydWelcomeClose');
-  if(!card||!close)return;
-  try{if(localStorage.getItem('kydWelcomeDismissed')==='1')card.hidden=true;}catch(_){/* storage may be unavailable */}
-  close.addEventListener('click',()=>{
-    card.hidden=true;
-    try{localStorage.setItem('kydWelcomeDismissed','1');}catch(_){/* session still works */}
-  });
-})();
-</script>
-
 <script id="kyoto-five-tab-controller">
 (function(){
   const bar=document.getElementById('kyotoTabBar');
@@ -11268,7 +11226,7 @@ localStorage.setItem(
   if(!bar||!panel)return;
   panel.classList.add('kyd-tab-panel');
   const mapParts=[document.querySelector('.sidebar'),document.querySelector('.map-wrap')];
-  const selectors=['.stay-hero','.stay-auth-card','#profileSection','#kydMyIntro','#kydMeetupIntro','.stay-calendar-heading','.stay-weekdays','#calendarGrid','#selectedDateLabel','#stayCountLabel','.stay-date-card','.stay-chat-card','.stay-meetup-card'];
+  const selectors=['.stay-hero','.stay-auth-card','#profileSection','.stay-calendar-heading','.stay-weekdays','#calendarGrid','#selectedDateLabel','#stayCountLabel','.stay-date-card','.stay-chat-card','.stay-meetup-card'];
   const parts=Object.fromEntries(selectors.map(s=>[s,panel.querySelector(s)]));
   let activeTab='map';
   function closeFloatingPanels(){
@@ -11295,9 +11253,7 @@ localStorage.setItem(
     activeTab=tab;
     document.body.classList.remove('kyd-tab-map','kyd-tab-sub','kyd-tab-chat');
     bar.querySelectorAll('button[data-kyd-tab]').forEach(b=>{
-      const selected=b.dataset.kydTab===tab;
-      b.setAttribute('aria-selected',String(selected));
-      b.tabIndex=selected?0:-1;
+      b.setAttribute('aria-selected',String(b.dataset.kydTab===tab));
     });
     if(tab==='map'){
       panel.style.display='none';
@@ -11316,8 +11272,6 @@ localStorage.setItem(
       showPart('.stay-hero',tab==='stay');
       showPart('.stay-auth-card',tab!=='chat');
       showPart('#profileSection',tab==='my');
-      showPart('#kydMyIntro',tab==='my');
-      showPart('#kydMeetupIntro',tab==='meetup');
       showPart('.stay-calendar-heading',tab==='stay');
       showPart('.stay-weekdays',tab==='stay');
       showPart('#calendarGrid',tab==='stay');
@@ -11345,20 +11299,6 @@ localStorage.setItem(
   bar.addEventListener('click',e=>{
     const b=e.target.closest('button[data-kyd-tab]');
     if(b)setTab(b.dataset.kydTab);
-  });
-  bar.addEventListener('keydown',e=>{
-    const tabs=[...bar.querySelectorAll('button[data-kyd-tab]')];
-    const current=tabs.indexOf(document.activeElement);
-    if(current<0)return;
-    let next=current;
-    if(e.key==='ArrowRight'||e.key==='ArrowDown')next=(current+1)%tabs.length;
-    else if(e.key==='ArrowLeft'||e.key==='ArrowUp')next=(current-1+tabs.length)%tabs.length;
-    else if(e.key==='Home')next=0;
-    else if(e.key==='End')next=tabs.length-1;
-    else return;
-    e.preventDefault();
-    tabs[next].focus();
-    setTab(tabs[next].dataset.kydTab);
   });
   window.kyotoAfterDarkSetTab=setTab;
   const oldBack=document.getElementById('calendarBackBtn');
