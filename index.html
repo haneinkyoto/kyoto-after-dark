@@ -4060,24 +4060,28 @@ html[lang="ja"] .sidebar .search{text-align:left;text-align-last:left}
 @media(max-width:600px){#profileSection{padding:17px!important}#profileFormWrap{margin-top:16px!important}#profileFormWrap>div[style*="border:1px solid #ddd"]{padding:12px!important}#calendarPanel .stay-date-card,#calendarPanel .stay-chat-card{padding:14px!important}#calendarPanel .stay-calendar-heading{gap:5px!important}#calendarPanel .stay-calendar-heading h3{font-size:15px}}
 </style>
 
-<style id="kyd-rating-guide-styles">
-/* KYOTO AFTER DARK: rating philosophy guide */
-.kyd-rating-guide-trigger{display:inline-flex;align-items:center;gap:6px;margin:0 0 13px;padding:7px 11px;border:1px solid #d8cbb8;border-radius:3px;background:#f8f4ec;color:#6d5a43;font:inherit;font-size:11px;letter-spacing:.02em;cursor:pointer}
-.kyd-rating-guide-trigger:hover{background:#eee6d8}
-.kyd-rating-guide-backdrop{position:fixed;inset:0;z-index:12000;display:none;align-items:center;justify-content:center;padding:18px;background:rgba(35,29,22,.48)}
-.kyd-rating-guide-backdrop.is-open{display:flex}
-.kyd-rating-guide{position:relative;width:min(100%,460px);max-height:min(84vh,700px);overflow:auto;padding:25px 23px 20px;background:#f8f5ed;border:1px solid #d8cbb8;box-shadow:0 18px 60px rgba(0,0,0,.22);color:#3f382f}
-.kyd-rating-guide-kicker{font-family:'Lora',serif;font-size:10px;letter-spacing:.16em;color:#9a805d}
-.kyd-rating-guide h2{margin:7px 32px 8px 0;font-family:'Noto Serif KR','Noto Serif JP',serif;font-size:21px;font-weight:600;color:#352f28}
-.kyd-rating-guide-intro{margin:0 0 17px;font-size:12px;line-height:1.8;color:#746958}
-.kyd-rating-guide-row{display:grid;grid-template-columns:104px 1fr;gap:12px;align-items:center;padding:12px 0;border-top:1px solid #e5dccf}
-.kyd-rating-guide-stars{white-space:nowrap;color:#a77a42;font-size:15px;letter-spacing:1px}
-.kyd-rating-guide-copy strong{display:block;margin-bottom:3px;font-family:'Noto Serif KR','Noto Serif JP',serif;font-size:13px;font-weight:650;color:#40372c}
-.kyd-rating-guide-copy span{display:block;font-size:11px;line-height:1.65;color:#766b5b}
-.kyd-rating-guide-foot{margin:15px 0 0;padding-top:12px;border-top:1px solid #e5dccf;font-size:10px;line-height:1.7;color:#8a7d6a}
-.kyd-rating-guide-close{position:absolute;top:13px;right:14px;width:30px;height:30px;border:0;background:transparent;color:#746958;font-size:22px;cursor:pointer}
-@media(max-width:520px){.kyd-rating-guide{padding:22px 17px 17px}.kyd-rating-guide-row{grid-template-columns:94px 1fr;gap:8px}.kyd-rating-guide-stars{font-size:13px}}
+
+<style id="kyd-rating-guide-modal-v1">
+#kydRatingGuideBackdrop{position:fixed;inset:0;z-index:10050;display:none;align-items:center;justify-content:center;padding:18px;background:rgba(28,25,21,.62);backdrop-filter:blur(5px)}
+#kydRatingGuideBackdrop.is-open{display:flex}
+#kydRatingGuide{position:relative;width:min(540px,100%);max-height:min(88vh,760px);overflow:auto;padding:clamp(22px,4vw,34px);background:#fffdf8;border:1px solid #e4dccf;box-shadow:0 28px 90px rgba(0,0,0,.24);color:#302c28}
+#kydRatingGuide .kyd-guide-kicker{margin:0 0 9px;color:#a34532;font-size:10px;font-weight:700;letter-spacing:.2em;text-transform:uppercase}
+#kydRatingGuide h2{margin:0;font-family:'Noto Serif KR','Noto Serif JP',serif;font-size:clamp(23px,4vw,30px);font-weight:500;letter-spacing:-.04em;line-height:1.4}
+#kydRatingGuide .kyd-guide-intro{margin:9px 0 21px;color:#777064;font-size:12px;line-height:1.8}
+#kydRatingGuide .kyd-guide-row{display:grid;grid-template-columns:88px 1fr;gap:12px;align-items:start;padding:12px 0;border-top:1px solid #eee8de}
+#kydRatingGuide .kyd-guide-stars{color:#a34532;font-size:17px;letter-spacing:2px;white-space:nowrap;padding-top:1px}
+#kydRatingGuide .kyd-guide-desc{font-size:12px;line-height:1.75;color:#4f493f}
+#kydRatingGuide .kyd-guide-desc strong{display:block;margin-bottom:2px;color:#302c28;font-size:13px;font-weight:700}
+#kydRatingGuide .kyd-guide-foot{margin:16px 0 0;padding:12px 14px;background:#f5f0e7;color:#756a5d;font-size:11px;line-height:1.7}
+#kydRatingGuide .kyd-guide-actions{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-top:20px;flex-wrap:wrap}
+#kydRatingGuide .kyd-guide-today{display:flex;align-items:center;gap:8px;color:#6f685f;font-size:11px;cursor:pointer;line-height:1.5}
+#kydRatingGuide .kyd-guide-today input{width:15px;height:15px;margin:0;accent-color:#a34532}
+#kydRatingGuide .kyd-guide-close{min-width:92px;padding:10px 22px;border:1px solid #302c28;border-radius:2px;background:#302c28;color:#fffdf8;font:inherit;font-size:12px;cursor:pointer}
+#kydRatingGuide .kyd-guide-x{position:absolute;top:13px;right:14px;width:34px;height:34px;min-height:34px;padding:0;border:0;background:transparent;color:#756a5d;font-size:23px;font-weight:300;line-height:1}
+#kydRatingGuide .kyd-guide-x:hover{background:#f1ebe2;color:#302c28}
+@media(max-width:480px){#kydRatingGuideBackdrop{padding:12px}#kydRatingGuide{padding:23px 19px;max-height:90vh}#kydRatingGuide .kyd-guide-row{grid-template-columns:78px 1fr;gap:8px}#kydRatingGuide .kyd-guide-stars{font-size:15px;letter-spacing:1px}}
 </style>
+
 </head>
 
 <body>
@@ -4998,7 +5002,6 @@ html[lang="ja"] .sidebar .search{text-align:left;text-align-last:left}
   <div class="kyd-filter-status" id="kydFilterStatus" aria-live="polite"><span class="kyd-filter-caption">EXPLORE KYOTO</span><button type="button" id="kydClearFilters" hidden>필터 초기화 ×</button></div>
 
   <div class="stats"><div class="stat"><strong id="count">0</strong><span>등록된 술집</span></div><div class="stat"><strong id="avg">—</strong><span>평균 평점</span></div></div>
-  <button type="button" class="kyd-rating-guide-trigger" id="kydRatingGuideOpen" aria-haspopup="dialog" aria-controls="kydRatingGuide">★ 별점 기준 보기</button>
 
   <div class="section-title"><span>술집 둘러보기</span><span id="resultCount">0곳</span></div>
 
@@ -5011,21 +5014,6 @@ html[lang="ja"] .sidebar .search{text-align:left;text-align-last:left}
  <section class="map-wrap"><div id="map"></div><div class="map-note">KYOTO · JAPAN<br>마커에 커서를 올려 리뷰를 확인해 보세요.</div></section>
 
 </main>
-
-<div class="kyd-rating-guide-backdrop" id="kydRatingGuideBackdrop" aria-hidden="true">
- <section class="kyd-rating-guide" id="kydRatingGuide" role="dialog" aria-modal="true" aria-labelledby="kydRatingGuideTitle">
-  <button type="button" class="kyd-rating-guide-close" id="kydRatingGuideClose" aria-label="닫기">×</button>
-  <div class="kyd-rating-guide-kicker">KYOTO AFTER DARK · MY STANDARD</div>
-  <h2 id="kydRatingGuideTitle">별점은 방문할 가치의 기준입니다</h2>
-  <p class="kyd-rating-guide-intro">이 별점은 단순한 맛의 점수나 평균 평점이 아닙니다. 이 가게를 찾아갈 만한 가치가 있는지, 얼마나 이동할 가치가 있는지를 기준으로 기록합니다.</p>
-  <div class="kyd-rating-guide-row"><div class="kyd-rating-guide-stars">★☆☆☆☆</div><div class="kyd-rating-guide-copy"><strong>별 1개 · 웬만하면 피하는 곳</strong><span>특별한 이유가 없다면 다시 방문하지 않을 곳</span></div></div>
-  <div class="kyd-rating-guide-row"><div class="kyd-rating-guide-stars">★★☆☆☆</div><div class="kyd-rating-guide-copy"><strong>별 2개 · 굳이 갈 필요는 없는 곳</strong><span>일부러 시간을 내서 찾아갈 정도는 아닌 곳</span></div></div>
-  <div class="kyd-rating-guide-row"><div class="kyd-rating-guide-stars">★★★☆☆</div><div class="kyd-rating-guide-copy"><strong>별 3개 · 근처라면 들러볼 만한 곳</strong><span>일부러 찾아갈 정도는 아니지만, 근처에 왔다면 가도 후회하지 않을 곳</span></div></div>
-  <div class="kyd-rating-guide-row"><div class="kyd-rating-guide-stars">★★★★☆</div><div class="kyd-rating-guide-copy"><strong>별 4개 · 안 가면 아쉬운 곳</strong><span>교토에 왔다면 한 번쯤 꼭 경험해 볼 가치가 있는 곳</span></div></div>
-  <div class="kyd-rating-guide-row"><div class="kyd-rating-guide-stars">★★★★★</div><div class="kyd-rating-guide-copy"><strong>별 5개 · 이곳을 위해 이동할 가치가 있는 곳</strong><span>거리가 있어도 이 가게 하나를 목적으로 찾아갈 만한 곳</span></div></div>
-  <p class="kyd-rating-guide-foot">별점은 개인의 취향과 실제 방문 경험을 바탕으로 한 방문 가치 판단입니다. 모든 사람에게 동일한 기준의 절대적인 평점은 아닙니다.</p>
- </section>
-</div>
 
 <div class="modal-backdrop" id="modalBackdrop">
 
@@ -11599,20 +11587,6 @@ localStorage.setItem(
 <script id="kyd-i18n-system">
 (function(){
   const translations = {
-    '★ 별점 기준 보기':'★ 評価の基準',
-    '별점은 방문할 가치의 기준입니다':'星の数は「訪れる価値」の目安です',
-    '이 별점은 단순한 맛의 점수나 평균 평점이 아닙니다. 이 가게를 찾아갈 만한 가치가 있는지, 얼마나 이동할 가치가 있는지를 기준으로 기록합니다.':'この星は、味の点数や一般的な平均評価ではありません。その店を訪れる価値があるか、どれくらい足を運ぶ価値があるかを基準にしています。',
-    '별 1개 · 웬만하면 피하는 곳':'星1つ · 基本的には避けたいお店',
-    '특별한 이유가 없다면 다시 방문하지 않을 곳':'特別な理由がなければ、再訪はしないと思うお店',
-    '별 2개 · 굳이 갈 필요는 없는 곳':'星2つ · あえて行く必要はないお店',
-    '일부러 시간을 내서 찾아갈 정도는 아닌 곳':'わざわざ時間を作ってまで行くほどではないお店',
-    '별 3개 · 근처라면 들러볼 만한 곳':'星3つ · 近くに来たら立ち寄りたいお店',
-    '일부러 찾아갈 정도는 아니지만, 근처에 왔다면 가도 후회하지 않을 곳':'目的地にするほどではないけれど、近くに来たなら行っても損はないお店',
-    '별 4개 · 안 가면 아쉬운 곳':'星4つ · 行かないともったいないお店',
-    '교토에 왔다면 한 번쯤 꼭 경험해 볼 가치가 있는 곳':'京都に来たなら、一度は体験する価値があるお店',
-    '별 5개 · 이곳을 위해 이동할 가치가 있는 곳':'星5つ · この店のために足を運ぶ価値があるお店',
-    '거리가 있어도 이 가게 하나를 목적으로 찾아갈 만한 곳':'距離があっても、このお店を目的に出かける価値があるお店',
-    '별점은 개인의 취향과 실제 방문 경험을 바탕으로 한 방문 가치 판단입니다. 모든 사람에게 동일한 기준의 절대적인 평점은 아닙니다.':'星の数は、個人の好みと実際の訪問経験に基づく「訪れる価値」の評価です。誰にとっても同じ絶対的な点数ではありません。',
     '교토 술집 지도 | My Kyoto Izakaya Map':'京都の居酒屋マップ | KYOTO AFTER DARK',
     '교토, 한 잔의 기록.':'京都、今夜の一杯を記録する。',
     '내가 가고, 마시고, 기억하고 싶은 이자카야 지도':'行きたい店、飲みたいお酒、思い出に残したい京都の居酒屋マップ',
@@ -11878,18 +11852,43 @@ localStorage.setItem(
 })();
 </script>
 
-<script id="kyd-rating-guide-script">
-(function(){
+<div id="kydRatingGuideBackdrop" aria-hidden="true">
+  <section id="kydRatingGuide" role="dialog" aria-modal="true" aria-labelledby="kydGuideTitle">
+    <button type="button" class="kyd-guide-x" id="kydGuideX" aria-label="닫기">×</button>
+    <p class="kyd-guide-kicker" id="kydGuideKicker">KYOTO AFTER DARK · MY RATING</p>
+    <h2 id="kydGuideTitle">별점은 평점이 아니라,<br>그 가게를 찾아갈 가치입니다.</h2>
+    <p class="kyd-guide-intro" id="kydGuideIntro">이 별점은 대중적인 평균 평점이 아닙니다. 내가 그 가게를 얼마나 추천하는지, 일부러 찾아갈 가치가 있는지를 기준으로 매겼어요.</p>
+    <div id="kydGuideRows">
+      <div class="kyd-guide-row"><div class="kyd-guide-stars">★☆☆☆☆</div><div class="kyd-guide-desc"><strong>별 1개 · 웬만하면 가지 않기를</strong>굳이 방문하지 않았으면 하는 곳</div></div>
+      <div class="kyd-guide-row"><div class="kyd-guide-stars">★★☆☆☆</div><div class="kyd-guide-desc"><strong>별 2개 · 굳이 안 가도 되는 곳</strong>일부러 찾아갈 이유는 크지 않은 곳</div></div>
+      <div class="kyd-guide-row"><div class="kyd-guide-stars">★★★☆☆</div><div class="kyd-guide-desc"><strong>별 3개 · 근처라면 가볼 만한 곳</strong>근처에 왔다면 들러도 손해는 보지 않는 곳</div></div>
+      <div class="kyd-guide-row"><div class="kyd-guide-stars">★★★★☆</div><div class="kyd-guide-desc"><strong>별 4개 · 안 가면 손해인 곳</strong>교토에 왔다면 한 번쯤 꼭 경험해 볼 만한 곳</div></div>
+      <div class="kyd-guide-row"><div class="kyd-guide-stars">★★★★★</div><div class="kyd-guide-desc"><strong>별 5개 · 이곳을 위해 이동할 가치가 있는 곳</strong>일부러 시간을 내서 찾아갈 만큼 특별한 곳</div></div>
+    </div>
+    <p class="kyd-guide-foot" id="kydGuideFoot">즉, 별 개수는 단순한 맛의 점수보다 ‘방문 우선순위’와 ‘추천 강도’를 의미합니다.</p>
+    <div class="kyd-guide-actions">
+      <label class="kyd-guide-today"><input type="checkbox" id="kydGuideHideToday"><span id="kydGuideHideLabel">오늘 하루 보지 않기</span></label>
+      <button type="button" class="kyd-guide-close" id="kydGuideClose">확인</button>
+    </div>
+  </section>
+</div>
+<script id="kyd-rating-guide-modal-script">
+(()=>{
   const backdrop=document.getElementById('kydRatingGuideBackdrop');
-  const openBtn=document.getElementById('kydRatingGuideOpen');
-  const closeBtn=document.getElementById('kydRatingGuideClose');
-  if(!backdrop||!openBtn||!closeBtn)return;
-  function openGuide(){backdrop.classList.add('is-open');backdrop.setAttribute('aria-hidden','false');closeBtn.focus();}
-  function closeGuide(){backdrop.classList.remove('is-open');backdrop.setAttribute('aria-hidden','true');openBtn.focus();}
-  openBtn.addEventListener('click',openGuide);
-  closeBtn.addEventListener('click',closeGuide);
-  backdrop.addEventListener('click',e=>{if(e.target===backdrop)closeGuide();});
-  document.addEventListener('keydown',e=>{if(e.key==='Escape'&&backdrop.classList.contains('is-open'))closeGuide();});
+  if(!backdrop)return;
+  const $=id=>document.getElementById(id);
+  const todayKey='kyd-rating-guide-hidden-date';
+  const localDate=()=>{const d=new Date();return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;};
+  const ko={kicker:'KYOTO AFTER DARK · MY RATING',title:'별점은 평점이 아니라,<br>그 가게를 찾아갈 가치입니다.',intro:'이 별점은 대중적인 평균 평점이 아닙니다. 내가 그 가게를 얼마나 추천하는지, 일부러 찾아갈 가치가 있는지를 기준으로 매겼어요.',rows:[['★☆☆☆☆','별 1개 · 웬만하면 가지 않기를','굳이 방문하지 않았으면 하는 곳'],['★★☆☆☆','별 2개 · 굳이 안 가도 되는 곳','일부러 찾아갈 이유는 크지 않은 곳'],['★★★☆☆','별 3개 · 근처라면 가볼 만한 곳','근처에 왔다면 들러도 손해는 보지 않는 곳'],['★★★★☆','별 4개 · 안 가면 손해인 곳','교토에 왔다면 한 번쯤 꼭 경험해 볼 만한 곳'],['★★★★★','별 5개 · 이곳을 위해 이동할 가치가 있는 곳','일부러 시간을 내서 찾아갈 만큼 특별한 곳']],foot:'즉, 별 개수는 단순한 맛의 점수보다 ‘방문 우선순위’와 ‘추천 강도’를 의미합니다.',hide:'오늘 하루 보지 않기',close:'확인',x:'닫기'};
+  const ja={kicker:'KYOTO AFTER DARK · MY RATING',title:'星の数は点数ではなく、<br>その店まで足を運ぶ価値。',intro:'一般的な平均評価ではありません。その店をどれくらいおすすめできるか、わざわざ訪れる価値があるかを基準にしています。',rows:[['★☆☆☆☆','星1つ · できれば行かないでほしい店','積極的にはおすすめしない店'],['★★☆☆☆','星2つ · あえて行く必要はない店','わざわざ訪れるほどの理由は少ない店'],['★★★☆☆','星3つ · 近くに来たら立ち寄ってもいい店','近くまで来たなら立ち寄っても損はない店'],['★★★★☆','星4つ · 行かなければ損をする店','京都に来たなら一度は体験してほしい店'],['★★★★★','星5つ · この店のために移動する価値がある店','時間をかけてでも訪れたい特別な店']],foot:'つまり星の数は、単なる味の点数ではなく「訪問の優先度」と「おすすめ度」を表しています。',hide:'今日は表示しない',close:'閉じる',x:'閉じる'};
+  function updateLanguage(){const jaMode=(window.KYOTO_AFTER_DARK_I18N?.getLanguage?.()||document.documentElement.lang)==='ja';const t=jaMode?ja:ko;$('kydGuideKicker').textContent=t.kicker;$('kydGuideTitle').innerHTML=t.title;$('kydGuideIntro').textContent=t.intro;$('kydGuideFoot').textContent=t.foot;$('kydGuideHideLabel').textContent=t.hide;$('kydGuideClose').textContent=t.close;$('kydGuideX').setAttribute('aria-label',t.x);$('kydGuideRows').innerHTML=t.rows.map(r=>`<div class="kyd-guide-row"><div class="kyd-guide-stars">${r[0]}</div><div class="kyd-guide-desc"><strong>${r[1]}</strong>${r[2]}</div></div>`).join('');}
+  function open(){updateLanguage();backdrop.classList.add('is-open');backdrop.setAttribute('aria-hidden','false');document.body.style.overflow='hidden';}
+  function close(){if($('kydGuideHideToday').checked){try{localStorage.setItem(todayKey,localDate());}catch(_){}}backdrop.classList.remove('is-open');backdrop.setAttribute('aria-hidden','true');document.body.style.overflow='';}
+  $('kydGuideClose').addEventListener('click',close);$('kydGuideX').addEventListener('click',close);
+  document.addEventListener('keydown',e=>{if(e.key==='Escape'&&backdrop.classList.contains('is-open'))close();});
+  document.addEventListener('kyd:languagechange',updateLanguage);
+  let hidden=false;try{hidden=localStorage.getItem(todayKey)===localDate();}catch(_){}
+  if(!hidden){if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',open,{once:true});else open();}
 })();
 </script>
 
