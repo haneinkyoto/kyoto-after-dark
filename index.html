@@ -12203,16 +12203,20 @@ localStorage.setItem(
 <style id="kyd-no-message-popups-v1">
 #openDirectChatBtn,#notificationBtn,#notificationPanel{display:none!important}
 body.kyd-tab-chat #directChatPanel{
-  display:flex!important;position:relative!important;inset:auto!important;
-  width:100%!important;max-width:100%!important;height:auto!important;
-  min-height:calc(100vh - 82px)!important;max-height:none!important;
+  /* 채팅 탭은 문서 아래쪽에 쌓이지 않고 헤더 바로 밑에서 화면에 고정 */
+  display:flex!important;position:fixed!important;
+  top:106px!important;right:0!important;bottom:calc(76px + env(safe-area-inset-bottom,0px))!important;left:0!important;
+  width:100%!important;max-width:none!important;height:auto!important;
+  min-height:0!important;max-height:none!important;overflow:hidden!important;
   transform:none!important;visibility:visible!important;pointer-events:auto!important;
-  opacity:1!important;z-index:1!important;border:0!important;border-radius:0!important;
+  opacity:1!important;z-index:99990!important;border:0!important;border-radius:0!important;
   box-shadow:none!important;margin:0!important;
 }
+body.kyd-tab-chat #directChatPanel .dm-drawer-content{min-height:0!important;overflow-y:auto!important;overscroll-behavior:contain}
 body.kyd-tab-chat #directChatPanel .dm-close{display:none!important}
 body:not(.kyd-tab-chat) #directChatPanel{display:none!important}
-@media(max-width:600px){body.kyd-tab-chat #directChatPanel{width:100vw!important;min-height:calc(100dvh - 70px)!important;margin-left:calc((100vw - 100%)/-2)!important}}
+@media(max-width:800px){body.kyd-tab-chat #directChatPanel{top:145px!important}}
+@media(max-width:600px){body.kyd-tab-chat #directChatPanel{width:100%!important;min-height:0!important;margin:0!important;bottom:calc(76px + env(safe-area-inset-bottom,0px))!important}}
 </style>
 
 </body>
