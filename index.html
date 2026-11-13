@@ -8098,6 +8098,32 @@ function updateCommunityAuthUI() {
 
  
 
+// 로그인한 회원의 닉네임이 프로필 테이블에도 항상 존재하도록 보완합니다.
+// 이미 설정한 프로필 닉네임은 덮어쓰지 않습니다.
+async function ensureCommunityProfileNickname() {
+  if (!communityUser?.id) return;
+  const nickname = String(communityUser.user_metadata?.nickname || communityUser.email?.split('@')[0] || '').trim();
+  if (!nickname) return;
+
+  const { data: profile, error: profileError } = await communityClient
+    .from('kyoto_profiles').select('user_id,nickname').eq('user_id', communityUser.id).maybeSingle();
+  if (profileError) {
+    console.warn('닉네임 프로필 확인 실패:', profileError.message);
+    return;
+  }
+  if (!profile) {
+    const { error } = await communityClient.from('kyoto_profiles')
+      .upsert({ user_id: communityUser.id, nickname }, { onConflict: 'user_id', ignoreDuplicates: true });
+    if (error) console.warn('기본 닉네임 프로필 생성 실패:', error.message);
+    return;
+  }
+  if (!String(profile.nickname || '').trim()) {
+    const { error } = await communityClient.from('kyoto_profiles')
+      .update({ nickname, updated_at: new Date().toISOString() }).eq('user_id', communityUser.id);
+    if (error) console.warn('빈 닉네임 프로필 보완 실패:', error.message);
+  }
+}
+
 async function refreshCommunityUser() {
 
   const { data, error } = await communityClient.auth.getUser();
@@ -8109,6 +8135,8 @@ console.log('로그인 사용자 정보:', communityUser);
 console.log('메타데이터:', communityUser?.user_metadata);
 
 console.log('닉네임:', communityUser?.user_metadata?.nickname);
+
+  if (communityUser) await ensureCommunityProfileNickname();
 
   updateCommunityAuthUI();
 
@@ -8794,6 +8822,10 @@ const profile = {
   }
 
  
+
+  // 프로필 닉네임과 인증 메타데이터를 동기화합니다.
+  const { error: metadataError } = await communityClient.auth.updateUser({ data: { nickname } });
+  if (metadataError) console.warn('닉네임 메타데이터 동기화 실패:', metadataError.message);
 
   const locationPublic =
 
