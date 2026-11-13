@@ -4843,77 +4843,6 @@ body.kyd-tab-meetup #calendarPanel .stay-auth-card,body.kyd-tab-my #calendarPane
  
 
 <!-- 개인 메시지: 지도 화면에서도 언제든 열 수 있도록 calendarPanel 바깥에 배치 -->
-<button
-  type="button"
-  id="notificationBtn"
-  aria-label="알림"
-  title="알림"
-  style="
-    position:fixed;
-    right:160px;
-    bottom:24px;
-    z-index:99998;
-    min-height:54px;
-    padding:0 18px;
-    border:1px solid #28251f;
-    border-radius:999px;
-    background:#f7f4ee;
-    color:#28251f;
-    box-shadow:0 10px 28px rgba(38,35,30,.16);
-    font-size:14px;
-    font-weight:700;
-    cursor:pointer;
-  "
->
-  ♧ 알림
-  <span
-    id="notificationBadge"
-    style="
-      display:none;
-      margin-left:5px;
-      padding:2px 6px;
-      border-radius:20px;
-      background:#a34532;
-      color:white;
-      font-size:11px;
-    "
-  >0</span>
-</button>
-  <div
-  id="notificationPanel"
-  style="
-    display:none;
-    position:fixed;
-    right:24px;
-    bottom:90px;
-    z-index:99999;
-    width:min(360px,calc(100vw - 32px));
-    max-height:420px;
-    overflow-y:auto;
-    padding:18px;
-    background:#f7f4ee;
-    color:#292720;
-    border:1px solid #e5dfd2;
-    box-shadow:0 12px 35px rgba(38,35,30,.18);
-  "
->
-  <div style="display:flex;justify-content:space-between;align-items:center;">
-    <strong>알림</strong>
-    <button type="button" id="closeNotificationBtn">닫기</button>
-  </div>
-
-  <div id="notificationList" style="margin-top:14px;">
-    <p>알림을 불러오는 중...</p>
-  </div>
-</div>
-<button type="button" id="openDirectChatBtn" class="dm-launcher" aria-label="메시지 열기" title="메시지">
-
-  <span aria-hidden="true">✉</span><span class="dm-launcher-label">메시지</span>
-
-</button>
-
- 
-
 <aside id="directChatPanel" class="dm-drawer" aria-label="개인 메시지" aria-hidden="true">
 
   <div class="dm-header">
@@ -9752,128 +9681,64 @@ document.getElementById('removeStayBtn').addEventListener('click', async () => {
  
 
 async function loadChatMessages() {
-
   const heading = document.getElementById('chatHeading');
-
   const box = document.getElementById('chatMessages');
-
- 
-
-  heading.textContent = `💬 ${selectedDate} 교토 채팅`;
-
+  if (!heading || !box) return;
+  heading.textContent = `${selectedDate} · 교토 날짜 채팅`;
   box.replaceChildren();
-
- 
+  box.setAttribute('aria-label', `${selectedDate} 날짜 채팅 메시지`);
 
   const { data, error } = await communityClient
-
     .from('kyoto_chat_messages')
-
     .select('id,user_id,nickname,message,created_at')
-
     .eq('stay_date', selectedDate)
-
     .order('created_at', { ascending: true })
-
     .limit(100);
 
- 
-
   if (error) {
-
-    box.textContent = '채팅을 불러오지 못했어요.';
-
+    const empty = document.createElement('div');
+    empty.className = 'stay-chat-empty';
+    empty.textContent = '채팅을 불러오지 못했어요. 잠시 후 다시 시도해 주세요.';
+    box.appendChild(empty);
     console.error(error);
-
     return;
-
   }
-
- 
 
   if (!data || !data.length) {
-
-    box.textContent = '아직 메시지가 없어요. 첫 메시지를 남겨 보세요!';
-
+    const empty = document.createElement('div');
+    empty.className = 'stay-chat-empty';
+    const title = document.createElement('strong');
+    title.textContent = '아직 대화가 없어요';
+    const copy = document.createElement('p');
+    copy.textContent = '이 날짜에 교토에 머무는 사람들과 첫 인사를 나눠 보세요.';
+    empty.append(title, copy);
+    box.appendChild(empty);
     return;
-
   }
 
- 
-
-  const myNickname =
-
-    communityUser?.user_metadata?.nickname ||
-
-    communityUser?.email?.split('@')[0] ||
-
-    '사용자';
-
- 
-
+  const myNickname = communityUser?.user_metadata?.nickname || communityUser?.email?.split('@')[0] || '사용자';
   data.forEach(row => {
+    const mine = row.user_id === communityUser?.id;
+    const item = document.createElement('article');
+    item.className = 'stay-chat-message' + (mine ? ' is-mine' : '');
 
-    const item = document.createElement('div');
+    const meta = document.createElement('div');
+    meta.className = 'stay-chat-meta';
+    const nickname = document.createElement('strong');
+    nickname.textContent = mine ? (row.nickname || myNickname) : (row.nickname || '교토 방문자');
+    const time = document.createElement('time');
+    time.dateTime = row.created_at;
+    time.textContent = new Date(row.created_at).toLocaleTimeString('ko-KR', {hour:'2-digit', minute:'2-digit'});
+    meta.append(nickname, time);
 
-    item.style.cssText =
-
-      'padding:8px 0;border-bottom:1px solid #eee;overflow-wrap:anywhere;';
-
- 
-
-    const time = new Date(row.created_at).toLocaleTimeString('ko-KR', {
-
-      hour: '2-digit',
-
-      minute: '2-digit'
-
-    });
-
- 
-
-    const nickname =
-
-      row.nickname ||
-
-      (row.user_id === communityUser?.id ? myNickname : '참여자');
-
- 
-
-  
-
-const displayName =
-
-  row.user_id === communityUser?.id
-
-    ? '나 (' + (row.nickname || '사용자') + ')'
-
-    : (row.nickname || '사용자');
-
- 
-
-item.innerHTML =
-
-  `<small>${communityEscape(displayName)} · ${time}</small>` +
-
-  `<div>${communityEscape(row.message)}</div>`;
-
- 
-
- 
-
+    const bubble = document.createElement('div');
+    bubble.className = 'stay-chat-bubble';
+    bubble.textContent = row.message || '';
+    item.append(meta, bubble);
     box.appendChild(item);
-
   });
-
- 
-
   box.scrollTop = box.scrollHeight;
-
 }
-
- 
-
- 
 
 document.getElementById('sendChatBtn').addEventListener('click', async () => {
 
@@ -10003,7 +9868,8 @@ async function loadMeetupComments(meetupId, container) {
   container.replaceChildren();
 
   const heading = document.createElement('h5');
-  heading.textContent = '댓글';
+  heading.className = 'meetup-comments-heading';
+  heading.textContent = '대화';
   container.appendChild(heading);
 
   const { data, error } = await communityClient
@@ -10019,6 +9885,7 @@ async function loadMeetupComments(meetupId, container) {
   }
 
   const commentList = document.createElement('div');
+  commentList.className = 'meetup-comment-list';
   const comments = data || [];
 
   const commentMap = new Map();
@@ -10078,20 +9945,23 @@ async function loadMeetupComments(meetupId, container) {
   }
 
   function renderComment(comment, parentElement, depth = 0) {
-    const item = document.createElement('div');
-    item.style.cssText =
-      `padding:10px;margin:8px 0 8px ${Math.min(depth, 4) * 16}px;background:#F8F3E9;border:1px solid #e5dfd2;`;
+    const item = document.createElement('article');
+    item.className = 'meetup-comment-item' + (depth ? ' is-reply' : '');
+    item.style.marginLeft = `${Math.min(depth, 3) * 14}px`;
 
     const author = document.createElement('strong');
+    author.className = 'meetup-comment-author';
     author.textContent =
       communityUser && comment.user_id === communityUser.id
         ? '나'
         : '교토 방문자';
 
     const content = document.createElement('p');
+    content.className = 'meetup-comment-content';
     content.textContent = comment.content;
 
     const date = document.createElement('small');
+    date.className = 'meetup-comment-time';
     date.textContent = new Date(comment.created_at).toLocaleString('ja-JP');
 
   item.append(author, content, date);
@@ -10217,6 +10087,7 @@ if (communityUser && comment.user_id === communityUser.id) {
   container.appendChild(commentList);
 
   const input = document.createElement('textarea');
+  input.className = 'meetup-comment-input';
   input.placeholder = communityUser
     ? '댓글을 남겨보세요.'
     : '로그인 후 댓글을 작성할 수 있어요.';
@@ -10225,7 +10096,8 @@ if (communityUser && comment.user_id === communityUser.id) {
 
   const button = document.createElement('button');
   button.type = 'button';
-  button.textContent = '댓글 등록';
+  button.className = 'meetup-comment-submit';
+  button.textContent = '댓글 보내기';
   button.disabled = !communityUser;
 
   button.addEventListener('click', async () => {
@@ -10255,168 +10127,114 @@ if (communityUser && comment.user_id === communityUser.id) {
   container.append(input, button);
 }
 async function loadMeetups() {
-
   const list = document.getElementById('meetupList');
-
+  if (!list) return;
   list.replaceChildren();
 
- 
-
   const { data, error } = await communityClient
-
     .from('kyoto_meetups')
-
     .select('id,user_id,meetup_date,title,description,area,created_at')
-
     .eq('meetup_date', selectedDate)
-
     .order('created_at', { ascending: false })
-
     .limit(100);
 
- 
-
   if (error) {
-
-    list.textContent = '모임 글을 불러오지 못했어요.';
-
+    const note = document.createElement('p');
+    note.className = 'meetup-empty-state';
+    note.textContent = '모임 글을 불러오지 못했어요. 잠시 후 다시 시도해 주세요.';
+    list.appendChild(note);
     console.error(error);
-
     return;
-
   }
-
- 
 
   if (!data || !data.length) {
-
-    list.textContent = `${selectedDate}에 등록된 모임이 아직 없어요.`;
-
+    const empty = document.createElement('div');
+    empty.className = 'meetup-empty-state';
+    const title = document.createElement('strong');
+    title.textContent = '아직 약속이 없어요';
+    const copy = document.createElement('p');
+    copy.textContent = `${selectedDate}에 함께 한잔할 사람을 가장 먼저 모아 보세요.`;
+    empty.append(title, copy);
+    list.appendChild(empty);
     return;
-
   }
 
- 
-
   data.forEach(row => {
+    const card = document.createElement('article');
+    card.className = 'meetup-event-card';
 
-    const card = document.createElement('div');
+    const top = document.createElement('div');
+    top.className = 'meetup-event-topline';
+    const date = document.createElement('span');
+    date.className = 'meetup-event-date';
+    date.textContent = new Date(row.meetup_date + 'T12:00:00').toLocaleDateString('ko-KR', {month:'long', day:'numeric', weekday:'short'});
+    const area = document.createElement('span');
+    area.className = 'meetup-event-area';
+    area.textContent = row.area || '교토';
+    top.append(date, area);
 
-    card.style.cssText = 'border:1px solid #eee;border-radius:10px;padding:12px;margin:10px 0;overflow-wrap:anywhere;';
+    const title = document.createElement('h4');
+    title.className = 'meetup-event-title';
+    title.textContent = row.title || '제목 없는 모임';
+    const description = document.createElement('p');
+    description.className = 'meetup-event-description';
+    description.textContent = row.description || '모임 상세 내용은 아직 작성되지 않았어요.';
+    card.append(top, title, description);
 
- 
+    const footer = document.createElement('div');
+    footer.className = 'meetup-event-footer';
+    const host = document.createElement('span');
+    host.className = 'meetup-event-host';
+    host.textContent = communityUser && row.user_id === communityUser.id ? '내가 만든 모임' : '교토의 누군가가 만든 약속';
+    footer.appendChild(host);
 
-    card.innerHTML =
-
-      `<h4>${communityEscape(row.title)}</h4>` +
-
-      `<p>${communityEscape(row.description)}</p>` +
-
-      `<small>${communityEscape(row.meetup_date)} · ${communityEscape(row.area)}</small>`;
-
- 
-
-if (communityUser && row.user_id === communityUser.id) {
-
-  const editButton = document.createElement('button');
-
-  editButton.type = 'button';
-  editButton.textContent = '글 수정';
-  editButton.style.marginTop = '10px';
-  editButton.style.marginRight = '8px';
-
-  editButton.addEventListener('click', () => {
-    editingMeetupId = row.id;
-
-    document.getElementById('meetupTitle').value = row.title || '';
-    document.getElementById('meetupDate').value = row.meetup_date || '';
-    document.getElementById('meetupArea').value = row.area || '';
-    document.getElementById('meetupDescription').value = row.description || '';
-
-    document.getElementById('createMeetupBtn').textContent = '수정 내용 저장';
-    document.getElementById('cancelMeetupEditBtn').style.display = 'inline-block';
-
-    setCommunityStatus('meetupStatus', '글을 수정하고 있어요. 내용을 변경한 뒤 저장해 주세요.');
-
-    document.getElementById('meetupTitle').scrollIntoView({
-      behavior: 'smooth',
-      block: 'center'
-    });
-  });
-
-  card.appendChild(editButton);
-
-  const deleteButton = document.createElement('button');
-
-      deleteButton.type = 'button';
-
-      deleteButton.textContent = '내 글 삭제';
-
-      deleteButton.style.marginTop = '10px';
-
- 
-
-      deleteButton.addEventListener('click', async () => {
-
-        if (!confirm('이 모임 글을 삭제할까요?')) return;
-
- 
-
-        const { error: deleteError } = await communityClient
-
-          .from('kyoto_meetups')
-
-          .delete()
-
-          .eq('id', row.id)
-
-          .eq('user_id', communityUser.id);
-
- 
-
-        if (deleteError) {
-
-          setCommunityStatus('meetupStatus', '삭제하지 못했어요.');
-
-          console.error(deleteError);
-
-        } else {
-
-          setCommunityStatus('meetupStatus', '모임 글을 삭제했어요.');
-
-          await loadMeetups();
-
-        }
-
+    if (communityUser && row.user_id === communityUser.id) {
+      const actions = document.createElement('div');
+      actions.className = 'meetup-owner-actions';
+      const editButton = document.createElement('button');
+      editButton.type = 'button';
+      editButton.className = 'meetup-secondary-action';
+      editButton.textContent = '수정';
+      editButton.addEventListener('click', () => {
+        editingMeetupId = row.id;
+        document.getElementById('meetupTitle').value = row.title || '';
+        document.getElementById('meetupDate').value = row.meetup_date || '';
+        document.getElementById('meetupArea').value = row.area || '';
+        document.getElementById('meetupDescription').value = row.description || '';
+        document.getElementById('createMeetupBtn').textContent = '수정 내용 저장';
+        document.getElementById('cancelMeetupEditBtn').style.display = 'inline-flex';
+        setCommunityStatus('meetupStatus', '내용을 수정한 뒤 저장해 주세요.');
+        document.getElementById('meetupTitle').scrollIntoView({behavior:'smooth', block:'center'});
+        document.getElementById('meetupTitle').focus({preventScroll:true});
       });
-
- 
-
-      card.appendChild(deleteButton);
-
+      const deleteButton = document.createElement('button');
+      deleteButton.type = 'button';
+      deleteButton.className = 'meetup-secondary-action is-delete';
+      deleteButton.textContent = '삭제';
+      deleteButton.addEventListener('click', async () => {
+        if (!confirm('이 모임 글을 삭제할까요?')) return;
+        const { error: deleteError } = await communityClient.from('kyoto_meetups')
+          .delete().eq('id', row.id).eq('user_id', communityUser.id);
+        if (deleteError) {
+          setCommunityStatus('meetupStatus', '삭제하지 못했어요.');
+          console.error(deleteError);
+        } else {
+          setCommunityStatus('meetupStatus', '모임 글을 삭제했어요.');
+          await loadMeetups();
+        }
+      });
+      actions.append(editButton, deleteButton);
+      footer.appendChild(actions);
     }
+    card.appendChild(footer);
 
- 
-const commentsContainer = document.createElement('div');
-
-commentsContainer.className = 'meetup-comments';
-
-commentsContainer.style.cssText = `
-  margin-top:18px;
-  padding-top:14px;
-  border-top:1px solid rgba(120,105,78,.2);
-`;
-
-card.appendChild(commentsContainer);
-
-loadMeetupComments(row.id, commentsContainer);
+    const commentsContainer = document.createElement('div');
+    commentsContainer.className = 'meetup-comments';
+    card.appendChild(commentsContainer);
     list.appendChild(card);
-
+    loadMeetupComments(row.id, commentsContainer);
   });
-
 }
-
- 
 
 document.getElementById('createMeetupBtn').addEventListener('click', async () => {
 
@@ -11299,22 +11117,6 @@ async function loadNotifications() {
   });
 }
 
-document.getElementById('notificationBtn')?.addEventListener('click', async () => {
-  const panel = document.getElementById('notificationPanel');
-  if (!panel) return;
-
-  const isOpening = panel.style.display === 'none';
-  panel.style.display = isOpening ? 'block' : 'none';
-
-  if (isOpening) {
-    await loadNotifications();
-  }
-});
-
-document.getElementById('closeNotificationBtn')?.addEventListener('click', () => {
-  document.getElementById('notificationPanel').style.display = 'none';
-});
-
 function directMessageReadKey() {
   return communityUser ? `kyd_direct_messages_last_seen_${communityUser.id}` : null;
 }
@@ -11874,8 +11676,11 @@ localStorage.setItem(
       if(tab==='chat'){
         document.body.classList.add('kyd-tab-chat');
         markDirectMessagesSeen();
-        const open=document.getElementById('openDirectChatBtn');
-        if(open)open.click();
+        const dm=document.getElementById('directChatPanel');
+        if(dm){dm.classList.add('is-open');dm.setAttribute('aria-hidden','false');}
+        loadDirectInbox();
+        loadDateStayUsers();
+        if(activeDirectConversationId)loadDirectMessages();
       }
       if(tab==='my'&&typeof window.refreshCommunityUser==='function')window.refreshCommunityUser();
     }
@@ -12220,6 +12025,100 @@ localStorage.setItem(
   if(!hidden){if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',open,{once:true});else open();}
 })();
 </script>
+
+
+<style id="kyoto-community-ux-v12">
+/* Full-width calendar on mobile: use the entire content column, not a narrow intrinsic grid. */
+#calendarPanel{display:block;box-sizing:border-box;width:100%!important;max-width:100%!important;min-width:0!important;margin:0!important;padding:clamp(14px,3.5vw,32px)!important;}
+#calendarPanel .stay-calendar-shell{display:block!important;box-sizing:border-box;width:100%!important;max-width:none!important;min-width:0!important;align-self:stretch;margin:16px 0 20px!important;padding:clamp(12px,2.8vw,22px)!important;}
+#calendarPanel .stay-calendar-heading,#calendarPanel .stay-weekdays,#calendarPanel #calendarGrid{width:100%!important;max-width:none!important;min-width:0!important;}
+#calendarPanel #calendarGrid{grid-template-columns:repeat(7,minmax(0,1fr))!important;justify-items:stretch!important;}
+#calendarPanel #calendarGrid>.stay-day-cell{width:100%!important;min-width:0!important;min-height:clamp(62px,17vw,86px)!important;padding:8px 2px!important;}
+@media(max-width:600px){
+  #calendarPanel{padding:14px 12px calc(92px + env(safe-area-inset-bottom,0px))!important;}
+  #calendarPanel .stay-calendar-shell{width:100%!important;padding:12px 9px!important;margin:12px 0 16px!important;}
+  #calendarPanel .stay-weekdays{gap:2px!important;}
+  #calendarPanel #calendarGrid{gap:3px!important;}
+  #calendarPanel #calendarGrid>.stay-day-cell{min-height:66px!important;padding:7px 1px 5px!important;}
+  #calendarPanel .stay-day-number{font-size:15px!important;}
+}
+
+/* Date-based chat: messenger hierarchy, incoming/outgoing bubbles, fixed-feeling composer. */
+#calendarPanel .stay-chat-card{padding:0!important;overflow:hidden;border:1px solid #e7e0d6!important;background:#fffdf9!important;}
+#calendarPanel .stay-chat-card h3{padding:20px 20px 0!important;margin:0!important;font-size:19px!important;}
+#calendarPanel .stay-chat-card>p{padding:5px 20px 14px!important;margin:0!important;border-bottom:1px solid #eee8df;}
+#calendarPanel #chatMessages{display:flex;flex-direction:column;gap:12px;min-height:210px;max-height:420px!important;padding:18px 14px!important;border:0!important;border-radius:0!important;background:#f6f3ed!important;}
+#calendarPanel .stay-chat-message{display:flex;flex-direction:column;align-items:flex-start;gap:4px;max-width:86%;align-self:flex-start;}
+#calendarPanel .stay-chat-message.is-mine{align-self:flex-end;align-items:flex-end;}
+#calendarPanel .stay-chat-meta{display:flex;align-items:center;gap:8px;padding:0 4px;color:#82796d;font-size:10px;}
+#calendarPanel .stay-chat-meta strong{font-weight:700;color:#665c50;}
+#calendarPanel .stay-chat-meta time{font-size:9px;color:#a1988d;}
+#calendarPanel .stay-chat-bubble{padding:10px 13px;border:1px solid #e8e1d8;border-radius:3px 15px 15px 15px;background:#fffefa;color:#302c27;font-size:13px;line-height:1.65;white-space:pre-wrap;overflow-wrap:anywhere;box-shadow:0 2px 5px rgba(40,32,20,.025);}
+#calendarPanel .stay-chat-message.is-mine .stay-chat-bubble{border-color:#e7d3c8;border-radius:15px 3px 15px 15px;background:#efe1d8;color:#382b25;}
+#calendarPanel .stay-chat-empty{display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:160px;text-align:center;color:#81776b;font-size:12px;line-height:1.7;}
+#calendarPanel .stay-chat-empty strong{color:#4b443b;font-size:14px;}
+#calendarPanel .stay-chat-empty p{margin:5px 0 0!important;padding:0!important;border:0!important;}
+#calendarPanel #chatInput{display:block;width:calc(100% - 28px)!important;min-height:48px;max-height:130px;margin:14px!important;padding:12px 14px!important;border:1px solid #e2dbd1!important;border-radius:4px!important;background:#fffefa!important;font-size:13px!important;}
+#calendarPanel #sendChatBtn{display:block;margin:0 14px 16px auto!important;min-width:108px;min-height:40px;padding:8px 16px!important;border:0!important;border-radius:3px!important;background:#3b3933!important;color:#fff!important;font-size:12px!important;}
+#calendarPanel #chatStatus{padding:0 14px 12px!important;margin:0!important;font-size:11px!important;}
+
+/* Meetups become event listings rather than plain bordered bulletin-board boxes. */
+#calendarPanel .stay-meetup-card{padding:clamp(16px,3vw,26px)!important;border:1px solid #e8e0d6!important;background:#fffdf9!important;}
+#calendarPanel .stay-meetup-card h3{font-size:22px!important;margin-bottom:5px!important;}
+#calendarPanel .stay-meetup-card>p{max-width:560px;font-size:12px!important;}
+#calendarPanel .stay-meetup-card label{display:block;margin:15px 0 6px!important;color:#6e655a;font-size:11px!important;font-weight:700;}
+#calendarPanel .stay-meetup-card input:not([type=checkbox]),#calendarPanel .stay-meetup-card textarea{display:block;width:100%!important;box-sizing:border-box!important;margin:0 0 10px!important;padding:12px 13px!important;border:1px solid #e4ddd2!important;border-radius:3px!important;background:#fffefa!important;font-size:13px!important;}
+#calendarPanel .stay-meetup-card textarea{min-height:105px;line-height:1.65;}
+#calendarPanel #createMeetupBtn{min-height:43px;padding:10px 20px!important;border:0!important;border-radius:3px!important;background:#874b3d!important;color:white!important;font-size:12px!important;font-weight:700;}
+#calendarPanel #cancelMeetupEditBtn{min-height:43px;padding:10px 15px!important;border:1px solid #ded5c9!important;border-radius:3px!important;background:transparent!important;color:#62594e!important;font-size:12px!important;}
+#calendarPanel #meetupStatus{margin-top:10px!important;color:#786e62;font-size:11px!important;}
+#calendarPanel #meetupList{display:grid;gap:13px;margin-top:24px!important;padding-top:22px;border-top:1px solid #e9e2d8;}
+#calendarPanel .meetup-event-card{min-width:0;padding:19px 18px 15px;border:1px solid #e8e1d7;background:#fffefa;box-shadow:0 4px 16px rgba(46,37,26,.035);}
+#calendarPanel .meetup-event-topline{display:flex;flex-wrap:wrap;align-items:center;gap:7px;margin-bottom:12px;}
+#calendarPanel .meetup-event-date{color:#8b5848;font-size:10px;font-weight:800;letter-spacing:.04em;}
+#calendarPanel .meetup-event-area{padding:4px 8px;border:1px solid #e9e0d4;background:#f8f4ed;color:#74695b;font-size:10px;}
+#calendarPanel .meetup-event-title{margin:0 0 8px!important;color:#302c26;font-size:19px!important;font-weight:600!important;line-height:1.4;}
+#calendarPanel .meetup-event-description{margin:0!important;color:#6f675d!important;font-size:12px!important;line-height:1.8!important;white-space:pre-wrap;overflow-wrap:anywhere;}
+#calendarPanel .meetup-event-footer{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-top:16px;padding-top:12px;border-top:1px solid #eee8df;}
+#calendarPanel .meetup-event-host{color:#9a9084;font-size:10px;}
+#calendarPanel .meetup-owner-actions{display:flex;gap:6px;}
+#calendarPanel .meetup-secondary-action{min-height:30px;padding:5px 10px!important;border:1px solid #e2d9cd!important;border-radius:2px!important;background:transparent!important;color:#71675b!important;font-size:10px!important;}
+#calendarPanel .meetup-secondary-action.is-delete{color:#985b50!important;}
+#calendarPanel .meetup-comments{margin-top:15px;padding-top:13px;border-top:1px solid #eee8df;}
+#calendarPanel .meetup-comments-heading{margin:0 0 10px;color:#514a41;font-size:12px;font-weight:800;}
+#calendarPanel .meetup-comment-list{display:grid;gap:7px;}
+#calendarPanel .meetup-comment-item{padding:10px 11px;border-left:2px solid #d8c3b3;background:#f8f5ef;}
+#calendarPanel .meetup-comment-item.is-reply{background:#fbf9f5;border-left-color:#c9c0b2;}
+#calendarPanel .meetup-comment-author{color:#665448;font-size:10px;}
+#calendarPanel .meetup-comment-content{margin:4px 0!important;color:#514b43!important;font-size:12px!important;line-height:1.65!important;white-space:pre-wrap;}
+#calendarPanel .meetup-comment-time{color:#a1988c;font-size:9px;}
+#calendarPanel .meetup-comment-item button{min-height:28px;margin:6px 5px 0 0!important;padding:4px 9px!important;border:1px solid #e0d7cb!important;border-radius:2px!important;background:#fffdf9!important;color:#71665b!important;font-size:10px!important;}
+#calendarPanel .meetup-comment-input{width:100%!important;min-height:64px;margin:12px 0 7px!important;padding:11px!important;border:1px solid #e3dcd1!important;border-radius:3px!important;background:#fffefa!important;font-size:12px!important;}
+#calendarPanel .meetup-comment-submit{min-height:34px;padding:7px 13px!important;border:0!important;border-radius:3px!important;background:#393730!important;color:#fff!important;font-size:10px!important;}
+#calendarPanel .meetup-empty-state{padding:26px 18px;border:1px dashed #ded5c9;background:#faf7f1;text-align:center;color:#80766a;font-size:12px;line-height:1.7;}
+#calendarPanel .meetup-empty-state strong{display:block;color:#4d463d;font-size:14px;}
+#calendarPanel .meetup-empty-state p{margin:5px 0 0!important;font-size:11px!important;}
+
+/* Remove the broken floating launcher. Direct messages live in the Chat tab as a page. */
+#openDirectChatBtn{display:none!important;}
+body.kyd-tab-chat #directChatPanel,
+body.kyd-tab-chat #directChatPanel.is-open{position:relative!important;inset:auto!important;z-index:1!important;display:flex!important;visibility:visible!important;pointer-events:auto!important;transform:none!important;width:100%!important;max-width:920px!important;height:auto!important;min-height:calc(100vh - 80px);margin:0 auto!important;border:0!important;border-left:0!important;box-shadow:none!important;background:transparent!important;}
+body.kyd-tab-chat #directChatPanel .dm-header{padding:20px clamp(14px,3vw,28px);border-bottom:1px solid #e8e1d7;background:#fffdf9;}
+body.kyd-tab-chat #directChatPanel .dm-drawer-content{overflow:visible!important;padding:18px clamp(12px,3vw,28px) 100px!important;}
+body.kyd-tab-chat #directChatPanel .dm-thread{max-height:none;}
+body.kyd-tab-chat #directChatPanel .dm-messages{max-height:48vh;min-height:220px;}
+body.kyd-tab-chat #directChatPanel .dm-close{display:none!important;}
+body.kyd-tab-chat #directChatPanel .dm-section,body.kyd-tab-chat #directChatPanel .dm-thread{border-radius:3px;}
+@media(max-width:600px){
+ body.kyd-tab-chat #directChatPanel{min-height:calc(100vh - 70px);}
+ body.kyd-tab-chat #directChatPanel .dm-header{padding:16px 14px;}
+ body.kyd-tab-chat #directChatPanel .dm-drawer-content{padding:14px 12px 100px!important;}
+ body.kyd-tab-chat #directChatPanel .dm-messages{max-height:42vh;}
+ #calendarPanel .meetup-event-card{padding:15px 13px 12px;}
+ #calendarPanel .meetup-event-title{font-size:17px!important;}
+ #calendarPanel .meetup-event-footer{align-items:flex-start;flex-direction:column;}
+}
+</style>
 
 </body>
 
