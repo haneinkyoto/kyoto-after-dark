@@ -4182,6 +4182,76 @@ main{min-height:calc(100vh - 100px);grid-template-columns:minmax(320px,390px) mi
 @media(prefers-reduced-motion:reduce){*,*::before,*::after{scroll-behavior:auto!important;transition-duration:.01ms!important;animation-duration:.01ms!important;animation-iteration-count:1!important}}
 
 </style>
+
+<style id="kyoto-functional-ux-v11">
+/* Stay calendar: one calm visual unit, not a repeated card system. */
+#calendarPanel .stay-calendar-shell{margin:22px 0 18px;padding:20px 20px 16px;border:1px solid #e5ded2;background:#fffdf8;box-shadow:0 8px 26px rgba(55,45,31,.045)}
+#calendarPanel .stay-calendar-heading{display:flex;align-items:center;gap:10px;margin:0 0 17px!important;padding-bottom:14px;border-bottom:1px solid #eee8dd}
+#calendarPanel .stay-calendar-heading h3{flex:1;margin:0!important;text-align:center;font-family:var(--kyd-display-font)!important;font-size:21px!important;font-weight:500;letter-spacing:-.035em}
+#calendarPanel .stay-calendar-heading button{min-height:34px;padding:6px 11px;border:1px solid #e2dbcf!important;border-radius:3px!important;background:transparent!important;color:#62594d!important;box-shadow:none!important;font-size:11px}
+#calendarPanel .stay-weekdays{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:5px;margin:0 0 7px;color:#958b7d;font-size:10px;font-weight:700;letter-spacing:.04em}
+#calendarPanel .stay-weekdays>div{padding:5px 0;text-align:center}
+#calendarPanel #calendarGrid{display:grid!important;grid-template-columns:repeat(7,minmax(0,1fr))!important;gap:5px!important;width:100%}
+#calendarPanel #calendarGrid>.stay-day-cell{position:relative;display:flex!important;flex-direction:column;align-items:center;justify-content:flex-start;gap:5px;min-width:0;min-height:76px!important;padding:9px 3px 7px!important;border:1px solid #eee8de!important;border-radius:3px!important;background:#fffefa!important;color:#39352e!important;box-shadow:none!important;overflow:hidden;transition:background .18s,border-color .18s,transform .18s!important}
+#calendarPanel #calendarGrid>.stay-day-cell:hover{background:#f7f2e9!important;border-color:#c9b8a5!important;transform:translateY(-1px)}
+#calendarPanel #calendarGrid>.stay-day-cell.is-selected{border:1px solid #8c5948!important;background:#f7eee8!important;box-shadow:inset 0 0 0 1px #8c5948!important}
+#calendarPanel #calendarGrid>.stay-day-cell.is-mine{background:#f3f5ef!important}
+#calendarPanel #calendarGrid>.stay-day-cell.is-pending{background:#f7eee8!important}
+#calendarPanel .stay-day-number{font-family:var(--kyd-display-font);font-size:17px;line-height:1.1;font-weight:500}
+#calendarPanel .stay-day-count{font-size:10px;color:#857b6e;line-height:1.2}
+#calendarPanel .stay-day-count small{font-size:9px;margin-left:2px}
+#calendarPanel .stay-day-markers{display:flex;gap:4px;min-height:5px;align-items:center}
+#calendarPanel .stay-day-markers i{display:block;width:5px;height:5px;border-radius:50%}
+#calendarPanel .stay-day-markers .is-mine-dot{background:#71836a}
+#calendarPanel .stay-day-markers .is-pending-dot{background:#a66b55}
+#calendarPanel #selectedDateLabel{display:inline-block;margin:14px 10px 0 0;padding:5px 9px;background:#f5f1e9;color:#61594e;font-size:10px;letter-spacing:.02em}
+#calendarPanel #stayCountLabel{display:inline-block;margin:14px 0 0;color:#8a8175;font-size:10px}
+#calendarPanel .stay-calendar-legend{display:flex;flex-wrap:wrap;gap:12px;margin-top:12px;color:#918779;font-size:9px}
+#calendarPanel .stay-calendar-legend span{display:inline-flex;align-items:center;gap:5px}
+#calendarPanel .stay-calendar-legend i{display:inline-block;width:6px;height:6px;border-radius:50%}
+#calendarPanel .stay-calendar-legend .legend-mine{background:#71836a}
+#calendarPanel .stay-calendar-legend .legend-pending{background:#a66b55}
+body.kyd-tab-stay #calendarPanel .stay-date-card,body.kyd-tab-stay #calendarPanel .stay-chat-card{background:#fffdf8!important}
+body.kyd-tab-meetup #calendarPanel .stay-meetup-card{border-top:2px solid #a77b65!important;background:#fffdf8!important}
+body.kyd-tab-my #calendarPanel #profileSection{border-top:2px solid #71836a!important;background:#fffdf8!important}
+body.kyd-tab-my #calendarPanel #ownerMessageSection{border-top:1px solid #e8e1d6!important;background:transparent!important;box-shadow:none!important}
+body.kyd-tab-meetup #calendarPanel .stay-auth-card,body.kyd-tab-my #calendarPanel .stay-auth-card{margin-bottom:15px!important}
+#calendarPanel .stay-date-card,#calendarPanel .stay-chat-card,#calendarPanel .stay-meetup-card,#calendarPanel #profileSection{border:1px solid #e8e1d6!important;border-radius:3px!important;background:#fffdf8!important;box-shadow:none!important;padding:22px!important;margin:16px 0!important}
+#calendarPanel .stay-date-card h3,#calendarPanel .stay-chat-card h3,#calendarPanel .stay-meetup-card h3,#calendarPanel #profileSection h3{margin:0 0 8px;font-size:18px!important;font-weight:500}
+#calendarPanel .stay-date-card>p,#calendarPanel .stay-chat-card>p,#calendarPanel .stay-meetup-card>p,#calendarPanel #profileSection>p{color:#82796d;font-size:12px;line-height:1.7}
+#calendarPanel .stay-auth-card{border:0!important;border-top:1px solid #e8e1d6!important;border-bottom:1px solid #e8e1d6!important;border-radius:0!important;background:transparent!important;box-shadow:none!important;padding:13px 0!important;margin:14px 0 20px!important}
+#calendarPanel .stay-auth-card>h3{margin:0 0 8px;font-size:12px!important;font-weight:700;letter-spacing:.04em}
+#calendarPanel .stay-auth-card #communityAuthStatus{font-size:11px;color:#82796d}
+#calendarPanel .stay-hero{border-radius:3px!important;box-shadow:none!important}
+#calendarPanel #kydMyIntro,#calendarPanel #kydMeetupIntro{padding:24px 0 18px!important;margin-bottom:20px!important;border-bottom:1px solid #e8e1d6!important}
+@media(max-width:600px){#calendarPanel .stay-calendar-shell{padding:14px 10px 13px;margin:15px 0}#calendarPanel .stay-calendar-heading h3{font-size:18px!important}#calendarPanel .stay-calendar-heading button{padding:5px 8px;font-size:10px}#calendarPanel .stay-weekdays{gap:3px;font-size:9px}#calendarPanel #calendarGrid{gap:3px!important}#calendarPanel #calendarGrid>.stay-day-cell{min-height:65px!important;padding:7px 1px 5px!important;gap:4px}#calendarPanel .stay-day-number{font-size:15px}#calendarPanel .stay-day-count{font-size:9px}#calendarPanel .stay-date-card,#calendarPanel .stay-chat-card,#calendarPanel .stay-meetup-card,#calendarPanel #profileSection{padding:16px!important}}
+
+/* Separate detail and map actions on every place card. */
+.sidebar .place-card{cursor:pointer;overflow:hidden}.sidebar .place-card-main{cursor:pointer}
+.sidebar .place-card img{display:block;width:100%;max-height:150px;object-fit:cover;margin:10px 0 8px;border-radius:2px}
+.sidebar .place-detail-hint{display:block;margin-top:9px;color:#9a806a;font-size:10px;letter-spacing:.015em}
+.sidebar .place-card-actions{display:flex;gap:7px;margin-top:13px;padding-top:11px;border-top:1px solid #eee7db}
+.sidebar .place-card-actions button{flex:1;min-height:35px;padding:7px 9px;border-radius:2px!important;font-size:10px;box-shadow:none!important}
+.sidebar .place-card-actions .place-card-detail-btn{background:#403a31;border-color:#403a31;color:#fff}
+.sidebar .place-card-actions .place-card-map-btn{background:transparent!important;border-color:#ddd3c4!important;color:#655b4e!important}
+.sidebar .place-card-actions button:hover{transform:translateY(-1px)}.sidebar .place-card:focus-visible{outline:2px solid #a97865;outline-offset:2px}
+.kyd-place-detail-modal{position:fixed;inset:0;z-index:100100;display:none;align-items:center;justify-content:center;padding:22px}.kyd-place-detail-modal.is-open{display:flex}
+.kyd-place-detail-backdrop{position:absolute;inset:0;background:rgba(28,25,21,.58);backdrop-filter:blur(4px);animation:kydDetailFade .2s ease both}
+.kyd-place-detail-dialog{position:relative;z-index:1;width:min(100%,560px);max-height:min(84vh,780px);overflow:auto;background:#fbf8f1;border:1px solid #e4d9c9;box-shadow:0 24px 80px rgba(0,0,0,.24);padding:clamp(22px,4vw,34px);animation:kydDetailRise .28s cubic-bezier(.2,.75,.25,1) both}
+.kyd-place-detail-close{position:absolute;right:13px;top:10px;width:34px;min-height:34px;padding:0;border:0!important;background:transparent!important;color:#6b6256!important;box-shadow:none!important;font-size:27px;font-weight:300}
+.kyd-place-detail-kicker{margin:0 35px 18px 0;color:#9a725d;font-size:9px;font-weight:800;letter-spacing:.18em}
+.kyd-place-detail-title-row{display:flex;justify-content:space-between;align-items:flex-start;gap:18px;margin-bottom:18px}
+.kyd-place-detail-title-row h2{margin:0;color:#302b24;font-family:var(--kyd-display-font);font-size:clamp(24px,5vw,34px);font-weight:500;letter-spacing:-.04em;line-height:1.25}
+.kyd-place-detail-title-row p{margin:7px 0 0;color:#897f72;font-size:11px}.kyd-place-detail-rating{flex:0 0 auto;text-align:right;color:#a77a42}
+.kyd-place-detail-rating strong{display:block;font-family:var(--kyd-display-font);font-size:24px;font-weight:500}.kyd-place-detail-rating span{font-size:10px;white-space:nowrap}
+.kyd-place-detail-photo{display:block;width:100%;max-height:300px;object-fit:cover;margin:0 0 18px}.kyd-place-detail-tag{display:inline-block;padding:4px 9px;border:1px solid #e0d6c8;color:#776c5d;font-size:10px}
+.kyd-place-detail-review{margin:18px 0 24px;padding:18px 0;border-top:1px solid #e6ded1;border-bottom:1px solid #e6ded1;color:#514a40;font-size:13px;line-height:1.9;white-space:normal;overflow-wrap:anywhere}
+.kyd-place-detail-actions{display:flex;justify-content:flex-end}.kyd-place-detail-actions button{min-height:42px;padding:10px 17px;border-radius:2px!important;background:#39352e;border-color:#39352e;font-size:11px}
+@keyframes kydDetailFade{from{opacity:0}to{opacity:1}}@keyframes kydDetailRise{from{opacity:0;transform:translateY(12px) scale(.99)}to{opacity:1;transform:translateY(0) scale(1)}}
+@media(max-width:600px){.kyd-place-detail-modal{align-items:flex-end;padding:0}.kyd-place-detail-dialog{width:100%;max-height:88vh;padding:24px 19px calc(22px + env(safe-area-inset-bottom,0px));border-left:0;border-right:0;border-bottom:0}.kyd-place-detail-photo{max-height:220px}.sidebar .place-card-actions button{font-size:10px}}
+@media(prefers-reduced-motion:reduce){.kyd-place-detail-backdrop,.kyd-place-detail-dialog{animation:none!important}}
+</style>
+
 </head>
 
 <body>
@@ -4650,6 +4720,7 @@ main{min-height:calc(100vh - 100px);grid-template-columns:minmax(320px,390px) mi
   </section>
 </section>
  
+<section class="stay-calendar-shell" aria-label="교토 체류 달력">
 <div class="stay-calendar-heading" style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin:16px 0;">
 
     <button type="button" id="prevMonthBtn">← 이전 달</button>
@@ -4676,6 +4747,8 @@ main{min-height:calc(100vh - 100px);grid-template-columns:minmax(320px,390px) mi
   <p id="selectedDateLabel" aria-live="polite">선택한 날짜: 없음</p>
 
   <p id="stayCountLabel" aria-live="polite">날짜별 체류 인원을 불러오는 중...</p>
+<div class="stay-calendar-legend"><span><i class="legend-mine"></i>내 체류일</span><span><i class="legend-pending"></i>선택한 날짜</span><span>숫자 = 체류 인원</span></div>
+</section>
 
  
 
@@ -6326,37 +6399,10 @@ m.bindPopup(
   }
 );
 
- 
-
-m.on('click', () => {
-
-  activeId = p.id;
-
-  renderList();
-
-  // 모바일에서는 선택한 가게의 목록 카드도 화면에 표시
-  if (window.matchMedia('(max-width: 800px)').matches) {
-
-    setTimeout(() => {
-
-      const selectedCard = document.querySelector(
-        `.place-card[data-id="${p.id}"]`
-      );
-
-      if (selectedCard) {
 m.on('click', () => {
   activeId = p.id;
   renderList();
 });
-      }
-
-    }, 100);
-
-  }
-
-});
-
- 
 
     markers[p.id] = m;
 
@@ -6652,6 +6698,82 @@ function distanceKm(lat1, lng1, lat2, lng2) {
 
  
 
+function openPlaceDetail(place) {
+  if (!place) return;
+  let modal = document.getElementById('kydPlaceDetailModal');
+  if (!modal) {
+    modal = document.createElement('div');
+    modal.id = 'kydPlaceDetailModal';
+    modal.className = 'kyd-place-detail-modal';
+    modal.setAttribute('aria-hidden', 'true');
+    modal.innerHTML = `
+      <div class="kyd-place-detail-backdrop" data-detail-close></div>
+      <section class="kyd-place-detail-dialog" role="dialog" aria-modal="true" aria-labelledby="kydPlaceDetailName">
+        <button type="button" class="kyd-place-detail-close" aria-label="닫기" data-detail-close>×</button>
+        <div class="kyd-place-detail-content"></div>
+      </section>`;
+    document.body.appendChild(modal);
+    modal.addEventListener('click', event => {
+      if (event.target.closest('[data-detail-close]')) closePlaceDetail();
+      if (event.target.closest('[data-detail-map]')) {
+        const id = modal.dataset.placeId;
+        closePlaceDetail();
+        showPlaceOnMap(id);
+      }
+    });
+    document.addEventListener('keydown', event => {
+      if (event.key === 'Escape') closePlaceDetail();
+    });
+  }
+  modal.dataset.placeId = String(place.id);
+  const review = getLocalizedReview(place).trim();
+  modal.querySelector('.kyd-place-detail-content').innerHTML = `
+    <p class="kyd-place-detail-kicker">KYOTO AFTER DARK · PLACE NOTE</p>
+    <div class="kyd-place-detail-title-row">
+      <div><h2 id="kydPlaceDetailName">${esc(place.name || '이름 없는 가게')}</h2><p>${esc(place.area || '교토')}${place.visited ? ' · 방문 ' + esc(place.visited) : ''}</p></div>
+      <div class="kyd-place-detail-rating"><strong>${Number(place.rating) || 0}</strong><span>${stars(place.rating)}</span></div>
+    </div>
+    ${place.photo_url ? `<img class="kyd-place-detail-photo" src="${esc(place.photo_url)}" alt="${esc(place.name)} 사진" onerror="this.style.display='none'">` : ''}
+    ${place.category ? `<span class="kyd-place-detail-tag">${esc(place.category)}</span>` : ''}
+    <div class="kyd-place-detail-review">${review ? esc(review).replace(/\n/g, '<br>') : '아직 작성된 리뷰가 없습니다.'}</div>
+    <div class="kyd-place-detail-actions"><button type="button" data-detail-map>지도에서 위치 보기 <span aria-hidden="true">↗</span></button></div>
+  `;
+  modal.classList.add('is-open');
+  modal.setAttribute('aria-hidden', 'false');
+  document.body.classList.add('kyd-detail-open');
+  modal.querySelector('.kyd-place-detail-close')?.focus();
+}
+
+function closePlaceDetail() {
+  const modal = document.getElementById('kydPlaceDetailModal');
+  if (!modal) return;
+  modal.classList.remove('is-open');
+  modal.setAttribute('aria-hidden', 'true');
+  document.body.classList.remove('kyd-detail-open');
+}
+
+function showPlaceOnMap(placeId) {
+  const place = places.find(item => String(item.id) === String(placeId));
+  const marker = markers[placeId] || markers[String(placeId)];
+  if (!place || !marker) return;
+  activeId = place.id;
+  renderList();
+  const mapSection = document.querySelector('.map-wrap');
+  const isMobile = window.matchMedia('(max-width: 800px)').matches;
+  const moveMap = () => {
+    map.invalidateSize({ pan: false });
+    const targetZoom = Math.max(map.getZoom(), 16);
+    map.flyTo(marker.getLatLng(), targetZoom, { animate: true, duration: 1.05, easeLinearity: 0.22 });
+    window.setTimeout(() => marker.openPopup(), 650);
+  };
+  if (isMobile && mapSection) {
+    mapSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    window.setTimeout(moveMap, 520);
+  } else {
+    moveMap();
+  }
+}
+
 function renderList() {
 
   const q = document.getElementById('search').value.toLowerCase().trim();
@@ -6861,48 +6983,30 @@ Object.entries(markers).forEach(([id, marker]) => {
 
     ? list.map(p => `
 
-      <article class="place-card ${String(activeId) === String(p.id) ? 'active' : ''}" data-id="${esc(p.id)}">
-
-        <div class="place-top">
-
-          <div class="place-name">${esc(p.name)}</div>
-
-          <div class="rating">${stars(p.rating)}</div>
-
+      <article class="place-card ${String(activeId) === String(p.id) ? 'active' : ''}" data-id="${esc(p.id)}" tabindex="0" role="group" aria-label="${esc(p.name)} 가게 카드">
+        <div class="place-card-main">
+          <div class="place-top">
+            <div class="place-name">${esc(p.name)}</div>
+            <div class="rating">${stars(p.rating)}</div>
+          </div>
+          <div class="place-meta">
+            ${esc(p.area || '교토')}
+            ${p.visited ? ' · ' + esc(p.visited) : ''}
+            ${p.distance !== null ? ' · ' + (p.distance < 1 ? Math.round(p.distance * 1000) + 'm' : p.distance.toFixed(1) + 'km') : ''}
+          </div>
+          ${p.photo_url ? `<img src="${esc(p.photo_url)}" alt="${esc(p.name)} 사진" loading="lazy" onerror="this.style.display='none'">` : ''}
+          <div class="place-note">${esc(getLocalizedReview(p))}</div>
+          ${p.category ? `<span class="tag">${esc(p.category)}</span>` : ''}
+          <span class="place-detail-hint">상세 리뷰와 가게 정보 보기 ↗</span>
         </div>
-
-        <div class="place-meta">
-
-          ${esc(p.area || '교토')}
-
-          ${p.visited ? ' · ' + esc(p.visited) : ''}
-
-          ${p.distance !== null
-
-            ? ' · 📍 ' + (p.distance < 1
-
-                ? Math.round(p.distance * 1000) + 'm'
-
-                : p.distance.toFixed(1) + 'km')
-
-            : ''}
-
+        <div class="place-card-actions">
+          <button type="button" class="place-card-detail-btn">상세 보기</button>
+          <button type="button" class="place-card-map-btn secondary">지도에서 보기 <span aria-hidden="true">↗</span></button>
         </div>
-
-        ${p.photo_url ? `<img src="${esc(p.photo_url)}" alt="${esc(p.name)} 사진" style="width:100%; max-height:220px; object-fit:cover; border-radius:10px; margin:10px 0;" loading="lazy" onerror="this.style.display='none'">` : ''}
-
-        <div class="place-note">${esc(getLocalizedReview(p))}</div>
-
-        ${p.category ? `<span class="tag">${esc(p.category)}</span>` : ''}
-
         <div class="admin-place-actions" style="display:none; gap:8px; margin-top:12px;">
-
           <button type="button" class="edit-place-btn">수정</button>
-
           <button type="button" class="delete-place-btn">삭제</button>
-
         </div>
-
       </article>
 
     `).join('')
@@ -6912,47 +7016,28 @@ Object.entries(markers).forEach(([id, marker]) => {
  
 
   document.querySelectorAll('.place-card').forEach(el => {
-
-    el.addEventListener('click', () => {
-
-      const p = places.find(x => String(x.id) === el.dataset.id);
-
-      if (!p) return;
-
- 
-
-      activeId = p.id;
-
-      renderList();
-
- 
-
-    if (markers[p.id]) {
-
-  map.setView(markers[p.id].getLatLng(), 16);
-
-  markers[p.id].openPopup();
-
-  // 모바일에서 지도가 보이는 위치로 자동 이동
-  if (window.matchMedia('(max-width: 768px)').matches) {
-    document.querySelector('.map-wrap').scrollIntoView({
-      behavior: 'smooth',
-      block: 'start'
+    const place = places.find(x => String(x.id) === el.dataset.id);
+    if (!place) return;
+    const openDetails = () => openPlaceDetail(place);
+    el.addEventListener('click', event => {
+      if (event.target.closest('button')) return;
+      openDetails();
     });
-
-    // 스크롤 후 지도 크기 재계산
-    setTimeout(() => {
-      map.invalidateSize();
-    }, 400);
-  }
-
-}
-
+    el.addEventListener('keydown', event => {
+      if ((event.key === 'Enter' || event.key === ' ') && !event.target.closest('button')) {
+        event.preventDefault();
+        openDetails();
+      }
     });
-
+    el.querySelector('.place-card-detail-btn')?.addEventListener('click', event => {
+      event.stopPropagation();
+      openDetails();
+    });
+    el.querySelector('.place-card-map-btn')?.addEventListener('click', event => {
+      event.stopPropagation();
+      showPlaceOnMap(place.id);
+    });
   });
-
- 
 
   document.querySelectorAll('.edit-place-btn').forEach(button => {
 
@@ -9114,53 +9199,20 @@ async function renderCalendar() {
     const button = document.createElement('button');
 
     button.type = 'button';
-
-    button.style.cssText =
-
-      'min-height:68px;padding:5px 1px;border:1px solid #ddd;border-radius:8px;background:white;overflow-wrap:anywhere;';
-
- 
-
-    if (date === selectedDate) {
-
-      button.style.border = '2px solid #333';
-
-    }
-
-    if (pendingDates.has(date)) {
-
-      button.style.background = '#f2e8dc';
-
-    }
-
-    if (myStayDates.has(date)) {
-
-      button.style.boxShadow = 'inset 0 -4px #64816a';
-
-    }
-
- 
-
-    button.innerHTML =
-
-      `<strong>${day}</strong><br><small>${counts[date] || 0}명</small>` +
-
-      (myStayDates.has(date) ? '<br><small>내 일정</small>' : '') +
-
-      (pendingDates.has(date) ? '<br><small>선택 중</small>' : '');
-
- 
-
-    button.setAttribute(
-
-      'aria-label',
-
-      `${date}, 체류 ${counts[date] || 0}명`
-
-    );
-
- 
-
+    button.className = 'stay-day-cell';
+    if (date === selectedDate) button.classList.add('is-selected');
+    if ((counts[date] || 0) > 0) button.classList.add('has-stays');
+    if (myStayDates.has(date)) button.classList.add('is-mine');
+    if (pendingDates.has(date)) button.classList.add('is-pending');
+    button.innerHTML = `
+      <span class="stay-day-number">${day}</span>
+      <span class="stay-day-count">${counts[date] ? `${counts[date]}명` : '—'}</span>
+      <span class="stay-day-markers" aria-hidden="true">
+        ${myStayDates.has(date) ? '<i class="is-mine-dot"></i>' : ''}
+        ${pendingDates.has(date) ? '<i class="is-pending-dot"></i>' : ''}
+      </span>
+    `;
+    button.setAttribute('aria-label', `${date}, 체류 ${counts[date] || 0}명${myStayDates.has(date) ? ', 내 일정' : ''}${pendingDates.has(date) ? ', 선택 중' : ''}`);
     button.addEventListener('click', async () => {
 
       selectedDate = date;
@@ -11752,7 +11804,7 @@ localStorage.setItem(
   if(!bar||!panel)return;
   panel.classList.add('kyd-tab-panel');
   const mapParts=[document.querySelector('.sidebar'),document.querySelector('.map-wrap')];
-  const selectors=['.stay-hero','.stay-auth-card','#profileSection','#ownerMessageSection','#kydMyIntro','#kydMeetupIntro','.stay-calendar-heading','.stay-weekdays','#calendarGrid','#selectedDateLabel','#stayCountLabel','.stay-date-card','.stay-chat-card','.stay-meetup-card'];
+  const selectors=['.stay-hero','.stay-auth-card','.stay-calendar-shell','#profileSection','#ownerMessageSection','#kydMyIntro','#kydMeetupIntro','.stay-calendar-heading','.stay-weekdays','#calendarGrid','#selectedDateLabel','#stayCountLabel','.stay-date-card','.stay-chat-card','.stay-meetup-card'];
   const parts=Object.fromEntries(selectors.map(s=>[s,panel.querySelector(s)]));
   let activeTab='map';
   function closeFloatingPanels(){
@@ -11777,7 +11829,8 @@ localStorage.setItem(
     const changed=tab!==activeTab;
     if(tab!=='chat')closeFloatingPanels();
     activeTab=tab;
-    document.body.classList.remove('kyd-tab-map','kyd-tab-sub','kyd-tab-chat');
+    document.body.classList.remove('kyd-tab-map','kyd-tab-sub','kyd-tab-chat','kyd-tab-stay','kyd-tab-meetup','kyd-tab-my');
+    document.body.classList.add('kyd-tab-'+tab);
     bar.querySelectorAll('button[data-kyd-tab]').forEach(b=>{
       const selected=b.dataset.kydTab===tab;
       b.setAttribute('aria-selected',String(selected));
@@ -11803,6 +11856,7 @@ localStorage.setItem(
       showPart('#ownerMessageSection',tab==='my');
       showPart('#kydMyIntro',tab==='my');
       showPart('#kydMeetupIntro',tab==='meetup');
+      showPart('.stay-calendar-shell',tab==='stay');
       showPart('.stay-calendar-heading',tab==='stay');
       showPart('.stay-weekdays',tab==='stay');
       showPart('#calendarGrid',tab==='stay');
@@ -11962,6 +12016,9 @@ localStorage.setItem(
     '아직 등록된 술집이 없어요':'まだお店が登録されていません', '아직 대화가 없어요':'まだメッセージはありません',
     '아직 메시지가 없어요. 첫 메시지를 남겨 보세요!':'まだメッセージはありません。最初のメッセージを送ってみましょう！',
     '아직 작성된 리뷰가 없습니다.':'まだ口コミはありません。', '리뷰 전체 보기':'口コミをすべて見る',
+    '상세 리뷰와 가게 정보 보기 ↗':'詳しい口コミと店舗情報を見る ↗', '상세 보기':'詳細を見る',
+    '지도에서 보기':'マップで見る', '지도에서 위치 보기':'地図で場所を見る',
+    '내 체류일':'自分の滞在日', '선택한 날짜':'選択した日付', '숫자 = 체류 인원':'数字 = 滞在人数',
     '클릭해서 상세 보기':'タップして詳細を見る', '마커에 커서를 올려 리뷰를 확인해 보세요.':'マーカーにカーソルを合わせると口コミを確認できます。',
     '검색 결과가 없어요. 가게 이름을 더 입력해 주세요.':'検索結果がありません。店名をもう少し入力してください。',
     '검색에 실패했어요. 잠시 후 다시 시도해 주세요.':'検索に失敗しました。しばらくしてから再度お試しください。',
