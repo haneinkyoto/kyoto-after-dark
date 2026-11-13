@@ -4776,22 +4776,23 @@ body.kyd-tab-meetup #calendarPanel .stay-auth-card,body.kyd-tab-my #calendarPane
 
  
 
-<div class="stay-chat-card" style="border:1px solid #ddd;border-radius:12px;padding:16px;margin:20px 0;">
-
-    <h3 id="chatHeading">💬 오늘의 교토 채팅</h3>
-
-    <p>달력에서 날짜를 선택하면 해당 날짜의 채팅을 볼 수 있어요.</p>
-
-    <div id="chatMessages" role="log" aria-live="polite" aria-relevant="additions" style="max-height:300px;overflow:auto;border:1px solid #eee;padding:12px;border-radius:8px;overflow-wrap:anywhere;"></div>
-
-    <label class="kyd-visually-hidden" for="chatInput">날짜별 채팅 메시지</label>
-    <textarea id="chatInput" maxlength="500" rows="3" aria-label="날짜별 채팅 메시지" placeholder="이 날짜에 교토에 있는 사람들에게 메시지를 남겨 보세요." style="width:100%;box-sizing:border-box;margin-top:10px;padding:10px;"></textarea>
-
-    <button type="button" id="sendChatBtn">메시지 보내기</button>
-
-    <p id="chatStatus" role="status"></p>
-
+<section class="stay-chat-card kyd-date-chat" aria-label="날짜별 교토 채팅">
+  <div class="kyd-chat-topbar">
+    <div class="kyd-chat-title-wrap">
+      <span class="kyd-chat-icon" aria-hidden="true">✳</span>
+      <div><h3 id="chatHeading">교토 날짜 채팅</h3><p class="kyd-chat-subtitle">같은 날 교토에 머무는 사람들과 이야기해 보세요.</p></div>
+    </div>
+    <span class="kyd-chat-date-chip" id="chatDateChip">날짜 선택</span>
   </div>
+  <div class="kyd-chat-context"><span class="kyd-chat-live-dot"></span><span>선택한 날짜의 체류자 채팅</span><span class="kyd-chat-context-note">서로 배려하는 대화를 나눠요</span></div>
+  <div id="chatMessages" class="kyd-chat-messages" role="log" aria-live="polite" aria-relevant="additions" aria-label="채팅 메시지"></div>
+  <div class="kyd-chat-composer">
+    <label class="kyd-visually-hidden" for="chatInput">메시지 입력</label>
+    <textarea id="chatInput" maxlength="500" rows="1" aria-label="메시지 입력" placeholder="메시지를 입력하세요…"></textarea>
+    <button type="button" id="sendChatBtn" aria-label="메시지 보내기" title="보내기"><span>보내기</span><span aria-hidden="true">➤</span></button>
+  </div>
+  <p id="chatStatus" class="kyd-chat-status" role="status" aria-live="polite"></p>
+</section>
 
  
 
@@ -9752,128 +9753,102 @@ document.getElementById('removeStayBtn').addEventListener('click', async () => {
  
 
 async function loadChatMessages() {
-
   const heading = document.getElementById('chatHeading');
-
   const box = document.getElementById('chatMessages');
+  const dateChip = document.getElementById('chatDateChip');
+  if (!heading || !box) return;
 
- 
-
-  heading.textContent = `💬 ${selectedDate} 교토 채팅`;
-
+  heading.textContent = `${selectedDate} 교토 채팅`;
+  if (dateChip) dateChip.textContent = selectedDate;
   box.replaceChildren();
-
- 
+  box.setAttribute('aria-busy', 'true');
 
   const { data, error } = await communityClient
-
     .from('kyoto_chat_messages')
-
     .select('id,user_id,nickname,message,created_at')
-
     .eq('stay_date', selectedDate)
-
     .order('created_at', { ascending: true })
-
     .limit(100);
 
- 
-
+  box.setAttribute('aria-busy', 'false');
   if (error) {
-
-    box.textContent = '채팅을 불러오지 못했어요.';
-
+    const err = document.createElement('div');
+    err.className = 'kyd-chat-empty';
+    err.textContent = '채팅을 불러오지 못했어요. 잠시 후 다시 시도해 주세요.';
+    box.appendChild(err);
     console.error(error);
-
     return;
-
   }
-
- 
 
   if (!data || !data.length) {
-
-    box.textContent = '아직 메시지가 없어요. 첫 메시지를 남겨 보세요!';
-
+    const empty = document.createElement('div');
+    empty.className = 'kyd-chat-empty';
+    const icon = document.createElement('span');
+    icon.className = 'kyd-chat-empty-icon';
+    icon.textContent = '☁';
+    const title = document.createElement('strong');
+    title.textContent = '아직 대화가 없어요';
+    const desc = document.createElement('p');
+    desc.textContent = '이 날짜에 교토에 있는 사람들에게 먼저 인사해 보세요.';
+    empty.append(icon, title, desc);
+    box.appendChild(empty);
     return;
-
   }
 
- 
-
-  const myNickname =
-
-    communityUser?.user_metadata?.nickname ||
-
-    communityUser?.email?.split('@')[0] ||
-
-    '사용자';
-
- 
-
+  const myNickname = communityUser?.user_metadata?.nickname || communityUser?.email?.split('@')[0] || '사용자';
+  let previousDay = '';
   data.forEach(row => {
+    const created = new Date(row.created_at);
+    const dayKey = `${created.getFullYear()}-${String(created.getMonth()+1).padStart(2,'0')}-${String(created.getDate()).padStart(2,'0')}`;
+    if (dayKey !== previousDay) {
+      const divider = document.createElement('div');
+      divider.className = 'kyd-chat-day-divider';
+      const label = document.createElement('span');
+      label.textContent = created.toLocaleDateString('ko-KR', {year:'numeric', month:'long', day:'numeric', weekday:'short'});
+      divider.appendChild(label);
+      box.appendChild(divider);
+      previousDay = dayKey;
+    }
 
-    const item = document.createElement('div');
+    const mine = !!communityUser && row.user_id === communityUser.id;
+    const displayName = row.nickname || (mine ? myNickname : '교토 사용자');
+    const time = created.toLocaleTimeString('ko-KR', {hour:'2-digit', minute:'2-digit'});
+    const rowEl = document.createElement('article');
+    rowEl.className = `kyd-chat-message-row${mine ? ' is-mine' : ''}`;
 
-    item.style.cssText =
+    if (!mine) {
+      const avatar = document.createElement('div');
+      avatar.className = 'kyd-chat-avatar';
+      avatar.textContent = Array.from(displayName.trim())[0] || 'K';
+      avatar.setAttribute('aria-hidden', 'true');
+      rowEl.appendChild(avatar);
+    }
 
-      'padding:8px 0;border-bottom:1px solid #eee;overflow-wrap:anywhere;';
-
- 
-
-    const time = new Date(row.created_at).toLocaleTimeString('ko-KR', {
-
-      hour: '2-digit',
-
-      minute: '2-digit'
-
-    });
-
- 
-
-    const nickname =
-
-      row.nickname ||
-
-      (row.user_id === communityUser?.id ? myNickname : '참여자');
-
- 
-
-  
-
-const displayName =
-
-  row.user_id === communityUser?.id
-
-    ? '나 (' + (row.nickname || '사용자') + ')'
-
-    : (row.nickname || '사용자');
-
- 
-
-item.innerHTML =
-
-  `<small>${communityEscape(displayName)} · ${time}</small>` +
-
-  `<div>${communityEscape(row.message)}</div>`;
-
- 
-
- 
-
-    box.appendChild(item);
-
+    const content = document.createElement('div');
+    content.className = 'kyd-chat-message-content';
+    const meta = document.createElement('div');
+    meta.className = 'kyd-chat-message-meta';
+    const name = document.createElement('span');
+    name.className = 'kyd-chat-sender';
+    name.textContent = mine ? '나' : displayName;
+    const bubbleLine = document.createElement('div');
+    bubbleLine.className = 'kyd-chat-bubble-line';
+    const bubble = document.createElement('div');
+    bubble.className = 'kyd-chat-bubble';
+    bubble.textContent = row.message || '';
+    const stamp = document.createElement('time');
+    stamp.className = 'kyd-chat-time';
+    stamp.dateTime = created.toISOString();
+    stamp.textContent = time;
+    meta.appendChild(name);
+    content.appendChild(meta);
+    bubbleLine.append(bubble, stamp);
+    content.appendChild(bubbleLine);
+    rowEl.appendChild(content);
+    box.appendChild(rowEl);
   });
-
- 
-
-  box.scrollTop = box.scrollHeight;
-
+  requestAnimationFrame(() => { box.scrollTop = box.scrollHeight; });
 }
-
- 
-
- 
 
 document.getElementById('sendChatBtn').addEventListener('click', async () => {
 
@@ -12220,6 +12195,33 @@ localStorage.setItem(
   if(!hidden){if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',open,{once:true});else open();}
 })();
 </script>
+
+
+<style id="kyd-date-chat-modern-v1">
+#calendarPanel .stay-chat-card.kyd-date-chat{padding:0!important;margin:22px 0!important;overflow:hidden;border:1px solid #e8e3db!important;border-radius:18px!important;background:#fffefa!important;box-shadow:0 10px 30px rgba(48,40,30,.055)!important}
+.kyd-chat-topbar{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:19px 21px 15px;border-bottom:1px solid #eee9e1;background:#fffefa}
+.kyd-chat-title-wrap{display:flex;align-items:center;gap:11px;min-width:0}.kyd-chat-icon{width:39px;height:39px;display:grid;place-items:center;flex:0 0 39px;border-radius:13px;background:#f3eee5;color:#805044;font-size:20px}
+#calendarPanel .kyd-chat-title-wrap h3{margin:0!important;color:#332f29!important;font-family:inherit!important;font-size:16px!important;font-weight:700!important;letter-spacing:-.03em}
+#calendarPanel .kyd-chat-title-wrap .kyd-chat-subtitle{margin:4px 0 0!important;color:#8d857a!important;font-size:11px!important;line-height:1.45}
+.kyd-chat-date-chip{flex:0 0 auto;padding:7px 10px;border-radius:999px;background:#f5f1e9;color:#766b5d;font-size:10px;font-weight:650;white-space:nowrap}
+.kyd-chat-context{display:flex;align-items:center;gap:7px;padding:10px 20px;background:#faf8f3;border-bottom:1px solid #f0ece5;color:#777064;font-size:10px}.kyd-chat-live-dot{width:6px;height:6px;border-radius:50%;background:#86a18a;box-shadow:0 0 0 3px #e9f0e8}.kyd-chat-context-note{margin-left:auto;color:#aaa196}
+#calendarPanel #chatMessages.kyd-chat-messages{display:flex;flex-direction:column;gap:13px;min-height:250px;max-height:430px;overflow-y:auto;overscroll-behavior:contain;padding:18px 17px!important;background:#f7f5f0!important;border:0!important;border-radius:0!important;scrollbar-width:thin;scrollbar-color:#d8d0c4 transparent}
+.kyd-chat-day-divider{display:flex;justify-content:center;margin:3px 0 5px}.kyd-chat-day-divider span{padding:5px 10px;border-radius:999px;background:#ebe7df;color:#81796e;font-size:9px;letter-spacing:.01em}
+.kyd-chat-message-row{display:flex;align-items:flex-end;gap:8px;max-width:88%;align-self:flex-start}.kyd-chat-message-row.is-mine{align-self:flex-end;justify-content:flex-end}
+.kyd-chat-avatar{width:29px;height:29px;flex:0 0 29px;display:grid;place-items:center;border-radius:50%;background:#e9e1d7;color:#705e4e;font-size:11px;font-weight:700}
+.kyd-chat-message-content{min-width:0;max-width:100%;display:flex;flex-direction:column;gap:4px}.kyd-chat-message-meta{padding:0 3px}.kyd-chat-sender{font-size:10px;color:#81796f;font-weight:650}
+.kyd-chat-bubble-line{display:flex;align-items:flex-end;gap:5px}.kyd-chat-message-row.is-mine .kyd-chat-bubble-line{flex-direction:row-reverse}
+.kyd-chat-bubble{max-width:100%;padding:10px 12px;border:1px solid #e9e4dc;border-radius:4px 15px 15px 15px;background:#fffefa;color:#38342e;font-size:12px;line-height:1.65;white-space:pre-wrap;overflow-wrap:anywhere;box-shadow:0 1px 2px rgba(30,25,18,.025)}
+.kyd-chat-message-row.is-mine .kyd-chat-bubble{border-color:#e5d7c8;border-radius:15px 4px 15px 15px;background:#eee5d9}
+.kyd-chat-time{flex:0 0 auto;padding-bottom:2px;color:#a29a8e;font-size:9px;white-space:nowrap}
+.kyd-chat-empty{min-height:215px;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;color:#8b8378;gap:7px}.kyd-chat-empty-icon{width:43px;height:43px;display:grid;place-items:center;border-radius:50%;background:#eee9e0;color:#8b7765;font-size:20px}.kyd-chat-empty strong{color:#5c554b;font-size:12px}.kyd-chat-empty p{margin:0!important;color:#9a9287!important;font-size:10px!important}
+.kyd-chat-composer{display:flex;align-items:flex-end;gap:9px;padding:12px 14px;background:#fffefa;border-top:1px solid #eee9e1}
+#calendarPanel #chatInput{flex:1;min-width:0;min-height:42px;max-height:110px;resize:vertical;margin:0!important;padding:11px 13px!important;border:1px solid #e6e0d7!important;border-radius:13px!important;background:#faf9f6!important;color:#39352f!important;font:inherit;font-size:12px!important;line-height:1.5;outline:none}
+#calendarPanel #chatInput:focus{border-color:#b9a18b!important;box-shadow:0 0 0 3px rgba(185,161,139,.13)}#calendarPanel #chatInput::placeholder{color:#aaa297}
+#calendarPanel #sendChatBtn{display:flex;align-items:center;justify-content:center;gap:8px;min-height:42px;padding:0 15px!important;border:0!important;border-radius:12px!important;background:#765348!important;color:#fff!important;font-size:11px!important;font-weight:650;white-space:nowrap;box-shadow:none!important}#calendarPanel #sendChatBtn span:last-child{font-size:13px}
+#calendarPanel .kyd-chat-status{margin:0!important;padding:0 16px 8px!important;color:#8d8378;font-size:10px!important}
+@media(max-width:600px){#calendarPanel .stay-chat-card.kyd-date-chat{margin:16px -1px!important;border-radius:15px!important}.kyd-chat-topbar{padding:15px 14px 12px}.kyd-chat-icon{width:35px;height:35px;flex-basis:35px;border-radius:11px}.kyd-chat-date-chip{font-size:9px;padding:6px 8px}#calendarPanel #chatMessages.kyd-chat-messages{min-height:230px;max-height:52vh;padding:15px 11px!important;gap:12px}.kyd-chat-message-row{max-width:94%;gap:6px}.kyd-chat-avatar{width:26px;height:26px;flex-basis:26px;font-size:10px}.kyd-chat-bubble{padding:9px 11px;font-size:12px}.kyd-chat-composer{gap:7px;padding:10px}#calendarPanel #chatInput{font-size:16px!important;min-height:42px;padding:10px 11px!important}#calendarPanel #sendChatBtn{min-height:42px;padding:0 12px!important}.kyd-chat-context{padding:9px 14px}.kyd-chat-context-note{font-size:9px}}
+</style>
 
 </body>
 
