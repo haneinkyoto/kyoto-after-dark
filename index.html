@@ -8231,6 +8231,10 @@ await refreshDirectMessageBadge();
 
   await loadDateStayUsers();
 
+  await subscribeDateChatRealtime();
+  await subscribeDirectInboxRealtime();
+  if (activeDirectConversationId) await subscribeDirectThreadRealtime();
+
 }
 
 // 프로필 입력 영역 열기 / 닫기
@@ -9146,8 +9150,7 @@ async function renderCalendar() {
     button.addEventListener('click', async () => {
 
       selectedDate = date;
-
- 
+      await subscribeDateChatRealtime();
 
       if (pendingDates.has(date)) {
 
@@ -9680,6 +9683,98 @@ document.getElementById('removeStayBtn').addEventListener('click', async () => {
 /* 날짜별 채팅 */
 
  
+
+/* Supabase Realtime: 날짜별 단체 채팅 + 개인 메시지 */
+let kydDateChatRealtimeChannel = null;
+let kydDirectThreadRealtimeChannel = null;
+let kydDirectInboxRealtimeChannel = null;
+let kydDateChatRefreshTimer = null;
+let kydDirectThreadRefreshTimer = null;
+let kydDirectInboxRefreshTimer = null;
+
+async function kydReplaceRealtimeChannel(current, nextName, configure) {
+  if (current) {
+    try { await communityClient.removeChannel(current); }
+    catch (error) { console.warn('Realtime 구독 정리 실패:', error); }
+  }
+  const channel = communityClient.channel(nextName);
+  configure(channel);
+  channel.subscribe(status => {
+    if (status === 'CHANNEL_ERROR' || status === 'TIMED_OUT') {
+      console.warn(`Realtime 연결 상태(${nextName}):`, status);
+    }
+  });
+  return channel;
+}
+
+async function subscribeDateChatRealtime() {
+  const date = selectedDate;
+  if (!date) return;
+  kydDateChatRealtimeChannel = await kydReplaceRealtimeChannel(
+    kydDateChatRealtimeChannel,
+    `kyd-date-chat-${date}`,
+    channel => channel.on('postgres_changes', {
+      event: 'INSERT', schema: 'public', table: 'kyoto_chat_messages',
+      filter: `stay_date=eq.${date}`
+    }, payload => {
+      if (selectedDate !== date || !payload?.new?.id) return;
+      clearTimeout(kydDateChatRefreshTimer);
+      kydDateChatRefreshTimer = setTimeout(() => {
+        if (selectedDate === date) loadChatMessages();
+      }, 120);
+    })
+  );
+}
+
+async function subscribeDirectThreadRealtime() {
+  const conversationId = activeDirectConversationId;
+  if (!conversationId) {
+    if (kydDirectThreadRealtimeChannel) {
+      await communityClient.removeChannel(kydDirectThreadRealtimeChannel);
+      kydDirectThreadRealtimeChannel = null;
+    }
+    return;
+  }
+  kydDirectThreadRealtimeChannel = await kydReplaceRealtimeChannel(
+    kydDirectThreadRealtimeChannel,
+    `kyd-direct-thread-${conversationId}`,
+    channel => channel.on('postgres_changes', {
+      event: 'INSERT', schema: 'public', table: 'kyoto_direct_messages',
+      filter: `conversation_id=eq.${conversationId}`
+    }, payload => {
+      if (activeDirectConversationId !== conversationId || !payload?.new?.id) return;
+      clearTimeout(kydDirectThreadRefreshTimer);
+      kydDirectThreadRefreshTimer = setTimeout(() => {
+        if (activeDirectConversationId === conversationId) loadDirectMessages();
+      }, 120);
+    })
+  );
+}
+
+async function subscribeDirectInboxRealtime() {
+  if (!communityUser?.id) {
+    if (kydDirectInboxRealtimeChannel) {
+      await communityClient.removeChannel(kydDirectInboxRealtimeChannel);
+      kydDirectInboxRealtimeChannel = null;
+    }
+    return;
+  }
+  if (kydDirectInboxRealtimeChannel) return;
+  kydDirectInboxRealtimeChannel = await kydReplaceRealtimeChannel(
+    kydDirectInboxRealtimeChannel,
+    `kyd-direct-inbox-${communityUser.id}`,
+    channel => channel.on('postgres_changes', {
+      event: 'INSERT', schema: 'public', table: 'kyoto_direct_messages'
+    }, payload => {
+      if (!payload?.new?.id) return;
+      clearTimeout(kydDirectInboxRefreshTimer);
+      kydDirectInboxRefreshTimer = setTimeout(() => {
+        loadDirectInbox();
+        refreshDirectMessageBadge();
+      }, 180);
+    })
+  );
+}
 
 async function loadChatMessages() {
   const heading = document.getElementById('chatHeading');
@@ -10591,6 +10686,7 @@ async function openDirectConversation(otherUserId, otherName) {
  
 
   activeDirectConversationId = conversation.id;
+  await subscribeDirectThreadRealtime();
 
   markDirectMessagesSeen();
 
@@ -11108,11 +11204,12 @@ document.getElementById('directMessageInput')?.addEventListener('keydown', event
 
 });
 
-document.getElementById('directBackBtn')?.addEventListener('click', () => {
+document.getElementById('directBackBtn')?.addEventListener('click', async () => {
 
   document.getElementById('directThread').style.display = 'none';
 
   activeDirectConversationId = null;
+  await subscribeDirectThreadRealtime();
 
   activeDirectOtherUserId = null;
 
