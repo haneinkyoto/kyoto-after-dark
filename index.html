@@ -4082,6 +4082,42 @@ html[lang="ja"] .sidebar .search{text-align:left;text-align-last:left}
 @media(max-width:480px){#kydRatingGuideBackdrop{padding:12px}#kydRatingGuide{padding:23px 19px;max-height:90vh}#kydRatingGuide .kyd-guide-row{grid-template-columns:78px 1fr;gap:8px}#kydRatingGuide .kyd-guide-stars{font-size:15px;letter-spacing:1px}}
 </style>
 
+<style id="owner-message-styles">
+
+/* Owner contact form + private inbox */
+#ownerMessageSection{margin:24px 0 30px;padding:22px;border:1px solid #e5ddcf;background:linear-gradient(145deg,#fffdf8,#f7f3eb);box-shadow:0 8px 24px rgba(49,40,27,.035)}
+#ownerMessageSection .owner-message-heading{margin-bottom:18px}
+#ownerMessageSection .owner-message-kicker{display:block;margin-bottom:8px;color:#98745d;font:600 9px/1.4 'Noto Sans KR','Noto Sans JP',sans-serif;letter-spacing:.2em}
+#ownerMessageSection h3{margin:0 0 7px;color:#332e26;font:500 19px/1.4 'Noto Serif KR','Noto Serif JP',serif}
+#ownerMessageSection p{color:#81776a;font-size:12px;line-height:1.8}
+#ownerMessageForm label{display:block;margin:13px 0 6px;color:#65594b;font-size:12px}
+#ownerMessageForm input:not([type=checkbox]),#ownerMessageForm select,#ownerMessageForm textarea{display:block;width:100%;box-sizing:border-box;padding:11px 12px;border:1px solid #ded5c7;border-radius:2px;background:#fffefa;color:#39342d;font:inherit;font-size:13px;outline:none}
+#ownerMessageForm textarea{resize:vertical;min-height:120px;line-height:1.7}
+#ownerMessageForm input:focus,#ownerMessageForm select:focus,#ownerMessageForm textarea:focus{border-color:#a47b61;box-shadow:0 0 0 2px rgba(164,123,97,.12)}
+.owner-message-form-bottom{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-top:14px}
+#ownerMessageLimit{color:#958a7b;font-size:10px}
+#ownerMessageSubmit,#ownerInboxRefresh{border:1px solid #5b4a3b;background:#5b4a3b;color:#fff;padding:10px 16px;border-radius:2px;font-size:12px;cursor:pointer}
+#ownerMessageSubmit:disabled{opacity:.55;cursor:wait}
+.owner-message-login-notice{padding:16px;border:1px solid #e5ddcf;background:#faf7f0}
+.owner-message-login-notice p{margin:0 0 12px}
+.owner-message-login-notice button{border:1px solid #5b4a3b;background:#5b4a3b;color:#fff;padding:10px 16px;border-radius:2px;font-size:12px;cursor:pointer}
+#ownerMessageStatus,#ownerInboxStatus{min-height:1em;margin:10px 0 0;font-size:12px}
+.owner-message-honeypot{position:absolute!important;left:-10000px!important;top:auto!important;width:1px!important;height:1px!important;overflow:hidden!important}
+#ownerInbox{margin-top:28px;padding-top:22px;border-top:1px solid #ded5c7}
+.owner-inbox-title-row{display:flex;align-items:center;justify-content:space-between;gap:12px}
+.owner-inbox-title-row h3{margin-bottom:0!important}
+#ownerInboxRefresh{padding:8px 12px;background:transparent;color:#5b4a3b}
+.owner-message-item{margin:12px 0;padding:15px;border:1px solid #e4dbcf;background:#fffefa}
+.owner-message-item.is-unread{border-left:3px solid #a36e54}
+.owner-message-item-top{display:flex;align-items:flex-start;justify-content:space-between;gap:10px;flex-wrap:wrap}
+.owner-message-item h4{margin:0;color:#39342d;font-size:14px;font-weight:600}
+.owner-message-meta{margin:6px 0 10px;color:#958a7b;font-size:10px}
+.owner-message-content{margin:0;color:#51493f;font-size:13px;line-height:1.8;white-space:pre-wrap;overflow-wrap:anywhere}
+.owner-message-state{display:inline-block;padding:3px 7px;border:1px solid #ded5c7;color:#887966;font-size:10px}
+.owner-message-item button{margin-top:12px;padding:7px 10px;border:1px solid #cfc2b1;background:transparent;color:#5b4a3b;font-size:11px;cursor:pointer}
+@media(max-width:600px){#ownerMessageSection{padding:16px;margin:20px 0}.owner-message-form-bottom{align-items:stretch}.owner-message-form-bottom button{width:100%}.owner-inbox-title-row{align-items:flex-start}}
+
+</style>
 </head>
 
 <body>
@@ -4501,8 +4537,55 @@ html[lang="ja"] .sidebar .search{text-align:left;text-align-last:left}
 
 </div>
 
- 
+<section id="ownerMessageSection" aria-labelledby="ownerMessageHeading">
+  <div class="owner-message-heading">
+    <span class="owner-message-kicker">A NOTE TO THE EDITOR</span>
+    <h3 id="ownerMessageHeading">✉ 주인장에게 메세지</h3>
+    <p id="ownerMessageIntro">사이트에 대한 건의나 오류 제보, 가게 추천부터 가벼운 인사까지 편하게 남겨 주세요.</p>
+  </div>
+  <div id="ownerMessageLoginNotice" class="owner-message-login-notice" hidden>
+    <p id="ownerMessageLoginText">메세지를 보내려면 커뮤니티 로그인이 필요해요.</p>
+    <button type="button" id="ownerMessageLoginButton">로그인하기</button>
+  </div>
+  <form id="ownerMessageForm" novalidate hidden>
+    <label for="ownerMessageCategory" id="ownerMessageCategoryLabel">메세지 종류</label>
+    <select id="ownerMessageCategory" required>
+      <option value="suggestion">건의 사항</option>
+      <option value="bug">오류 제보</option>
+      <option value="place">가게 추천</option>
+      <option value="hello">응원 및 잡담</option>
+      <option value="other">기타</option>
+    </select>
+    <label for="ownerMessageSubject" id="ownerMessageSubjectLabel">제목</label>
+    <input id="ownerMessageSubject" type="text" maxlength="80" required placeholder="어떤 내용인가요?">
+    <label for="ownerMessageSender" id="ownerMessageSenderLabel">닉네임 (선택)</label>
+    <input id="ownerMessageSender" type="text" maxlength="30" autocomplete="nickname" placeholder="익명으로 보내도 괜찮아요">
+    <label for="ownerMessageBody" id="ownerMessageBodyLabel">메세지</label>
+    <textarea id="ownerMessageBody" rows="5" maxlength="2000" required placeholder="하고 싶은 이야기를 자유롭게 적어 주세요."></textarea>
+    <div class="owner-message-honeypot" aria-hidden="true">
+      <label for="ownerMessageWebsite">Website</label>
+      <input id="ownerMessageWebsite" type="text" tabindex="-1" autocomplete="off">
+    </div>
+    <div class="owner-message-form-bottom">
+      <span id="ownerMessageLimit">로그인한 회원만 메세지를 보낼 수 있어요 · 최대 2,000자</span>
+      <button type="submit" id="ownerMessageSubmit">메세지 보내기 ↗</button>
+    </div>
+    <p id="ownerMessageStatus" role="status" aria-live="polite"></p>
+  </form>
 
+  <section id="ownerInbox" hidden aria-labelledby="ownerInboxHeading">
+    <div class="owner-inbox-title-row">
+      <div>
+        <span class="owner-message-kicker">PRIVATE INBOX</span>
+        <h3 id="ownerInboxHeading">받은 메세지</h3>
+      </div>
+      <button type="button" id="ownerInboxRefresh">새로고침</button>
+    </div>
+    <p id="ownerInboxStatus" role="status" aria-live="polite"></p>
+    <div id="ownerInboxList" aria-live="polite"></div>
+  </section>
+</section>
+ 
 <div class="stay-calendar-heading" style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin:16px 0;">
 
     <button type="button" id="prevMonthBtn">← 이전 달</button>
@@ -11474,6 +11557,98 @@ localStorage.setItem(
 })();
 </script>
 
+<script id="kyd-owner-message-system">
+(function(){
+  const OWNER_EMAIL='anylaj@naver.com';
+  const $=id=>document.getElementById(id);
+  const form=$('ownerMessageForm');
+  const inbox=$('ownerInbox');
+  const loginNotice=$('ownerMessageLoginNotice');
+  if(!form||!inbox||!loginNotice||typeof supabaseClient==='undefined'||typeof communityClient==='undefined')return;
+  const copy={
+    ko:{intro:'사이트에 대한 건의나 오류 제보, 가게 추천부터 가벼운 인사까지 편하게 남겨 주세요.',category:'메세지 종류',subject:'제목',sender:'닉네임 (선택)',body:'메세지',subjectPh:'어떤 내용인가요?',senderPh:'닉네임을 입력해 주세요',bodyPh:'하고 싶은 이야기를 자유롭게 적어 주세요.',limit:'로그인한 회원만 메세지를 보낼 수 있어요 · 최대 2,000자',loginText:'메세지를 보내려면 커뮤니티 로그인이 필요해요.',loginButton:'로그인하기',send:'메세지 보내기 ↗',sending:'보내는 중…',sent:'메세지가 전달됐어요. 고마워요!',empty:'제목과 메세지를 입력해 주세요.',failed:'전송하지 못했어요. 잠시 후 다시 시도해 주세요.',inbox:'받은 메세지',refresh:'새로고침',loading:'메세지를 불러오는 중…',none:'아직 도착한 메세지가 없어요.',loadFail:'수신함을 불러오지 못했어요. 관리자 계정과 데이터베이스 설정을 확인해 주세요.',read:'확인 완료',unread:'미확인',markRead:'확인 처리',markUnread:'미확인으로 변경',updateFail:'상태를 변경하지 못했어요.',categoryNames:{suggestion:'건의 사항',bug:'오류 제보',place:'가게 추천',hello:'응원 및 잡담',other:'기타'}},
+    ja:{intro:'サイトへのご提案、不具合の報告、お店のおすすめ、ちょっとしたメッセージまでお気軽にどうぞ。',category:'メッセージの種類',subject:'件名',sender:'ニックネーム（任意）',body:'メッセージ',subjectPh:'どんな内容ですか？',senderPh:'ニックネームを入力してください',bodyPh:'伝えたいことを自由に書いてください。',limit:'ログイン済みの会員のみ送信できます · 最大2,000文字',loginText:'メッセージを送るにはコミュニティへのログインが必要です。',loginButton:'ログインする',send:'メッセージを送る ↗',sending:'送信中…',sent:'メッセージを受け取りました。ありがとうございます！',empty:'件名とメッセージを入力してください。',failed:'送信できませんでした。しばらくしてから再度お試しください。',inbox:'受信メッセージ',refresh:'更新',loading:'メッセージを読み込み中…',none:'まだメッセージはありません。',loadFail:'受信箱を読み込めません。管理者アカウントとデータベース設定をご確認ください。',read:'確認済み',unread:'未確認',markRead:'確認済みにする',markUnread:'未確認に戻す',updateFail:'状態を変更できませんでした。',categoryNames:{suggestion:'ご提案',bug:'不具合の報告',place:'お店のおすすめ',hello:'応援・雑談',other:'その他'}}
+  };
+  const isJa=()=>document.documentElement.lang==='ja';
+  const t=()=>isJa()?copy.ja:copy.ko;
+  const categorySelect=$('ownerMessageCategory');
+  let cachedMessages=[];
+  function renderInboxCache(){
+    const list=$('ownerInboxList');if(!list)return;list.replaceChildren();
+    if(!cachedMessages.length){$('ownerInboxStatus').textContent=t().none;return;}
+    $('ownerInboxStatus').textContent='';
+    cachedMessages.forEach(row=>{
+      const article=document.createElement('article');article.className='owner-message-item'+(row.is_read?'':' is-unread');
+      const top=document.createElement('div');top.className='owner-message-item-top';
+      const title=document.createElement('h4');title.textContent=row.subject;
+      const state=document.createElement('span');state.className='owner-message-state';state.textContent=row.is_read?t().read:t().unread;top.append(title,state);article.append(top);
+      const meta=document.createElement('p');meta.className='owner-message-meta';
+      const dt=row.created_at?new Date(row.created_at).toLocaleString(isJa()?'ja-JP':'ko-KR'):'—';
+      meta.textContent=[t().categoryNames[row.category]||row.category,row.sender_name||'회원',dt].join(' · ');article.append(meta);
+      const body=document.createElement('p');body.className='owner-message-content';body.textContent=row.message;article.append(body);
+      const action=document.createElement('button');action.type='button';action.textContent=row.is_read?t().markUnread:t().markRead;
+      action.addEventListener('click',()=>toggleRead(row.id,!row.is_read));article.append(action);list.append(article);
+    });
+  }
+  function applyLanguage(){
+    const x=t();$('ownerMessageIntro').textContent=x.intro;$('ownerMessageCategoryLabel').textContent=x.category;
+    $('ownerMessageSubjectLabel').textContent=x.subject;$('ownerMessageSenderLabel').textContent=x.sender;$('ownerMessageBodyLabel').textContent=x.body;
+    $('ownerMessageSubject').placeholder=x.subjectPh;$('ownerMessageSender').placeholder=x.senderPh;$('ownerMessageBody').placeholder=x.bodyPh;
+    $('ownerMessageLimit').textContent=x.limit;$('ownerMessageLoginText').textContent=x.loginText;$('ownerMessageLoginButton').textContent=x.loginButton;
+    $('ownerMessageSubmit').textContent=x.send;$('ownerInboxHeading').textContent=x.inbox;$('ownerInboxRefresh').textContent=x.refresh;
+    const values=['suggestion','bug','place','hello','other'];[...categorySelect.options].forEach((o,i)=>{o.textContent=x.categoryNames[values[i]];});
+    if(inbox.dataset.ownerAuthorized==='true')renderInboxCache();
+  }
+  async function loadInbox(){
+    $('ownerInboxStatus').textContent=t().loading;
+    const {data,error}=await supabaseClient.from('kyoto_owner_messages').select('id,category,subject,message,sender_name,is_read,created_at').order('created_at',{ascending:false}).limit(100);
+    if(error){console.error('Owner inbox load failed:',error);$('ownerInboxStatus').textContent=t().loadFail;return;}
+    cachedMessages=data||[];renderInboxCache();
+  }
+  async function toggleRead(id,next){
+    const {error}=await supabaseClient.from('kyoto_owner_messages').update({is_read:next}).eq('id',id);
+    if(error){console.error('Owner inbox update failed:',error);$('ownerInboxStatus').textContent=t().updateFail;return;}
+    const row=cachedMessages.find(x=>x.id===id);if(row)row.is_read=next;renderInboxCache();
+  }
+  async function updateOwnerAccess(){
+    const {data,error}=await supabaseClient.auth.getSession();const email=data?.session?.user?.email||'';
+    const allowed=!error&&email.toLowerCase()===OWNER_EMAIL;inbox.hidden=!allowed;inbox.dataset.ownerAuthorized=allowed?'true':'false';
+    if(allowed)await loadInbox();else{cachedMessages=[];$('ownerInboxList').replaceChildren();$('ownerInboxStatus').textContent='';}
+  }
+  function updateSenderAccess(){
+    const loggedIn=Boolean(communityUser);
+    form.hidden=!loggedIn;loginNotice.hidden=loggedIn;
+    if(loggedIn){
+      const nickname=communityUser.user_metadata?.nickname||communityUser.email?.split('@')[0]||'';
+      if(!$('ownerMessageSender').value)$('ownerMessageSender').value=nickname;
+    } else {form.reset();$('ownerMessageStatus').textContent='';}
+  }
+  $('ownerMessageLoginButton').addEventListener('click',()=>{
+    const loginButton=$('showLoginBtn');if(loginButton)loginButton.click();
+    $('communityAuthArea')?.scrollIntoView({behavior:'smooth',block:'center'});
+  });
+  form.addEventListener('submit',async e=>{
+    e.preventDefault();const x=t();
+    if(!communityUser){updateSenderAccess();return;}
+    const subject=$('ownerMessageSubject').value.trim();const message=$('ownerMessageBody').value.trim();
+    const sender=$('ownerMessageSender').value.trim();
+    if($('ownerMessageWebsite').value.trim()){form.reset();$('ownerMessageStatus').textContent=x.sent;return;}
+    if(!subject||!message){$('ownerMessageStatus').textContent=x.empty;return;}
+    const btn=$('ownerMessageSubmit');btn.disabled=true;btn.textContent=x.sending;$('ownerMessageStatus').textContent='';
+    const payload={category:categorySelect.value,subject,message,sender_name:sender||communityUser.user_metadata?.nickname||communityUser.email?.split('@')[0]||'회원',sender_user_id:communityUser.id,website:''};
+    const {error}=await communityClient.from('kyoto_owner_messages').insert(payload);
+    btn.disabled=false;btn.textContent=t().send;
+    if(error){console.error('Owner message send failed:',error);$('ownerMessageStatus').textContent=t().failed;return;}
+    form.reset();$('ownerMessageSender').value=communityUser.user_metadata?.nickname||communityUser.email?.split('@')[0]||'';$('ownerMessageStatus').textContent=t().sent;
+  });
+  $('ownerInboxRefresh').addEventListener('click',loadInbox);
+  supabaseClient.auth.onAuthStateChange(()=>{setTimeout(updateOwnerAccess,0);});
+  communityClient.auth.onAuthStateChange(()=>{setTimeout(updateSenderAccess,0);});
+  document.addEventListener('kyd:languagechange',applyLanguage);
+  applyLanguage();updateOwnerAccess();updateSenderAccess();
+})();
+</script>
+
 <script id="kyoto-five-tab-controller">
 (function(){
   const bar=document.getElementById('kyotoTabBar');
@@ -11481,7 +11656,7 @@ localStorage.setItem(
   if(!bar||!panel)return;
   panel.classList.add('kyd-tab-panel');
   const mapParts=[document.querySelector('.sidebar'),document.querySelector('.map-wrap')];
-  const selectors=['.stay-hero','.stay-auth-card','#profileSection','#kydMyIntro','#kydMeetupIntro','.stay-calendar-heading','.stay-weekdays','#calendarGrid','#selectedDateLabel','#stayCountLabel','.stay-date-card','.stay-chat-card','.stay-meetup-card'];
+  const selectors=['.stay-hero','.stay-auth-card','#profileSection','#ownerMessageSection','#kydMyIntro','#kydMeetupIntro','.stay-calendar-heading','.stay-weekdays','#calendarGrid','#selectedDateLabel','#stayCountLabel','.stay-date-card','.stay-chat-card','.stay-meetup-card'];
   const parts=Object.fromEntries(selectors.map(s=>[s,panel.querySelector(s)]));
   let activeTab='map';
   function closeFloatingPanels(){
@@ -11529,6 +11704,7 @@ localStorage.setItem(
       showPart('.stay-hero',tab==='stay');
       showPart('.stay-auth-card',tab!=='chat');
       showPart('#profileSection',tab==='my');
+      showPart('#ownerMessageSection',tab==='my');
       showPart('#kydMyIntro',tab==='my');
       showPart('#kydMeetupIntro',tab==='meetup');
       showPart('.stay-calendar-heading',tab==='stay');
