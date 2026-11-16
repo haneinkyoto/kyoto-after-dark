@@ -10600,7 +10600,10 @@ async function openDirectConversation(otherUserId, otherName) {
 
  
 
-  // 지도 마커나 프로필에서 메시지를 눌러도 패널이 자동으로 열리게 해요.
+  // 개인 메시지는 플로팅 팝업으로 띄우지 않고 하단 채팅 탭의 전체 화면에서만 연다.
+  if (typeof window.kyotoAfterDarkSetTab === 'function') {
+    window.kyotoAfterDarkSetTab('chat');
+  }
 
   const drawer = document.getElementById('directChatPanel');
 
@@ -12377,6 +12380,25 @@ img{max-width:100%}
 }
 @media(max-height:700px){body.kyd-tab-chat #directChatPanel .dm-header{min-height:58px!important;padding:7px 12px!important}body.kyd-tab-chat #directChatPanel .dm-drawer-content{padding-top:8px!important}}
 @media(prefers-reduced-motion:reduce){html{scroll-behavior:auto!important}*,*::before,*::after{animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important;scroll-behavior:auto!important}}
+
+
+
+/* Final navigation preference: keep profile/stay/friends access in the bottom tabs, not the header.
+   Keep the legacy trigger in the DOM (hidden) so existing internal links and handlers remain compatible. */
+header #calendarToggleBtn{display:none!important}
+
+/* Direct messages must never appear as a floating drawer over another tab.
+   The drawer is shown only as the full chat workspace when the Chat tab is active. */
+body:not(.kyd-tab-chat) #directChatPanel,
+body:not(.kyd-tab-chat) #directChatPanel.is-open{
+  display:none!important;visibility:hidden!important;opacity:0!important;pointer-events:none!important;
+  transform:translateX(105%)!important;
+}
+body.kyd-tab-chat #directChatPanel,
+body.kyd-tab-chat #directChatPanel.is-open{
+  display:flex!important;visibility:visible!important;opacity:1!important;pointer-events:auto!important;
+  transform:none!important;
+}
 
 </style>
 <script id="kyd-quality-pass-behaviors">
