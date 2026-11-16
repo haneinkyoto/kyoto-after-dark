@@ -4312,6 +4312,51 @@ body.kyd-intro-active>header,body.kyd-intro-active>main,body.kyd-intro-active>#k
 </style>
 
 
+<style id="kyd-character-board-and-global-profiles">
+.kyd-character-board{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:18px!important;align-items:start}
+#calendarPanel #meetupList>.kyd-board-post{position:relative;display:flex;flex-direction:column;align-items:center;min-width:0;min-height:245px;padding:15px 12px 14px!important;margin:0!important;border:1px solid #e8dfd0!important;border-left:1px solid #e8dfd0!important;border-radius:18px!important;background:linear-gradient(155deg,#fffdf8,#f3eee3)!important;box-shadow:0 5px 16px rgba(74,57,37,.06);overflow:visible!important}
+.kyd-board-bubble{position:relative;align-self:stretch;min-height:54px;padding:11px 13px!important;border:1px solid #e7d9c8!important;border-radius:15px 15px 15px 4px!important;background:#fffefa!important;color:#51463b!important;font-size:12px!important;line-height:1.55!important;text-align:left;box-shadow:0 3px 8px rgba(60,45,30,.05);cursor:pointer}
+.kyd-board-character{position:relative;width:112px;height:126px;margin:4px auto 0;padding:2px!important;border:0!important;background:transparent!important;cursor:pointer;display:flex;flex-direction:column;align-items:center;justify-content:center}
+.kyd-board-character svg{width:100px;height:116px;overflow:visible;transition:transform .2s ease}
+.kyd-board-character:hover svg{transform:translateY(-3px) rotate(-2deg)}
+.kyd-character-hint{font-size:9px;color:#8b7967;letter-spacing:.05em}
+.kyd-board-meta{display:flex;flex-direction:column;align-items:center;gap:3px;margin-top:3px;text-align:center}
+.kyd-board-author,.kyd-profile-name{border:0!important;padding:0!important;background:transparent!important;color:#80513f!important;font-size:12px!important;font-weight:600!important;line-height:1.5!important;text-decoration:underline;text-decoration-color:rgba(128,81,63,.25);text-underline-offset:3px;cursor:pointer}
+.kyd-board-meta>span:last-child{font-size:10px;color:#928779}
+.kyd-board-detail{width:100%;margin-top:13px;padding-top:13px;border-top:1px solid #e7ddce;text-align:left}
+.kyd-board-detail[hidden]{display:none!important}
+.kyd-board-detail h4{margin:0 0 8px!important;font-size:16px!important}
+.kyd-board-description{white-space:pre-wrap;font-size:13px;line-height:1.75;color:#4d473f}
+.kyd-board-owner-actions{display:flex;gap:7px;margin:10px 0}
+.kyd-board-owner-actions button{padding:6px 10px!important;font-size:11px!important}
+.kyd-board-comments{margin-top:12px!important;padding-top:10px;border-top:1px dashed #e3d8c9}
+.kyd-profile-modal{position:fixed;inset:0;z-index:100500;display:none;align-items:center;justify-content:center;padding:18px;box-sizing:border-box}
+.kyd-profile-modal.is-open{display:flex}
+.kyd-profile-backdrop{position:absolute;inset:0;background:rgba(31,27,22,.48);backdrop-filter:blur(3px)}
+.kyd-profile-dialog{position:relative;width:min(420px,100%);max-height:min(80vh,680px);overflow:auto;padding:25px 22px 22px;border:1px solid #e6ddcf;border-radius:18px;background:#fbf8f1;color:#342f28;box-shadow:0 20px 70px rgba(0,0,0,.22)}
+.kyd-profile-close{position:absolute;right:12px;top:10px;width:34px;height:34px;border:0;border-radius:50%;background:#eee8dc;color:#66584a;font-size:23px;cursor:pointer}
+.kyd-profile-loading,.kyd-profile-private{text-align:center;padding:24px 8px;color:#786e61}
+.kyd-profile-public{display:flex;align-items:center;gap:16px;padding:12px 0 18px}
+.kyd-profile-avatar{width:116px;height:126px;flex:0 0 116px;display:flex;align-items:center;justify-content:center;border-radius:16px;background:#f0e8d9}
+.kyd-profile-avatar svg{width:105px;height:120px}
+.kyd-profile-kicker{font-size:9px;letter-spacing:.14em;color:#a17e63}
+.kyd-profile-main h3,.kyd-profile-private h3{margin:5px 0;font:500 23px Georgia,serif;color:#4a3d32}
+.kyd-profile-meta{margin:0;font-size:11px;color:#817668}
+.kyd-profile-bio{padding:15px 0;border-top:1px solid #e7dfd2;border-bottom:1px solid #e7dfd2;font-size:13px;line-height:1.8;white-space:normal}
+.kyd-profile-tags{display:flex;flex-wrap:wrap;gap:7px;margin:15px 0 18px}
+.kyd-profile-tags span{padding:6px 9px;border-radius:999px;background:#eee7da;color:#685747;font-size:10px}
+.kyd-profile-action{width:100%;min-height:44px;border:1px solid #755342;border-radius:10px;background:#755342;color:#fffaf2;font-size:12px;font-weight:700;cursor:pointer}
+.kyd-profile-private .kyd-profile-avatar{margin:0 auto 14px}
+.kyd-profile-private p{font-size:12px}
+.kyd-profile-private .kyd-profile-action{margin-top:12px}
+.kyd-chat-sender.kyd-profile-name{font-size:11px!important}
+.kyd-profile-note{margin:-4px 0 10px;color:#8b8175;font-size:10px;line-height:1.6}
+.kyd-body-fields{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.kyd-body-fields>div{min-width:0}
+.kyd-body-fields label{display:block;margin:13px 0 5px;color:#62594e;font-size:11px;font-weight:600}
+.kyd-body-fields input{width:100%;box-sizing:border-box}
+@media(max-width:480px){.kyd-character-board{grid-template-columns:repeat(2,minmax(0,1fr));gap:10px!important}.kyd-board-post{padding:11px 9px!important;min-height:225px}.kyd-profile-dialog{padding:22px 17px 18px}.kyd-profile-avatar{width:98px;flex-basis:98px}.kyd-profile-public{gap:12px}}
+</style>
 </head>
 
 <body>
@@ -4586,9 +4631,13 @@ body.kyd-intro-active>header,body.kyd-intro-active>main,body.kyd-intro-active>#k
 
     </select>
 
-    
+    <div class="kyd-body-fields">
+      <div><label for="profileHeight">키 (cm) · 선택</label><input id="profileHeight" type="number" min="120" max="220" placeholder="예: 175"></div>
+      <div><label for="profileWeight">몸무게 (kg) · 선택</label><input id="profileWeight" type="number" min="30" max="180" placeholder="예: 65"></div>
+    </div>
+    <p class="kyd-profile-note">키와 몸무게는 캐릭터 체형을 만드는 데만 사용하며, 프로필 팝업에는 숫자로 공개하지 않아요.</p>
 
-<label for="profileMbti">MBTI</label>
+    <label for="profileMbti">MBTI</label>
 
 <select id="profileMbti" style="display:block;width:100%;margin:6px 0 12px;">
 
@@ -8800,6 +8849,8 @@ async function loadMyProfile() {
   document.getElementById('profileAge').value = data.age ?? '';
 
   document.getElementById('profileGender').value = data.gender || '';
+  document.getElementById('profileHeight').value = data.height_cm ?? '';
+  document.getElementById('profileWeight').value = data.weight_kg ?? '';
 
   document.getElementById('profileMbti').value = data.mbti || '';
 
@@ -8913,6 +8964,17 @@ document.getElementById('profileSaveBtn')?.addEventListener('click', async () =>
 
  
 
+  const heightValue = document.getElementById('profileHeight').value;
+  const weightValue = document.getElementById('profileWeight').value;
+  if (heightValue && (Number(heightValue) < 120 || Number(heightValue) > 220)) {
+    status.textContent = '키는 120~220cm 범위로 입력해 주세요.';
+    return;
+  }
+  if (weightValue && (Number(weightValue) < 30 || Number(weightValue) > 180)) {
+    status.textContent = '몸무게는 30~180kg 범위로 입력해 주세요.';
+    return;
+  }
+
   if (stayStart && stayEnd && stayEnd < stayStart) {
 
     status.textContent = '체류 종료일은 시작일 이후로 선택해 주세요.';
@@ -8940,6 +9002,8 @@ const profile = {
   age,
 
   gender: document.getElementById('profileGender').value || null,
+  height_cm: document.getElementById('profileHeight').value ? Number(document.getElementById('profileHeight').value) : null,
+  weight_kg: document.getElementById('profileWeight').value ? Number(document.getElementById('profileWeight').value) : null,
    bio: document.getElementById('profileBio').value.trim(),
 
   mbti: document.getElementById('profileMbti').value || null,
@@ -9090,6 +9154,7 @@ if (locationPublic) {
 
  
 
+  kydProfileCache.delete(communityUser.id);
   status.textContent = '프로필과 공개 위치 설정을 저장했어요!';
 
 });
@@ -9769,6 +9834,109 @@ document.getElementById('removeStayBtn').addEventListener('click', async () => {
 
  
 
+// ===== 공통 사용자 프로필 팝업 / 닉네임 링크 =====
+const kydProfileCache = new Map();
+function kydSafeText(value, fallback='') { return String(value ?? fallback); }
+function kydProfileNameButton(userId, nickname, className='kyd-profile-name') {
+  const button = document.createElement('button');
+  button.type = 'button';
+  button.className = className;
+  button.textContent = nickname || '교토 사용자';
+  button.dataset.kydProfileId = userId || '';
+  button.disabled = !userId;
+  button.setAttribute('aria-label', `${button.textContent} 프로필 보기`);
+  return button;
+}
+function kydDrinkIcon(value) {
+  const v = String(value || '').toLowerCase();
+  if (/맥주|beer/.test(v)) return '🍺';
+  if (/하이볼|위스키|whisky|whiskey/.test(v)) return '🥃';
+  if (/사케|日本酒|니혼슈/.test(v)) return '🍶';
+  if (/와인|wine/.test(v)) return '🍷';
+  if (/칵테일|cocktail/.test(v)) return '🍸';
+  if (/소주|焼酎/.test(v)) return '🍶';
+  return '🍹';
+}
+function kydAvatarMarkup(profile) {
+  const gender = profile?.gender || '';
+  const h = Number(profile?.height_cm || 170);
+  const w = Number(profile?.weight_kg || 65);
+  const bmi = h > 0 ? w / ((h/100) ** 2) : 22;
+  const body = bmi < 18.5 ? 25 : bmi < 23 ? 31 : bmi < 27.5 ? 38 : 44;
+  const torso = gender === '여성' ? `M50 48 C${50-body/2} 48 ${50-body/2-2} 59 ${50-body/2+1} 72 L${50-body/2-3} 91 Q50 98 ${50+body/2+3} 91 L${50+body/2-1} 72 C${50+body/2+2} 59 ${50+body/2} 48 50 48Z` : `M50 48 C${50-body/2} 48 ${50-body/2-2} 59 ${50-body/2+1} 72 L${50-body/2-3} 91 Q50 98 ${50+body/2+3} 91 L${50+body/2-1} 72 C${50+body/2+2} 59 ${50+body/2} 48 50 48Z`;
+  const hair = gender === '여성'
+    ? '<path d="M35 24 Q36 7 50 8 Q66 8 66 26 L64 45 Q60 51 59 38 L41 38 Q40 49 36 45Z" fill="#5b4639"/>'
+    : '<path d="M36 26 Q36 9 50 9 Q65 9 65 26 L62 31 Q50 24 38 31Z" fill="#5b4639"/>';
+  const drink = kydDrinkIcon(profile?.favorite_drinks);
+  return `<svg viewBox="0 0 100 116" role="img" aria-label="술을 든 심플 캐릭터"><circle cx="50" cy="27" r="17" fill="#e7b995"/>${hair}<path d="${torso}" fill="#8b9a83"/><path d="M38 55 Q23 62 19 78" fill="none" stroke="#e7b995" stroke-width="8" stroke-linecap="round"/><path d="M62 56 Q76 50 79 31" fill="none" stroke="#e7b995" stroke-width="8" stroke-linecap="round"/><path d="M44 91 L40 111 M56 91 L60 111" stroke="#4d4941" stroke-width="8" stroke-linecap="round"/><text x="80" y="25" font-size="17" text-anchor="middle">${drink}</text></svg>`;
+}
+function kydEnsureProfileModal() {
+  if (document.getElementById('kydProfileModal')) return;
+  const modal = document.createElement('div');
+  modal.id = 'kydProfileModal';
+  modal.className = 'kyd-profile-modal';
+  modal.setAttribute('aria-hidden','true');
+  modal.innerHTML = `<div class="kyd-profile-backdrop" data-kyd-profile-close></div><section class="kyd-profile-dialog" role="dialog" aria-modal="true" aria-labelledby="kydProfileTitle"><button type="button" class="kyd-profile-close" data-kyd-profile-close aria-label="닫기">×</button><div id="kydProfileContent"></div></section>`;
+  document.body.appendChild(modal);
+  modal.addEventListener('click', e => { if (e.target.closest('[data-kyd-profile-close]')) kydCloseProfileModal(); });
+  document.addEventListener('keydown', e => { if (e.key === 'Escape') kydCloseProfileModal(); });
+}
+function kydCloseProfileModal() {
+  const modal = document.getElementById('kydProfileModal');
+  if (!modal) return;
+  modal.classList.remove('is-open'); modal.setAttribute('aria-hidden','true');
+}
+async function kydOpenProfile(userId, fallbackName='교토 사용자') {
+  if (!userId) return;
+  kydEnsureProfileModal();
+  const modal = document.getElementById('kydProfileModal');
+  const content = document.getElementById('kydProfileContent');
+  modal.classList.add('is-open'); modal.setAttribute('aria-hidden','false');
+  content.innerHTML = '<p class="kyd-profile-loading">프로필을 불러오는 중…</p>';
+  let profile = kydProfileCache.get(userId);
+  if (!profile) {
+    const { data, error } = await communityClient.from('kyoto_profiles')
+      .select('user_id,nickname,age,gender,bio,mbti,drinking_level,favorite_drinks,stay_start,stay_end,is_public,height_cm,weight_kg')
+      .eq('user_id', userId).maybeSingle();
+    if (error) {
+      console.error('프로필 조회 실패:', error);
+      content.innerHTML = '<p class="kyd-profile-loading">프로필을 불러오지 못했어요.</p>';
+      return;
+    }
+    profile = data || { user_id:userId, nickname:fallbackName, is_public:false };
+    kydProfileCache.set(userId, profile);
+  }
+  if (communityUser?.id === userId) {
+    content.innerHTML = `<div class="kyd-profile-private"><div class="kyd-profile-avatar">${kydAvatarMarkup(profile)}</div><h3 id="kydProfileTitle">${communityEscape(profile.nickname || fallbackName)}</h3><p>내 프로필이에요. 프로필 수정은 MY 탭에서 할 수 있어요.</p><button type="button" class="kyd-profile-action" id="kydOwnProfileEdit">내 프로필 수정하기</button></div>`;
+    document.getElementById('kydOwnProfileEdit')?.addEventListener('click', () => {
+      kydCloseProfileModal(); if (typeof window.kyotoAfterDarkSetTab === 'function') window.kyotoAfterDarkSetTab('sub');
+      const wrap=document.getElementById('profileFormWrap'); if(wrap) wrap.style.display='block';
+    });
+    return;
+  }
+  if (!profile.is_public) {
+    content.innerHTML = `<div class="kyd-profile-private"><div class="kyd-profile-avatar">${kydAvatarMarkup({})}</div><h3 id="kydProfileTitle">${communityEscape(profile.nickname || fallbackName)}</h3><p>비공개 프로필입니다.</p></div>`;
+    return;
+  }
+  const drinkTags = String(profile.favorite_drinks || '').split(/[,，、/]/).map(x=>x.trim()).filter(Boolean).slice(0,5);
+  const stay = profile.stay_start || profile.stay_end ? `${profile.stay_start || '?'} ~ ${profile.stay_end || '?'}` : '';
+  content.innerHTML = `<div class="kyd-profile-public"><div class="kyd-profile-avatar">${kydAvatarMarkup(profile)}</div><div class="kyd-profile-main"><span class="kyd-profile-kicker">KYOTO AFTER DARK MEMBER</span><h3 id="kydProfileTitle">${communityEscape(profile.nickname || fallbackName)}</h3><p class="kyd-profile-meta">${[profile.gender, profile.age ? `${profile.age}세` : '', profile.mbti].filter(Boolean).map(communityEscape).join(' · ') || '교토의 밤을 즐기는 사람'}</p></div></div><div class="kyd-profile-bio">${communityEscape(profile.bio || '아직 자기소개가 없어요.').replace(/\n/g,'<br>')}</div><div class="kyd-profile-tags">${profile.drinking_level ? `<span>${communityEscape(profile.drinking_level)}</span>`:''}${drinkTags.map(x=>`<span>${communityEscape(x)}</span>`).join('')}${stay ? `<span>📅 ${communityEscape(stay)}</span>`:''}</div><button type="button" class="kyd-profile-action" id="kydProfileMessageBtn">✉ 개인 메시지 보내기</button>`;
+  document.getElementById('kydProfileMessageBtn')?.addEventListener('click', () => { kydCloseProfileModal(); openDirectConversation(userId, profile.nickname || fallbackName); });
+}
+document.addEventListener('click', event => {
+  const target = event.target.closest('[data-kyd-profile-id]');
+  if (!target || target.disabled) return;
+  event.preventDefault(); event.stopPropagation();
+  kydOpenProfile(target.dataset.kydProfileId, target.textContent.trim());
+});
+document.addEventListener('keydown', event => {
+  const target = event.target.closest('[data-kyd-profile-id][role="button"]');
+  if (target && (event.key === 'Enter' || event.key === ' ')) {
+    event.preventDefault(); event.stopPropagation();
+    kydOpenProfile(target.dataset.kydProfileId, target.textContent.trim());
+  }
+});
+
 async function loadChatMessages() {
   const heading = document.getElementById('chatHeading');
   const box = document.getElementById('chatMessages');
@@ -9845,9 +10013,8 @@ async function loadChatMessages() {
     content.className = 'kyd-chat-message-content';
     const meta = document.createElement('div');
     meta.className = 'kyd-chat-message-meta';
-    const name = document.createElement('span');
-    name.className = 'kyd-chat-sender';
-    name.textContent = mine ? '나' : displayName;
+    const name = mine ? document.createElement('span') : kydProfileNameButton(row.user_id, displayName, 'kyd-chat-sender kyd-profile-name');
+    if (mine) { name.className = 'kyd-chat-sender'; name.textContent = '나'; }
     const bubbleLine = document.createElement('div');
     bubbleLine.className = 'kyd-chat-bubble-line';
     const bubble = document.createElement('div');
@@ -10012,6 +10179,13 @@ async function loadMeetupComments(meetupId, container) {
 
   const commentList = document.createElement('div');
   const comments = data || [];
+  const commentUserIds = [...new Set(comments.map(x => x.user_id).filter(Boolean))];
+  let commentProfiles = {};
+  if (commentUserIds.length) {
+    const { data: profiles } = await communityClient.from('kyoto_profiles')
+      .select('user_id,nickname,is_public').in('user_id', commentUserIds);
+    (profiles || []).forEach(p => { commentProfiles[p.user_id] = p; });
+  }
 
   const commentMap = new Map();
   comments.forEach(comment => {
@@ -10075,10 +10249,13 @@ async function loadMeetupComments(meetupId, container) {
       `padding:10px;margin:8px 0 8px ${Math.min(depth, 4) * 16}px;background:#F8F3E9;border:1px solid #e5dfd2;`;
 
     const author = document.createElement('strong');
-    author.textContent =
-      communityUser && comment.user_id === communityUser.id
-        ? '나'
-        : '교토 방문자';
+    if (communityUser && comment.user_id === communityUser.id) {
+      author.textContent = '나';
+    } else {
+      const authorProfile = commentProfiles[comment.user_id];
+      const authorButton = kydProfileNameButton(comment.user_id, authorProfile?.nickname || '교토 방문자', 'kyd-profile-name');
+      author.appendChild(authorButton);
+    }
 
     const content = document.createElement('p');
     content.textContent = comment.content;
@@ -10247,168 +10424,81 @@ if (communityUser && comment.user_id === communityUser.id) {
   container.append(input, button);
 }
 async function loadMeetups() {
-
   const list = document.getElementById('meetupList');
-
+  if (!list) return;
   list.replaceChildren();
-
- 
-
   const { data, error } = await communityClient
-
     .from('kyoto_meetups')
-
     .select('id,user_id,meetup_date,title,description,area,created_at')
-
     .eq('meetup_date', selectedDate)
+    .order('created_at', { ascending: false }).limit(100);
+  if (error) { list.textContent = '모임 글을 불러오지 못했어요.'; console.error(error); return; }
+  if (!data?.length) { list.textContent = `${selectedDate}에 등록된 모임이 아직 없어요.`; return; }
 
-    .order('created_at', { ascending: false })
-
-    .limit(100);
-
- 
-
-  if (error) {
-
-    list.textContent = '모임 글을 불러오지 못했어요.';
-
-    console.error(error);
-
-    return;
-
+  const userIds = [...new Set(data.map(row => row.user_id).filter(Boolean))];
+  const profilesById = {};
+  if (userIds.length) {
+    const { data: profiles, error: profileError } = await communityClient.from('kyoto_profiles')
+      .select('user_id,nickname,age,gender,bio,mbti,drinking_level,favorite_drinks,is_public,height_cm,weight_kg')
+      .in('user_id', userIds);
+    if (!profileError) (profiles || []).forEach(p => { profilesById[p.user_id] = p; kydProfileCache.set(p.user_id,p); });
   }
-
- 
-
-  if (!data || !data.length) {
-
-    list.textContent = `${selectedDate}에 등록된 모임이 아직 없어요.`;
-
-    return;
-
-  }
-
- 
-
+  list.classList.add('kyd-character-board');
   data.forEach(row => {
-
-    const card = document.createElement('div');
-
-    card.style.cssText = 'border:1px solid #eee;border-radius:10px;padding:12px;margin:10px 0;overflow-wrap:anywhere;';
-
- 
-
-    card.innerHTML =
-
-      `<h4>${communityEscape(row.title)}</h4>` +
-
-      `<p>${communityEscape(row.description)}</p>` +
-
-      `<small>${communityEscape(row.meetup_date)} · ${communityEscape(row.area)}</small>`;
-
- 
-
-if (communityUser && row.user_id === communityUser.id) {
-
-  const editButton = document.createElement('button');
-
-  editButton.type = 'button';
-  editButton.textContent = '글 수정';
-  editButton.style.marginTop = '10px';
-  editButton.style.marginRight = '8px';
-
-  editButton.addEventListener('click', () => {
-    editingMeetupId = row.id;
-
-    document.getElementById('meetupTitle').value = row.title || '';
-    document.getElementById('meetupDate').value = row.meetup_date || '';
-    document.getElementById('meetupArea').value = row.area || '';
-    document.getElementById('meetupDescription').value = row.description || '';
-
-    document.getElementById('createMeetupBtn').textContent = '수정 내용 저장';
-    document.getElementById('cancelMeetupEditBtn').style.display = 'inline-block';
-
-    setCommunityStatus('meetupStatus', '글을 수정하고 있어요. 내용을 변경한 뒤 저장해 주세요.');
-
-    document.getElementById('meetupTitle').scrollIntoView({
-      behavior: 'smooth',
-      block: 'center'
-    });
-  });
-
-  card.appendChild(editButton);
-
-  const deleteButton = document.createElement('button');
-
-      deleteButton.type = 'button';
-
-      deleteButton.textContent = '내 글 삭제';
-
-      deleteButton.style.marginTop = '10px';
-
- 
-
-      deleteButton.addEventListener('click', async () => {
-
-        if (!confirm('이 모임 글을 삭제할까요?')) return;
-
- 
-
-        const { error: deleteError } = await communityClient
-
-          .from('kyoto_meetups')
-
-          .delete()
-
-          .eq('id', row.id)
-
-          .eq('user_id', communityUser.id);
-
- 
-
-        if (deleteError) {
-
-          setCommunityStatus('meetupStatus', '삭제하지 못했어요.');
-
-          console.error(deleteError);
-
-        } else {
-
-          setCommunityStatus('meetupStatus', '모임 글을 삭제했어요.');
-
-          await loadMeetups();
-
-        }
-
+    const loadedProfile = profilesById[row.user_id] || { nickname:'교토 방문자', gender:'', favorite_drinks:'' };
+    const profile = loadedProfile.is_public ? loadedProfile : { nickname:loadedProfile.nickname || '교토 방문자', gender:'', favorite_drinks:'' };
+    const card = document.createElement('article');
+    card.className = 'kyd-board-post';
+    const preview = (row.description || row.title || '새로운 술친구를 찾고 있어요.').replace(/\s+/g,' ').trim();
+    const bubble = document.createElement('button');
+    bubble.type = 'button'; bubble.className = 'kyd-board-bubble';
+    bubble.textContent = preview.length > 48 ? preview.slice(0,48) + '…' : preview;
+    const character = document.createElement('button');
+    character.type = 'button'; character.className = 'kyd-board-character';
+    character.setAttribute('aria-label', `${profile.nickname || '사용자'}의 게시물 열기`);
+    character.innerHTML = kydAvatarMarkup(profile) + '<span class="kyd-character-hint">게시물 보기</span>';
+    const name = kydProfileNameButton(row.user_id, profile.nickname || '교토 방문자', 'kyd-board-author kyd-profile-name');
+    const info = document.createElement('div'); info.className='kyd-board-meta';
+    const date = document.createElement('span'); date.textContent = `${row.meetup_date} · ${row.area || '교토'}`;
+    info.append(name,date);
+    const detail = document.createElement('section'); detail.className='kyd-board-detail'; detail.hidden=true;
+    const title = document.createElement('h4'); title.textContent=row.title || '제목 없음';
+    const description = document.createElement('p'); description.className='kyd-board-description'; description.textContent=row.description || '';
+    detail.append(title,description);
+    if (communityUser && row.user_id === communityUser.id) {
+      const actions=document.createElement('div'); actions.className='kyd-board-owner-actions';
+      const editButton=document.createElement('button'); editButton.type='button'; editButton.textContent='글 수정';
+      editButton.addEventListener('click',()=>{
+        editingMeetupId=row.id;
+        document.getElementById('meetupTitle').value=row.title||'';
+        document.getElementById('meetupDate').value=row.meetup_date||'';
+        document.getElementById('meetupArea').value=row.area||'';
+        document.getElementById('meetupDescription').value=row.description||'';
+        document.getElementById('createMeetupBtn').textContent='수정 내용 저장';
+        document.getElementById('cancelMeetupEditBtn').style.display='inline-block';
+        document.getElementById('meetupTitle').scrollIntoView({behavior:'smooth',block:'center'});
       });
-
- 
-
-      card.appendChild(deleteButton);
-
+      const deleteButton=document.createElement('button'); deleteButton.type='button'; deleteButton.textContent='내 글 삭제';
+      deleteButton.addEventListener('click',async()=>{
+        if(!confirm('이 모임 글을 삭제할까요?')) return;
+        const {error:deleteError}=await communityClient.from('kyoto_meetups').delete().eq('id',row.id).eq('user_id',communityUser.id);
+        if(deleteError){setCommunityStatus('meetupStatus','삭제하지 못했어요.');console.error(deleteError);} else {setCommunityStatus('meetupStatus','모임 글을 삭제했어요.');await loadMeetups();}
+      });
+      actions.append(editButton,deleteButton); detail.appendChild(actions);
     }
-
- 
-const commentsContainer = document.createElement('div');
-
-commentsContainer.className = 'meetup-comments';
-
-commentsContainer.style.cssText = `
-  margin-top:18px;
-  padding-top:14px;
-  border-top:1px solid rgba(120,105,78,.2);
-`;
-
-card.appendChild(commentsContainer);
-
-loadMeetupComments(row.id, commentsContainer);
+    const commentsContainer=document.createElement('div'); commentsContainer.className='meetup-comments kyd-board-comments';
+    detail.appendChild(commentsContainer);
+    let commentsLoaded=false;
+    const openDetail=async()=>{
+      detail.hidden=!detail.hidden;
+      if(!detail.hidden && !commentsLoaded){commentsLoaded=true;await loadMeetupComments(row.id,commentsContainer);}
+    };
+    character.addEventListener('click',openDetail);
+    bubble.addEventListener('click',openDetail);
+    card.append(bubble,character,info,detail);
     list.appendChild(card);
-
   });
-
 }
-
- 
 
 document.getElementById('createMeetupBtn').addEventListener('click', async () => {
 
@@ -10706,6 +10796,10 @@ async function openDirectConversation(otherUserId, otherName) {
   thread.style.display = 'flex';
 
   document.getElementById('directThreadTitle').textContent = activeDirectOtherName;
+  document.getElementById('directThreadTitle').dataset.kydProfileId = otherUserId;
+  document.getElementById('directThreadTitle').classList.add('kyd-profile-name');
+  document.getElementById('directThreadTitle').setAttribute('role','button');
+  document.getElementById('directThreadTitle').setAttribute('tabindex','0');
 
   document.getElementById('directThreadAvatar').textContent = directInitial(activeDirectOtherName);
 
@@ -10987,9 +11081,11 @@ async function loadDirectInbox() {
 
     const name = document.createElement('span');
 
-    name.className = 'dm-conversation-name';
-
+    name.className = 'dm-conversation-name kyd-profile-name';
     name.textContent = item.name;
+    name.dataset.kydProfileId = item.otherId;
+    name.setAttribute('role','button');
+    name.setAttribute('tabindex','0');
 
     const time = document.createElement('span');
 
@@ -11141,9 +11237,11 @@ async function loadDateStayUsers() {
 
     const name = document.createElement('span');
 
-    name.className = 'dm-person-name';
-
+    name.className = 'dm-person-name kyd-profile-name';
     name.textContent = profile.nickname || '교토 사용자';
+    name.dataset.kydProfileId = profile.user_id;
+    name.setAttribute('role','button');
+    name.setAttribute('tabindex','0');
 
     const caption = document.createElement('span');
 
