@@ -4266,11 +4266,11 @@ body.kyd-tab-meetup #calendarPanel .stay-auth-card,body.kyd-tab-my #calendarPane
 .kyd-place-detail-title-row h2{margin:0;color:#302b24;font-family:var(--kyd-display-font);font-size:clamp(24px,5vw,34px);font-weight:500;letter-spacing:-.04em;line-height:1.25}
 .kyd-place-detail-title-row p{margin:7px 0 0;color:#897f72;font-size:11px}.kyd-place-detail-rating{flex:0 0 auto;text-align:right;color:#a77a42}
 .kyd-place-detail-rating strong{display:block;font-family:var(--kyd-display-font);font-size:24px;font-weight:500}.kyd-place-detail-rating span{font-size:10px;white-space:nowrap}
-.kyd-place-detail-photo{display:block;width:100%;max-height:300px;object-fit:cover;margin:0 0 18px}.kyd-place-detail-tag{display:inline-block;padding:4px 9px;border:1px solid #e0d6c8;color:#776c5d;font-size:10px}
+.kyd-place-photo-gallery{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:9px;margin:0 0 18px}.kyd-place-detail-photo{display:block;width:100%;height:190px;object-fit:cover;margin:0;border-radius:5px}.kyd-place-detail-tag{display:inline-block;padding:4px 9px;border:1px solid #e0d6c8;color:#776c5d;font-size:10px}
 .kyd-place-detail-review{margin:18px 0 24px;padding:18px 0;border-top:1px solid #e6ded1;border-bottom:1px solid #e6ded1;color:#514a40;font-size:13px;line-height:1.9;white-space:normal;overflow-wrap:anywhere}
 .kyd-place-detail-actions{display:flex;justify-content:flex-end}.kyd-place-detail-actions button{min-height:42px;padding:10px 17px;border-radius:2px!important;background:#39352e;border-color:#39352e;font-size:11px}
 @keyframes kydDetailFade{from{opacity:0}to{opacity:1}}@keyframes kydDetailRise{from{opacity:0;transform:translateY(12px) scale(.99)}to{opacity:1;transform:translateY(0) scale(1)}}
-@media(max-width:600px){.kyd-place-detail-modal{align-items:flex-end;padding:0}.kyd-place-detail-dialog{width:100%;max-height:88vh;padding:24px 19px calc(22px + env(safe-area-inset-bottom,0px));border-left:0;border-right:0;border-bottom:0}.kyd-place-detail-photo{max-height:220px}.sidebar .place-card-actions button{font-size:10px}}
+@media(max-width:600px){.kyd-place-detail-photo{height:145px}.kyd-place-detail-modal{align-items:flex-end;padding:0}.kyd-place-detail-dialog{width:100%;max-height:88vh;padding:24px 19px calc(22px + env(safe-area-inset-bottom,0px));border-left:0;border-right:0;border-bottom:0}.kyd-place-detail-photo{max-height:220px}.sidebar .place-card-actions button{font-size:10px}}
 @media(prefers-reduced-motion:reduce){.kyd-place-detail-backdrop,.kyd-place-detail-dialog{animation:none!important}}
 </style>
 
@@ -5347,11 +5347,12 @@ body.kyd-tab-meetup #calendarPanel .stay-auth-card,body.kyd-tab-my #calendarPane
   type="file"
   id="photoFile"
   accept="image/jpeg,image/png,image/webp"
+  multiple
   style="display:none;"
 />
 
 <p style="font-size:12px;color:#777;margin-top:6px;">
-  JPG, PNG, WebP 사진을 선택할 수 있어요.
+  JPG, PNG, WebP 사진을 여러 장 선택할 수 있어요. (사진 1장당 5MB 이하)
 </p>
 
 <div id="manualPhotoPreview" style="margin-top:10px;"></div>
@@ -6178,6 +6179,29 @@ function getLocalizedReview(place) {
   return original;
 }
 
+function getPlacePhotoUrls(value) {
+  if (Array.isArray(value)) return value.filter(v => typeof v === 'string' && /^https?:\/\//i.test(v));
+  const raw = String(value || '').trim();
+  if (!raw) return [];
+  try {
+    const parsed = JSON.parse(raw);
+    if (Array.isArray(parsed)) return parsed.filter(v => typeof v === 'string' && /^https?:\/\//i.test(v));
+  } catch (_) {}
+  return /^https?:\/\//i.test(raw) ? [raw] : [];
+}
+
+function getPrimaryPlacePhoto(value) {
+  return getPlacePhotoUrls(value)[0] || '';
+}
+
+function renderPlacePhotoGallery(value, alt = '가게 사진') {
+  const urls = getPlacePhotoUrls(value);
+  if (!urls.length) return '';
+  return `<div class="kyd-place-photo-gallery">${urls.map((url, index) =>
+    `<img class="kyd-place-detail-photo" src="${esc(url)}" alt="${esc(alt)} ${index + 1}" loading="lazy" onerror="this.style.display='none'">`
+  ).join('')}</div>`;
+}
+
 function stars(n) {
 
   n = Math.max(0, Math.min(5, Number(n) || 0));
@@ -6196,9 +6220,9 @@ function tooltipPreview(p) {
     <div class="popup-rating">
       ${stars(p.rating)} · ${Number(p.rating) || 0}/5
     </div>
-    ${p.photo_url ? `
+    ${getPrimaryPlacePhoto(p.photo_url) ? `
       <img
-        src="${esc(p.photo_url)}"
+        src="${esc(getPrimaryPlacePhoto(p.photo_url))}"
         alt="${esc(p.name)} 사진"
         style="width:100%;max-height:90px;object-fit:cover;border-radius:8px;margin:8px 0;"
         onerror="this.style.display='none'"
@@ -6228,10 +6252,10 @@ function popup(p) {
         </div>
       </div>
 
-      ${p.photo_url ? `
+      ${getPrimaryPlacePhoto(p.photo_url) ? `
         <img
           class="restaurant-popup-photo"
-          src="${esc(p.photo_url)}"
+          src="${esc(getPrimaryPlacePhoto(p.photo_url))}"
           alt="${esc(p.name)} 사진"
           onerror="this.style.display='none'"
         >
@@ -6283,10 +6307,10 @@ function mobilePopup(p) {
         </div>
       </div>
 
-      ${p.photo_url ? `
+      ${getPrimaryPlacePhoto(p.photo_url) ? `
         <img
           class="restaurant-popup-photo"
-          src="${esc(p.photo_url)}"
+          src="${esc(getPrimaryPlacePhoto(p.photo_url))}"
           alt="${esc(p.name)} 사진"
           onerror="this.style.display='none'"
         >
@@ -6693,7 +6717,7 @@ function openPlaceDetail(place) {
       <div><h2 id="kydPlaceDetailName">${esc(place.name || '이름 없는 가게')}</h2><p>${esc(place.area || '교토')}${place.visited ? ' · 방문 ' + esc(place.visited) : ''}</p></div>
       <div class="kyd-place-detail-rating"><strong>${Number(place.rating) || 0}</strong><span>${stars(place.rating)}</span></div>
     </div>
-    ${place.photo_url ? `<img class="kyd-place-detail-photo" src="${esc(place.photo_url)}" alt="${esc(place.name)} 사진" onerror="this.style.display='none'">` : ''}
+    ${renderPlacePhotoGallery(place.photo_url, (place.name || '가게') + ' 사진')}
     ${place.category ? `<span class="kyd-place-detail-tag">${esc(place.category)}</span>` : ''}
     <div class="kyd-place-detail-review">${review ? esc(review).replace(/\n/g, '<br>') : '아직 작성된 리뷰가 없습니다.'}</div>
     <div class="kyd-place-detail-actions"><button type="button" data-detail-map>지도에서 위치 보기 <span aria-hidden="true">↗</span></button></div>
@@ -6970,7 +6994,7 @@ Object.entries(markers).forEach(([id, marker]) => {
             ${p.visited ? ' · ' + esc(p.visited) : ''}
             ${p.distance !== null ? ' · ' + (p.distance < 1 ? Math.round(p.distance * 1000) + 'm' : p.distance.toFixed(1) + 'km') : ''}
           </div>
-          ${p.photo_url ? `<img src="${esc(p.photo_url)}" alt="${esc(p.name)} 사진" loading="lazy" onerror="this.style.display='none'">` : ''}
+          ${getPrimaryPlacePhoto(p.photo_url) ? `<img src="${esc(getPrimaryPlacePhoto(p.photo_url))}" alt="${esc(p.name)} 사진" loading="lazy" onerror="this.style.display='none'">` : ''}
           <div class="place-note">${esc(getLocalizedReview(p))}</div>
           ${p.category ? `<span class="tag">${esc(p.category)}</span>` : ''}
           <span class="place-detail-hint">상세 리뷰와 가게 정보 보기 ↗</span>
@@ -7049,7 +7073,8 @@ Object.entries(markers).forEach(([id, marker]) => {
 
       document.getElementById('visited').value = p.visited || '';
 
-      document.getElementById('photoUrl').value = p.photo_url || '';
+      document.getElementById('photoUrl').value = JSON.stringify(getPlacePhotoUrls(p.photo_url));
+      document.getElementById('photoUploadBtn').textContent = '📷 내 기기에서 사진 선택';
 
       document.getElementById('photoSource').value = p.photo_source || '';
 
@@ -7673,131 +7698,88 @@ const manualPhotoPreview = document.getElementById('manualPhotoPreview');
  
 
 photoUrlInput.addEventListener('input', () => {
-
-  const url = photoUrlInput.value.trim();
-
+  const urls = getPlacePhotoUrls(photoUrlInput.value);
   manualPhotoPreview.innerHTML = '';
-
- 
-
-  if (!url) return;
-
- 
-
-  try {
-
-    const parsedUrl = new URL(url);
-
- 
-
-    if (!['http:', 'https:'].includes(parsedUrl.protocol)) {
-
-      throw new Error('Invalid URL');
-
-    }
-
- 
-
+  if (!urls.length) return;
+  const grid = document.createElement('div');
+  grid.style.cssText = 'display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;';
+  urls.forEach((url, index) => {
+    const wrap = document.createElement('div');
+    wrap.style.cssText = 'position:relative;min-width:0;';
     const img = document.createElement('img');
-
-    img.src = parsedUrl.href;
-
-    img.alt = '사진 미리보기';
-
-    img.style.cssText =
-
-      'width:100%;max-height:220px;object-fit:cover;border-radius:10px;';
-
- 
-
-    img.onerror = () => {
-
-      manualPhotoPreview.textContent =
-
-        '사진을 불러올 수 없어요. 이미지 주소인지 확인해 주세요.';
-
-    };
-
- 
-
-    manualPhotoPreview.appendChild(img);
-
-  } catch {
-
-    manualPhotoPreview.textContent = '올바른 사진 URL을 입력해 주세요.';
-
-  }
-
+    img.src = url;
+    img.alt = `사진 미리보기 ${index + 1}`;
+    img.style.cssText = 'width:100%;height:100px;object-fit:cover;border-radius:9px;';
+    img.onerror = () => { wrap.style.display = 'none'; };
+    const remove = document.createElement('button');
+    remove.type = 'button';
+    remove.textContent = '×';
+    remove.setAttribute('aria-label', `사진 ${index + 1} 삭제`);
+    remove.style.cssText = 'position:absolute;top:4px;right:4px;width:25px;height:25px;border:0;border-radius:50%;background:#332b24;color:white;font-size:18px;line-height:1;';
+    remove.addEventListener('click', () => {
+      const next = getPlacePhotoUrls(photoUrlInput.value).filter((_, i) => i !== index);
+      photoUrlInput.value = JSON.stringify(next);
+      photoUrlInput.dispatchEvent(new Event('input'));
+    });
+    wrap.append(img, remove);
+    grid.appendChild(wrap);
+  });
+  manualPhotoPreview.appendChild(grid);
+  const count = document.createElement('p');
+  count.textContent = `선택된 사진 ${urls.length}장`;
+  count.style.cssText = 'font-size:12px;color:#766b5d;margin:6px 0 0;';
+  manualPhotoPreview.appendChild(count);
 });
 
- 
 const photoFileInput = document.getElementById('photoFile');
 const photoUploadBtn = document.getElementById('photoUploadBtn');
 
-photoUploadBtn.addEventListener('click', () => {
-  photoFileInput.click();
-});
+photoUploadBtn.addEventListener('click', () => photoFileInput.click());
 
 photoFileInput.addEventListener('change', async () => {
-  const file = photoFileInput.files[0];
-
-  if (!file) return;
-
-  const allowedTypes = [
-    'image/jpeg',
-    'image/png',
-    'image/webp'
-  ];
-
-  if (!allowedTypes.includes(file.type)) {
-    alert('JPG, PNG, WebP 사진만 업로드할 수 있어요.');
-    photoFileInput.value = '';
-    return;
-  }
-
-  if (file.size > 5 * 1024 * 1024) {
-    alert('사진은 5MB 이하로 선택해 주세요.');
+  const files = Array.from(photoFileInput.files || []);
+  if (!files.length) return;
+  const allowedTypes = ['image/jpeg', 'image/png', 'image/webp'];
+  const invalid = files.find(file => !allowedTypes.includes(file.type) || file.size > 5 * 1024 * 1024);
+  if (invalid) {
+    alert(!allowedTypes.includes(invalid.type)
+      ? 'JPG, PNG, WebP 사진만 업로드할 수 있어요.'
+      : '사진은 한 장당 5MB 이하로 선택해 주세요.');
     photoFileInput.value = '';
     return;
   }
 
   photoUploadBtn.disabled = true;
-  photoUploadBtn.textContent = '사진 업로드 중...';
-
+  const originalLabel = '📷 내 기기에서 사진 선택';
+  const uploadedUrls = getPlacePhotoUrls(photoUrlInput.value);
   try {
-    const extension = file.type.split('/')[1].replace('jpeg', 'jpg');
-    const filePath = `places/${Date.now()}-${crypto.randomUUID()}.${extension}`;
-
-    const { error: uploadError } = await supabaseClient
-      .storage
-      .from('place-photos')
-      .upload(filePath, file, {
-        cacheControl: '3600',
-        upsert: false,
-        contentType: file.type
-      });
-
-    if (uploadError) throw uploadError;
-
-    const { data } = supabaseClient
-      .storage
-      .from('place-photos')
-      .getPublicUrl(filePath);
-
-    photoUrlInput.value = data.publicUrl;
+    for (let i = 0; i < files.length; i++) {
+      photoUploadBtn.textContent = `사진 업로드 중... (${i + 1}/${files.length})`;
+      const file = files[i];
+      const extension = file.type.split('/')[1].replace('jpeg', 'jpg');
+      const filePath = `places/${Date.now()}-${crypto.randomUUID()}.${extension}`;
+      const { error: uploadError } = await supabaseClient.storage
+        .from('place-photos')
+        .upload(filePath, file, { cacheControl: '3600', upsert: false, contentType: file.type });
+      if (uploadError) throw uploadError;
+      const { data } = supabaseClient.storage.from('place-photos').getPublicUrl(filePath);
+      if (data?.publicUrl) uploadedUrls.push(data.publicUrl);
+    }
+    photoUrlInput.value = JSON.stringify(uploadedUrls);
     photoUrlInput.dispatchEvent(new Event('input'));
-
-    photoUploadBtn.textContent = '✓ 사진 선택 완료';
-
+    photoUploadBtn.textContent = `✓ 사진 ${uploadedUrls.length}장 선택 완료`;
   } catch (error) {
     console.error('사진 업로드 실패:', error);
-    alert('사진 업로드에 실패했어요. Supabase Storage 권한을 확인해 주세요.');
-    photoUploadBtn.textContent = '📷 내 기기에서 사진 선택';
-
+    photoUrlInput.value = JSON.stringify(uploadedUrls);
+    photoUrlInput.dispatchEvent(new Event('input'));
+    alert('사진 업로드에 실패했어요. Supabase Storage 권한을 확인해 주세요. 이미 업로드된 사진은 유지됩니다.');
+    photoUploadBtn.textContent = originalLabel;
   } finally {
+    photoFileInput.value = '';
     photoUploadBtn.disabled = false;
   }
 });
+
 let userLocationMarker = null;
 
  
@@ -12064,7 +12046,7 @@ localStorage.setItem(
     '추천 메뉴와 맛':'おすすめメニューと味', '직원의 친절도':'スタッフの接客', '사케 / 맥주 / 하이볼 등':'日本酒／ビール／ハイボールなど',
     '데이트 / 친구와 한잔 / 혼술':'デート／友人との一杯／一人飲み', '최대 150자':'最大150文字',
     '📷 내 기기에서 사진 선택':'📷 端末から写真を選択', '🔎 인터넷에서 사진 후보 검색':'🔎 ネットで写真候補を検索',
-    'JPG, PNG, WebP 사진을 선택할 수 있어요.':'JPG、PNG、WebP形式の画像を選択できます。',
+    'JPG, PNG, WebP 사진을 여러 장 선택할 수 있어요. (사진 1장당 5MB 이하)':'JPG、PNG、WebP形式の画像を選択できます。',
     '검색된 사진은 직접 확인한 뒤 선택할 수 있어요.':'検索結果を確認してから画像を選択できます。',
     '📍 주소로 위치 찾기':'📍 住所から場所を検索', '📍 지도에서 위치 선택':'📍 地図から場所を選択',
     '주소를 검색하면 지도에 위치가 표시됩니다.':'住所を検索すると地図上に場所が表示されます。',
