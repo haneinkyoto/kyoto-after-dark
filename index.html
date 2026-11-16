@@ -12219,6 +12219,241 @@ body:not(.kyd-tab-chat) #directChatPanel{display:none!important}
 @media(max-width:600px){body.kyd-tab-chat #directChatPanel{width:100%!important;min-height:0!important;margin:0!important;bottom:calc(76px + env(safe-area-inset-bottom,0px))!important}}
 </style>
 
+
+<style id="kyd-quality-pass-30">
+
+/* ================================================================
+   KYOTO AFTER DARK — QUALITY PASS 30
+   Presentation/interaction layer only. Existing data, IDs, Supabase
+   tables, event handlers and map logic are intentionally preserved.
+   ================================================================ */
+:root{
+  --kyd-shadow-soft:0 8px 26px rgba(43,36,27,.055);
+  --kyd-shadow-card:0 3px 14px rgba(43,36,27,.045);
+  --kyd-radius:15px;
+  --kyd-focus:#a45a45;
+  --kyd-safe-bottom:calc(76px + env(safe-area-inset-bottom,0px));
+}
+html{scroll-behavior:smooth;scroll-padding-top:18px}
+body{ text-rendering:optimizeLegibility; -webkit-font-smoothing:antialiased }
+button,input,select,textarea{font-family:inherit}
+button{touch-action:manipulation; -webkit-tap-highlight-color:transparent}
+button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-visible,[tabindex]:focus-visible{
+  outline:2px solid var(--kyd-focus)!important;outline-offset:3px!important
+}
+::selection{background:#ead8c9;color:#302820}
+
+/* 01–05 · global hierarchy, navigation and responsive header */
+header{position:relative;z-index:1200;gap:20px}
+.brand h1{line-height:1.18}
+.brand .subtitle{line-height:1.6}
+.header-actions{align-items:center}
+.header-actions>button{transition:transform .18s ease,background .18s ease,border-color .18s ease}
+.header-actions>button:hover{transform:translateY(-1px)}
+#kyotoTabBar{isolation:isolate;padding-bottom:calc(8px + env(safe-area-inset-bottom,0px))!important}
+#kyotoTabBar button{min-height:50px;touch-action:manipulation}
+#kyotoTabBar button[aria-selected="true"]{position:relative}
+#kyotoTabBar button[aria-selected="true"]:before{content:"";position:absolute;top:2px;left:22%;right:22%;height:2px;border-radius:3px;background:#9b5946;opacity:.75}
+.kyd-screen-enter{animation:kydScreenEnter .24s ease both}
+@keyframes kydScreenEnter{from{opacity:.55;transform:translateY(5px)}to{opacity:1;transform:translateY(0)}}
+
+/* 06–10 · map discovery, search, filters and result list */
+body.kyd-tab-map .sidebar{scrollbar-width:thin;scrollbar-color:#d8d0c4 transparent}
+.sidebar .search{min-height:48px;border-radius:12px;box-shadow:0 2px 8px rgba(40,30,20,.025);transition:border-color .18s,box-shadow .18s}
+.sidebar .search:focus{border-color:#b99d87;box-shadow:0 0 0 3px rgba(185,157,135,.13)}
+#areaFilter,#categoryFilter{min-height:42px;border-radius:10px;background-color:#fffdf8}
+.kyd-filter-status{border-radius:12px}
+.stats{gap:10px}
+.stat{border-radius:12px;box-shadow:var(--kyd-shadow-card)}
+.stat strong{line-height:1.1}
+.place-list{gap:10px}
+.place-card{border-radius:13px;box-shadow:0 1px 5px rgba(40,30,20,.025);transition:transform .18s ease,border-color .18s ease,box-shadow .18s ease}
+.place-card:hover,.place-card.active{box-shadow:var(--kyd-shadow-soft);transform:translateY(-2px)}
+.place-name{line-height:1.45;overflow-wrap:anywhere}
+.place-note{line-height:1.7}
+.place-card .tag{border-radius:999px;padding:4px 8px}
+.map-wrap{isolation:isolate}
+.map-note{border-radius:12px;backdrop-filter:blur(10px);line-height:1.6}
+.leaflet-popup-content-wrapper{box-shadow:0 8px 30px rgba(30,25,18,.14)!important}
+.leaflet-popup-content{line-height:1.6}
+.leaflet-container a.leaflet-popup-close-button{color:#66594d!important}
+
+/* 11–15 · stay calendar and date-based community */
+#calendarPanel{scroll-margin-top:10px}
+#calendarPanel .stay-calendar-shell{border-radius:18px;box-shadow:var(--kyd-shadow-card)}
+#calendarPanel #calendarGrid button{border-radius:10px;transition:background .16s,border-color .16s,transform .16s}
+#calendarPanel #calendarGrid button:active{transform:scale(.97)}
+#calendarPanel #calendarGrid button[aria-pressed="true"],#calendarPanel #calendarGrid button.is-selected{outline:2px solid #9b5946;outline-offset:-2px}
+#calendarPanel .stay-date-card,#calendarPanel .stay-meetup-card{border-radius:16px!important;box-shadow:var(--kyd-shadow-card)}
+#calendarPanel input[type="date"],#calendarPanel input[type="text"],#calendarPanel input[type="email"],#calendarPanel input[type="number"],#calendarPanel select,#calendarPanel textarea{border-radius:10px!important}
+#calendarPanel button{transition:filter .16s,transform .16s}
+#calendarPanel button:active{transform:translateY(1px)}
+#calendarPanel #stayStatus,#calendarPanel #chatStatus,#calendarPanel #meetupStatus{overflow-wrap:anywhere;line-height:1.6}
+
+/* 16–20 · meetups, profiles, forms and owner contact */
+#meetupList>div{border-radius:14px!important;box-shadow:var(--kyd-shadow-card)}
+#meetupTitle,#meetupArea,#meetupDescription{border:1px solid #e5ded3;border-radius:10px;background:#fffdf9}
+#profileSection,#ownerMessageSection{border-radius:17px;box-shadow:var(--kyd-shadow-card)}
+#profileFormWrap input,#profileFormWrap select,#profileFormWrap textarea,#ownerMessageForm input,#ownerMessageForm select,#ownerMessageForm textarea{border-radius:10px}
+#profileStatus,#ownerMessageStatus{overflow-wrap:anywhere;line-height:1.6}
+#ownerInboxList>div{border-radius:12px}
+
+/* 21–26 · date chat and direct-message workspace */
+body.kyd-tab-chat{overflow:hidden!important;height:100dvh;overscroll-behavior:none}
+body.kyd-tab-chat main{display:block!important;height:0!important;min-height:0!important;overflow:visible!important}
+body.kyd-tab-chat #directChatPanel,
+body.kyd-tab-chat #directChatPanel.is-open{
+  display:flex!important;position:fixed!important;
+  inset:106px 0 var(--kyd-safe-bottom) 0!important;
+  width:auto!important;height:auto!important;min-height:0!important;max-height:none!important;
+  margin:0!important;padding:0!important;border:0!important;border-radius:0!important;
+  transform:none!important;visibility:visible!important;opacity:1!important;
+  pointer-events:auto!important;overflow:hidden!important;z-index:99990!important;
+  background:#faf8f2!important;box-shadow:none!important;
+}
+body.kyd-tab-chat #directChatPanel[aria-hidden="true"]{visibility:visible!important;pointer-events:auto!important}
+body.kyd-tab-chat #directChatPanel .dm-header{
+  display:flex!important;flex:0 0 auto!important;min-height:78px!important;
+  padding:13px clamp(14px,3vw,28px)!important;
+}
+body.kyd-tab-chat #directChatPanel .dm-header-copy h3{font-size:21px!important}
+body.kyd-tab-chat #directChatPanel .dm-drawer-content{
+  display:flex!important;flex:1 1 auto!important;flex-direction:column!important;
+  min-height:0!important;max-height:none!important;overflow-y:auto!important;
+  overscroll-behavior:contain!important;padding:16px clamp(12px,3vw,28px) 22px!important;
+}
+body.kyd-tab-chat #directChatPanel .dm-section{flex:0 0 auto!important;width:100%!important;max-width:920px!important;margin:0 auto!important}
+body.kyd-tab-chat #directChatPanel .dm-inbox{grid-template-columns:repeat(auto-fit,minmax(min(100%,280px),1fr));gap:9px}
+body.kyd-tab-chat #directChatPanel .dm-conversation{min-width:0;min-height:72px;border-radius:13px;transition:border-color .16s,transform .16s,box-shadow .16s}
+body.kyd-tab-chat #directChatPanel .dm-conversation:hover{transform:translateY(-1px);box-shadow:var(--kyd-shadow-card)}
+body.kyd-tab-chat #directChatPanel .dm-thread{
+  display:flex!important;flex:1 1 auto!important;min-height:260px!important;width:100%!important;
+  max-width:920px!important;margin:14px auto 0!important;border-radius:15px!important;
+  overflow:hidden!important;
+}
+body.kyd-tab-chat #directChatPanel .dm-thread[style*="display: none"]{display:none!important}
+body.kyd-tab-chat #directChatPanel .dm-thread-header{flex:0 0 auto!important}
+body.kyd-tab-chat #directChatPanel .dm-messages{
+  flex:1 1 auto!important;min-height:150px!important;max-height:none!important;
+  overflow-y:auto!important;overscroll-behavior:contain!important;scrollbar-width:thin;
+}
+body.kyd-tab-chat #directChatPanel .dm-composer{flex:0 0 auto!important;position:sticky;bottom:0;z-index:2}
+body.kyd-tab-chat #directChatPanel .dm-composer textarea{font-size:16px!important;resize:none!important}
+body.kyd-tab-chat #directChatPanel .dm-people-section{flex:0 0 auto!important;width:100%!important;max-width:920px!important;margin:14px auto 0!important}
+body.kyd-tab-chat #directChatPanel .dm-close{display:none!important}
+body:not(.kyd-tab-chat) #directChatPanel{display:none!important}
+#directMessageBadge{font-variant-numeric:tabular-nums}
+.kyd-chat-message-row,.dm-message-row{animation:kydMessageIn .16s ease both}
+@keyframes kydMessageIn{from{opacity:.65;transform:translateY(4px)}to{opacity:1;transform:translateY(0)}}
+#chatMessages,#directMessages{scrollbar-width:thin;scrollbar-color:#d8d0c4 transparent}
+#chatMessages[aria-busy="true"],#directMessages[aria-busy="true"]{opacity:.72}
+
+/* 27–30 · overlays, media, small screens and motion/accessibility */
+.modal-backdrop{backdrop-filter:blur(5px)}
+.modal-backdrop>div,.sake-fortune-card{border-radius:18px!important;box-shadow:0 18px 60px rgba(25,20,15,.2)!important}
+#photoCandidates img,#manualPhotoPreview img{max-width:100%;height:auto;object-fit:cover;border-radius:10px}
+img{max-width:100%}
+@media(max-width:800px){
+  header{position:relative;padding:13px 15px 11px!important}
+  .header-actions{scroll-snap-type:x proximity}
+  .header-actions>button{scroll-snap-align:start}
+  body.kyd-tab-chat #directChatPanel,
+  body.kyd-tab-chat #directChatPanel.is-open{inset:var(--kyd-mobile-header,145px) 0 var(--kyd-safe-bottom) 0!important}
+  body.kyd-tab-chat #directChatPanel .dm-drawer-content{padding:11px 10px 18px!important}
+  body.kyd-tab-chat #directChatPanel .dm-inbox{grid-template-columns:1fr}
+  body.kyd-tab-chat #directChatPanel .dm-thread{min-height:220px!important;margin-top:10px!important}
+}
+@media(max-width:600px){
+  :root{--kyd-mobile-header:145px}
+  body.kyd-tab-chat #directChatPanel,
+  body.kyd-tab-chat #directChatPanel.is-open{inset:145px 0 var(--kyd-safe-bottom) 0!important}
+  body.kyd-tab-chat #directChatPanel .dm-header{min-height:66px!important;padding:9px 13px!important}
+  body.kyd-tab-chat #directChatPanel .dm-header-subtitle{font-size:10px!important}
+  body.kyd-tab-chat #directChatPanel .dm-drawer-content{padding:9px 9px 15px!important}
+  body.kyd-tab-chat #directChatPanel .dm-people-section{padding-bottom:10px}
+  #calendarPanel .kyd-chat-message-row{max-width:96%}
+  #calendarPanel #chatMessages.kyd-chat-messages{max-height:55dvh}
+  .modal-backdrop{padding:10px!important}
+}
+@media(max-height:700px){body.kyd-tab-chat #directChatPanel .dm-header{min-height:58px!important;padding:7px 12px!important}body.kyd-tab-chat #directChatPanel .dm-drawer-content{padding-top:8px!important}}
+@media(prefers-reduced-motion:reduce){html{scroll-behavior:auto!important}*,*::before,*::after{animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important;scroll-behavior:auto!important}}
+
+</style>
+<script id="kyd-quality-pass-behaviors">
+/* KYOTO AFTER DARK — safe UX behaviors; no backend/schema changes. */
+(function kydQualityPass(){
+  'use strict';
+  const $ = id => document.getElementById(id);
+
+  // Keep the latest message visible on first load and on incoming messages,
+  // but never yank the reader away from older messages while they scroll up.
+  function followLatest(container){
+    if(!container || container.dataset.kydFollowBound) return;
+    container.dataset.kydFollowBound='1';
+    let shouldFollow=true;
+    const nearBottom=()=>container.scrollHeight-container.scrollTop-container.clientHeight<90;
+    container.addEventListener('scroll',()=>{shouldFollow=nearBottom();},{passive:true});
+    const observer=new MutationObserver(()=>{
+      if(shouldFollow){requestAnimationFrame(()=>{container.scrollTop=container.scrollHeight;});}
+    });
+    observer.observe(container,{childList:true,subtree:true});
+    requestAnimationFrame(()=>{container.scrollTop=container.scrollHeight;});
+  }
+  followLatest($('chatMessages'));
+  followLatest($('directMessages'));
+
+  // Auto-grow message inputs without changing their existing submit handlers.
+  function autosize(textarea,maxHeight){
+    if(!textarea || textarea.dataset.kydAutosizeBound) return;
+    textarea.dataset.kydAutosizeBound='1';
+    const resize=()=>{
+      textarea.style.height='auto';
+      textarea.style.height=Math.min(textarea.scrollHeight,maxHeight)+'px';
+    };
+    textarea.addEventListener('input',resize);
+    textarea.addEventListener('change',resize);
+    resize();
+  }
+  autosize($('chatInput'),110);
+  autosize($('directMessageInput'),120);
+
+  // Give the full-screen message workspace a reliable viewport measurement
+  // when mobile browser chrome or orientation changes.
+  let resizeFrame=0;
+  window.addEventListener('resize',()=>{
+    cancelAnimationFrame(resizeFrame);
+    resizeFrame=requestAnimationFrame(()=>{
+      if(document.body.classList.contains('kyd-tab-chat')){
+        const panel=$('directChatPanel');
+        if(panel){panel.style.setProperty('--kyd-vh',window.innerHeight+'px');}
+      }
+      if(window.map && typeof window.map.invalidateSize==='function'){
+        window.map.invalidateSize({pan:false});
+      }
+    });
+  },{passive:true});
+
+  // Ensure chat workspace is visible immediately when its tab is selected,
+  // independent of the page's previous scroll position.
+  document.addEventListener('click',event=>{
+    const tab=event.target.closest('#kyotoTabBar [data-kyd-tab="chat"]');
+    if(!tab) return;
+    requestAnimationFrame(()=>{
+      const panel=$('directChatPanel');
+      if(panel){panel.classList.add('is-open');panel.setAttribute('aria-hidden','false');}
+      window.scrollTo({top:0,behavior:'instant'});
+      const inbox=$('directInbox');
+      if(inbox && !document.body.classList.contains('kyd-tab-chat')) return;
+    });
+  },true);
+
+  // Announce asynchronous message changes accessibly.
+  ['chatMessages','directMessages','directInbox','dateStayUsers'].forEach(id=>{
+    const el=$(id); if(el && !el.hasAttribute('aria-live')) el.setAttribute('aria-live','polite');
+  });
+})();
+
+</script>
 </body>
 
 </html>
