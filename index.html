@@ -2429,6 +2429,27 @@ h4 {
   letter-spacing: 8px;
 }
 
+/* 한자 운세 등급 위에 한국어 뜻을 작게 표시 */
+.fortune-rank {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  letter-spacing: 0;
+}
+.fortune-rank-label {
+  font-size: 12px;
+  line-height: 1.4;
+  font-weight: 600;
+  letter-spacing: 1px;
+  color: #927b65;
+}
+.fortune-rank-kanji {
+  font-size: 52px;
+  line-height: 1.15;
+  letter-spacing: 8px;
+}
+
 .fortune-divider {
   height: 1px;
   margin: 24px 0;
@@ -5418,7 +5439,7 @@ body.kyd-tab-meetup #calendarPanel .stay-auth-card,body.kyd-tab-my #calendarPane
   🎴 운세 뽑기
 </button>
 
-    <div class="fortune-rank" id="fortuneRank">大吉</div>
+    <div class="fortune-rank" id="fortuneRank"><span class="fortune-rank-label" id="fortuneRankLabel">대길</span><span class="fortune-rank-kanji" id="fortuneRankKanji">大吉</span></div>
     <p class="fortune-message" id="fortuneMessage">
       오늘 밤, 좋은 한 잔이 기다리고 있어요.
     </p>
@@ -11369,6 +11390,21 @@ function getSakeFortuneKey() {
   return 'kyotoSakeFortune-' + today;
 }
 
+// 운세 한자와 한국어 등급을 함께 표시
+function setSakeFortuneRank(rank) {
+  const labels = {
+    '大吉': '대길',
+    '吉': '길',
+    '小吉': '소길',
+    '小々吉': '소소길',
+    '小々々吉': '소소소길'
+  };
+  const kanji = document.getElementById('fortuneRankKanji');
+  const label = document.getElementById('fortuneRankLabel');
+  if (kanji) kanji.textContent = rank;
+  if (label) label.textContent = labels[rank] || '오늘의 운세';
+}
+
 // 오늘 이미 뽑은 운세가 있는지 확인
 function restoreSakeFortune() {
   const saved = localStorage.getItem(getSakeFortuneKey());
@@ -11378,7 +11414,7 @@ function restoreSakeFortune() {
   try {
     const result = JSON.parse(saved);
 
-    document.getElementById('fortuneRank').textContent = result.rank;
+    setSakeFortuneRank(result.rank);
     document.getElementById('fortuneMessage').textContent = result.message;
     document.getElementById('fortunePlace').textContent = result.place;
     document.getElementById('fortuneDrink').textContent = result.drink;
@@ -11440,36 +11476,11 @@ if (drawSakeFortune && sakeFortuneCard) {
   drawSakeFortune.addEventListener('click', () => {
 
     const fortunes = [
-      {
-        rank: '大吉',
-        message: '오늘은 평소보다 조금 더 멀리 가보세요. 뜻밖의 좋은 밤이 기다려요.',
-        weight: 2
-      },
-      {
-        rank: '中吉',
-        message: '좋은 대화가 술맛을 더해주는 날. 새로운 사람에게 먼저 말을 걸어보세요.',
-        weight: 4
-      },
-      {
-        rank: '小吉',
-        message: '익숙한 골목에서 작은 행복을 발견할 수 있어요.',
-        weight: 5
-      },
-      {
-        rank: '吉',
-        message: '무리하지 않는 한 잔이 가장 좋은 선택이에요.',
-        weight: 5
-      },
-      {
-        rank: '末吉',
-        message: '처음 계획과 달라도 괜찮아요. 오늘 밤은 천천히 흘러갈수록 좋아요.',
-        weight: 3
-      },
-      {
-        rank: '凶',
-        message: '오늘은 과음 금지! 일찍 돌아와도 충분히 좋은 하루예요.',
-        weight: 1
-      }
+      { rank: '大吉', message: '오늘은 우연을 따라가도 좋은 밤. 계획에 없던 골목에서 마음에 드는 한 곳을 만날지도 몰라요.', weight: 2 },
+      { rank: '吉', message: '좋은 대화가 행운을 데려오는 날. 먼저 건넨 인사 한마디가 밤의 분위기를 바꿔줄 거예요.', weight: 4 },
+      { rank: '小吉', message: '작고 확실한 즐거움이 기다리는 날. 한 잔과 한 접시를 천천히 즐겨보세요.', weight: 5 },
+      { rank: '小々吉', message: '서두르지 않을수록 좋은 밤. 익숙한 길도 오늘은 새롭게 보일 거예요.', weight: 5 },
+      { rank: '小々々吉', message: '소소한 행운이 차곡차곡 쌓이는 날. 오늘의 작은 발견을 기념해 보세요.', weight: 3 }
     ];
 
     const weightedFortunes = fortunes.flatMap(f =>
@@ -11523,14 +11534,70 @@ const candidates = reviewedPlaces.length
     ];
 
     const missions = [
-      '평소 지나치던 골목의 술집에 들어가 보기.',
-      '오늘 마신 술의 이름을 사진으로 남기기.',
-      '바텐더나 직원에게 추천 메뉴 물어보기.',
-      '휴대폰을 내려놓고 술 한 잔에 집중하기.',
-      '오늘 밤 마음에 든 풍경을 하나 기억하기.'
+      '오늘 처음 보는 메뉴를 하나 골라보기.',
+      '메뉴판에서 가장 교토다운 이름의 요리를 찾아보기.',
+      '평소 지나치던 골목으로 한 블록만 우회해 보기.',
+      '오늘 마신 술의 향을 세 단어로 기록하기.',
+      '마음에 든 잔이나 그릇의 모양을 사진으로 남기기.',
+      '직원에게 이 가게에서 가장 인기 있는 안주를 물어보기.',
+      '오늘의 첫 잔은 휴대폰을 내려놓고 천천히 마시기.',
+      '메뉴 이름 하나를 일본어로 읽어보고 뜻을 알아보기.',
+      '평소 주문하지 않던 색깔의 술을 골라보기.',
+      '안주와 술의 조합을 평점 5점 만점으로 매겨보기.',
+      '오늘 가게에서 가장 마음에 드는 조명을 찾아보기.',
+      '교토의 밤 풍경을 한 장만 찍고 사진은 더 찍지 않기.',
+      '친구에게 오늘의 분위기를 한 문장으로 보내보기.',
+      '오랜만에 연락하는 사람에게 안부 한 줄 보내기.',
+      '동행에게 오늘 가장 좋았던 순간을 물어보기.',
+      '혼자라면 옆자리나 바의 분위기를 조용히 관찰해 보기.',
+      '바텐더나 직원의 추천을 믿고 한 가지 맡겨보기.',
+      '오늘의 술에 어울리는 음악 한 곡을 떠올려보기.',
+      '안주를 한 입 먹고 술을 마시며 맛의 변화를 느껴보기.',
+      '가게의 메뉴판에서 가장 의외인 메뉴를 찾아보기.',
+      '오늘 처음 알게 된 일본어 표현 하나를 메모하기.',
+      '가게 이름의 뜻이나 유래를 찾아보기.',
+      '교토에서 다시 오고 싶은 장소를 하나 더 발견하기.',
+      '오늘의 기분을 색깔 하나로 정해 기록하기.',
+      '첫 잔과 마지막 잔의 기분이 어떻게 달라졌는지 비교하기.',
+      '술 대신 물도 한 잔 곁들여 내일의 나를 챙기기.',
+      '귀갓길에 오늘 좋았던 장면 세 가지 떠올리기.',
+      '가게의 음악·향·조명 중 가장 기억에 남는 하나 고르기.',
+      '평소보다 천천히 먹고 마지막 한 입까지 즐기기.',
+      '오늘의 안주를 집에서도 만들어볼 수 있을지 상상하기.',
+      '메뉴판에서 가장 저렴한 메뉴와 가장 비싼 메뉴를 비교해 보기.',
+      '오늘의 술을 짧은 별명으로 지어보기.',
+      '가게의 작은 디테일 하나를 발견해 보기.',
+      '오늘은 익숙한 주문 대신 새로운 조합을 시도하기.',
+      '동행과 서로의 인생 술집 조건을 하나씩 이야기하기.',
+      '혼술이라면 직원에게 부담 없는 추천 한 가지 물어보기.',
+      '오늘의 방문을 나중에 기억할 키워드 세 개로 남기기.',
+      '교토에서 아직 가보지 않은 동네를 다음 목적지로 찜하기.',
+      '오늘은 술의 도수보다 향과 맛에 집중해 보기.',
+      '안주 하나를 천천히 나눠 먹으며 대화에 집중하기.',
+      '가게 입구부터 좌석까지 마음에 든 공간 요소 찾아보기.',
+      '오늘 가장 웃었던 순간을 기억해 두기.',
+      '귀가 전에 물 한 잔 마시고 막차 시간을 확인하기.',
+      '오늘의 지출을 대략 기록하고 만족도를 함께 적기.',
+      '평소 좋아하는 술과 전혀 다른 종류를 조금 맛보기.',
+      '오늘의 밤에 어울리는 영화 제목을 하나 붙여보기.',
+      '가게에서 발견한 마음에 드는 문구나 포스터를 기억하기.',
+      '오늘은 한 곳을 깊게 즐기고 무리한 2차는 생략해 보기.',
+      '다음에 함께 오고 싶은 사람 한 명을 떠올려보기.',
+      '오늘의 기분에 어울리는 건배사를 직접 만들어보기.',
+      '집에 돌아가는 길에 내일의 나에게 작은 계획 하나 남기기.',
+      '술을 마시지 않는 선택도 오늘의 멋진 미션으로 인정하기.',
+      '가게의 시그니처 메뉴가 무엇인지 관찰해 보기.',
+      '한 잔을 마시는 동안 주변 사람들의 대화를 엿듣지 않고 내 일행에 집중하기.',
+      '오늘의 장소를 친구에게 추천한다면 어떤 이유를 말할지 생각하기.',
+      '교토의 밤하늘을 잠깐 올려다보고 숨 고르기.',
+      '오늘은 계산 전에 주문 내역을 확인하고 기분 좋게 마무리하기.',
+      '새로운 가게라면 다음에 다시 오고 싶은 이유를 하나 찾아보기.',
+      '오늘 만난 사람에게 고마웠던 점을 말로 전하기.',
+      '오늘의 한 잔에 어울리는 안주 이름을 새로 지어보기.',
+      '귀갓길에 평소와 다른 안전한 길을 걸으며 동네 구경하기.'
     ];
 
-    document.getElementById('fortuneRank').textContent = fortune.rank;
+    setSakeFortuneRank(fortune.rank);
     document.getElementById('fortuneMessage').textContent = fortune.message;
 
     document.getElementById('fortunePlace').textContent = place
