@@ -4318,6 +4318,13 @@ body.kyd-intro-active>header,body.kyd-intro-active>main,body.kyd-intro-active>#k
 .kyd-board-bubble{position:relative;align-self:stretch;min-height:54px;padding:11px 13px!important;border:1px solid #e7d9c8!important;border-radius:15px 15px 15px 4px!important;background:#fffefa!important;color:#51463b!important;font-size:12px!important;line-height:1.55!important;text-align:left;box-shadow:0 3px 8px rgba(60,45,30,.05);cursor:pointer}
 .kyd-board-character{position:relative;width:112px;height:126px;margin:4px auto 0;padding:2px!important;border:0!important;background:transparent!important;cursor:pointer;display:flex;flex-direction:column;align-items:center;justify-content:center}
 .kyd-board-character svg{width:100px;height:116px;overflow:visible;transition:transform .2s ease}
+.kyd-board-post{transition:transform .2s ease,box-shadow .2s ease;border-top:3px solid var(--kyd-avatar-accent,#c5a98d)!important}
+.kyd-board-post:hover{transform:translateY(-3px);box-shadow:0 10px 24px rgba(74,57,37,.11)!important}
+.kyd-board-bubble:after{content:"";position:absolute;left:20px;bottom:-7px;width:12px;height:12px;background:#fffefa;border-right:1px solid #e7d9c8;border-bottom:1px solid #e7d9c8;transform:rotate(45deg)}
+.kyd-board-character svg{width:108px;height:126px;overflow:visible;transition:transform .2s ease;filter:drop-shadow(0 4px 2px rgba(60,45,30,.08))}
+.kyd-board-character:focus-visible,.kyd-board-bubble:focus-visible{outline:2px solid #9b765a;outline-offset:3px}
+.kyd-board-drink-tag{display:inline-flex;align-items:center;gap:4px;margin-top:3px;padding:3px 8px;border-radius:999px;background:#eee8dc;color:#77634e;font-size:9px}
+.kyd-board-post:before{content:"✦";position:absolute;right:13px;top:10px;color:var(--kyd-avatar-accent,#b49a7a);font-size:12px;opacity:.8}
 .kyd-board-character:hover svg{transform:translateY(-3px) rotate(-2deg)}
 .kyd-character-hint{font-size:9px;color:#8b7967;letter-spacing:.05em}
 .kyd-board-meta{display:flex;flex-direction:column;align-items:center;gap:3px;margin-top:3px;text-align:center}
@@ -9151,6 +9158,10 @@ const profile = {
 
  
 
+  // 저장 직후 캐시를 갱신하고 현재 게시판 캐릭터도 다시 그립니다.
+  kydProfileCache.set(communityUser.id, { ...profile });
+  if (typeof loadMeetups === 'function') await loadMeetups();
+
   // 프로필 닉네임과 인증 메타데이터를 동기화합니다.
   const { error: metadataError } = await communityClient.auth.updateUser({ data: { nickname } });
   if (metadataError) console.warn('닉네임 메타데이터 동기화 실패:', metadataError.message);
@@ -9954,18 +9965,28 @@ function kydDrinkIcon(value) {
   if (/소주|焼酎/.test(v)) return '🍶';
   return '🍹';
 }
-function kydAvatarMarkup(profile) {
-  const gender = profile?.gender || '';
-  const h = Number(profile?.height_cm || 170);
-  const w = Number(profile?.weight_kg || 65);
-  const bmi = h > 0 ? w / ((h/100) ** 2) : 22;
-  const body = bmi < 18.5 ? 25 : bmi < 23 ? 31 : bmi < 27.5 ? 38 : 44;
-  const torso = gender === '여성' ? `M50 48 C${50-body/2} 48 ${50-body/2-2} 59 ${50-body/2+1} 72 L${50-body/2-3} 91 Q50 98 ${50+body/2+3} 91 L${50+body/2-1} 72 C${50+body/2+2} 59 ${50+body/2} 48 50 48Z` : `M50 48 C${50-body/2} 48 ${50-body/2-2} 59 ${50-body/2+1} 72 L${50-body/2-3} 91 Q50 98 ${50+body/2+3} 91 L${50+body/2-1} 72 C${50+body/2+2} 59 ${50+body/2} 48 50 48Z`;
+function kydAvatarMarkup(profile = {}) {
+  const gender = String(profile.gender || '');
+  const h = Math.min(220, Math.max(120, Number(profile.height_cm) || 170));
+  const w = Math.min(180, Math.max(30, Number(profile.weight_kg) || 65));
+  const bmi = w / ((h / 100) ** 2);
+  const body = Math.max(24, Math.min(43, 25 + (bmi - 18.5) * 1.35));
+  const heightScale = Math.max(.88, Math.min(1.12, .88 + (h - 150) / 250));
+  const seedText = String(profile.user_id || profile.nickname || 'kyoto-night');
+  let seed = 0; for (let i = 0; i < seedText.length; i++) seed = (seed * 31 + seedText.charCodeAt(i)) >>> 0;
+  const shirts = ['#879b88','#b77d69','#8296a8','#b49a67','#927f9e','#6f918e','#c18c70'];
+  const hairs = ['#514238','#292a2a','#765640','#9a7652','#4c3b50'];
+  const shirt = shirts[seed % shirts.length], hairColor = hairs[(seed >>> 3) % hairs.length];
+  const skin = ['#f0c6a5','#e6b48f','#d99d78','#f2cfb1'][(seed >>> 6) % 4];
   const hair = gender === '여성'
-    ? '<path d="M35 24 Q36 7 50 8 Q66 8 66 26 L64 45 Q60 51 59 38 L41 38 Q40 49 36 45Z" fill="#5b4639"/>'
-    : '<path d="M36 26 Q36 9 50 9 Q65 9 65 26 L62 31 Q50 24 38 31Z" fill="#5b4639"/>';
-  const drink = kydDrinkIcon(profile?.favorite_drinks);
-  return `<svg viewBox="0 0 100 116" role="img" aria-label="술을 든 심플 캐릭터"><circle cx="50" cy="27" r="17" fill="#e7b995"/>${hair}<path d="${torso}" fill="#8b9a83"/><path d="M38 55 Q23 62 19 78" fill="none" stroke="#e7b995" stroke-width="8" stroke-linecap="round"/><path d="M62 56 Q76 50 79 31" fill="none" stroke="#e7b995" stroke-width="8" stroke-linecap="round"/><path d="M44 91 L40 111 M56 91 L60 111" stroke="#4d4941" stroke-width="8" stroke-linecap="round"/><text x="80" y="25" font-size="17" text-anchor="middle">${drink}</text></svg>`;
+    ? `<path d="M32 29Q31 7 50 7Q70 7 69 31L67 58Q63 65 59 48L41 48Q37 64 33 56Z" fill="${hairColor}"/><path d="M35 23Q50 3 66 23Q57 17 49 19Q41 18 35 23Z" fill="${hairColor}"/>`
+    : gender === '기타'
+      ? `<path d="M33 28Q34 7 51 8Q69 8 68 28L62 38L38 38Z" fill="${hairColor}"/><path d="M35 22Q50 12 66 23" fill="none" stroke="${hairColor}" stroke-width="5" stroke-linecap="round"/>`
+      : `<path d="M33 29Q33 8 51 8Q68 8 68 28L63 36Q51 27 38 36Z" fill="${hairColor}"/><path d="M37 17Q48 5 63 17" fill="none" stroke="${hairColor}" stroke-width="4" stroke-linecap="round"/>`;
+  const drink = kydDrinkIcon(profile.favorite_drinks);
+  const torsoPath = `M${50-body/2} 52Q50 45 ${50+body/2} 52L${50+body/2+3} 91Q50 99 ${50-body/2-3} 91Z`;
+  const legY = 91 + (heightScale - 1) * 12;
+  return `<svg viewBox="0 0 100 128" role="img" aria-label="프로필 취향을 반영한 술친구 캐릭터"><ellipse cx="50" cy="120" rx="25" ry="4" fill="#766b5d" opacity=".13"/><path d="M43 ${legY}L39 117M57 ${legY}L61 117" stroke="#51483f" stroke-width="7" stroke-linecap="round"/><path d="M39 117h-7M61 117h7" stroke="#51483f" stroke-width="5" stroke-linecap="round"/><path d="M${50-body/2} 57Q27 59 22 73" fill="none" stroke="${skin}" stroke-width="8" stroke-linecap="round"/><path d="M22 73l-4 -7m4 7l-7 -1m7 1l-1 7" fill="none" stroke="${skin}" stroke-width="3" stroke-linecap="round"/><path d="M${50+body/2-1} 57Q75 53 78 34" fill="none" stroke="${skin}" stroke-width="8" stroke-linecap="round"/><path d="M78 34l-3 -6" stroke="${skin}" stroke-width="5" stroke-linecap="round"/><path d="${torsoPath}" fill="${shirt}" stroke="rgba(65,55,45,.13)" stroke-width="1"/><path d="M50 56v27" stroke="rgba(255,255,255,.2)" stroke-width="1.5"/><circle cx="50" cy="29" r="17" fill="${skin}"/>${hair}<path d="M39 31q3 2 6 0m10 0q3 2 6 0" fill="none" stroke="#806451" stroke-width="1.3" stroke-linecap="round" opacity=".45"/><path d="M73 20h10l-1 13q-4 5-8 0Z" fill="#fffdf8" stroke="#8d7862" stroke-width="1.2"/><path d="M74 27h8" stroke="#c58b56" stroke-width="4"/><path d="M82 23q5 0 4 5" fill="none" stroke="#8d7862" stroke-width="1.3"/><text x="78" y="17" font-size="11" text-anchor="middle">${drink}</text></svg>`;
 }
 function kydEnsureProfileModal() {
   if (document.getElementById('kydProfileModal')) return;
@@ -10542,10 +10563,16 @@ async function loadMeetups() {
   }
   list.classList.add('kyd-character-board');
   data.forEach(row => {
-    const loadedProfile = profilesById[row.user_id] || { nickname:'교토 방문자', gender:'', favorite_drinks:'' };
-    const profile = loadedProfile.is_public ? loadedProfile : { nickname:loadedProfile.nickname || '교토 방문자', gender:'', favorite_drinks:'' };
+    const loadedProfile = profilesById[row.user_id] || { nickname:'교토 방문자', is_public:false };
+    // 공개 프로필만 캐릭터에 반영하고, 비공개 프로필은 익명 기본 캐릭터로 처리합니다.
+    const profile = loadedProfile.is_public
+      ? { ...loadedProfile, user_id: row.user_id }
+      : { nickname: loadedProfile.nickname || '교토 방문자', user_id: row.user_id, is_public:false };
     const card = document.createElement('article');
     card.className = 'kyd-board-post';
+    const avatarPalette = ['#c58f70','#8ea49a','#9a91ad','#c3a66f','#8299ad','#b17f7d'];
+    let avatarHash = 0; for (const ch of String(row.user_id || '')) avatarHash = (avatarHash * 31 + ch.charCodeAt(0)) >>> 0;
+    card.style.setProperty('--kyd-avatar-accent', avatarPalette[avatarHash % avatarPalette.length]);
     const preview = (row.description || row.title || '새로운 술친구를 찾고 있어요.').replace(/\s+/g,' ').trim();
     const bubble = document.createElement('button');
     bubble.type = 'button'; bubble.className = 'kyd-board-bubble';
@@ -10558,6 +10585,11 @@ async function loadMeetups() {
     const info = document.createElement('div'); info.className='kyd-board-meta';
     const date = document.createElement('span'); date.textContent = `${row.meetup_date} · ${row.area || '교토'}`;
     info.append(name,date);
+    if (profile.is_public && profile.favorite_drinks) {
+      const drinkTag = document.createElement('span'); drinkTag.className = 'kyd-board-drink-tag';
+      drinkTag.textContent = `${kydDrinkIcon(profile.favorite_drinks)} ${String(profile.favorite_drinks).split(/[,，、/]/)[0].trim()}`;
+      info.appendChild(drinkTag);
+    }
     const detail = document.createElement('section'); detail.className='kyd-board-detail'; detail.hidden=true;
     const title = document.createElement('h4'); title.textContent=row.title || '제목 없음';
     const description = document.createElement('p'); description.className='kyd-board-description'; description.textContent=row.description || '';
