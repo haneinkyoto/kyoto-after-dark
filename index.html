@@ -4022,6 +4022,7 @@ button,.button,.field label,
 .sidebar .search{display:block;width:100%;min-width:0;box-sizing:border-box;min-height:54px;padding:0 18px 0 44px;text-align:left;text-align-last:auto;border:1px solid #c9b99e;border-radius:5px;background:#fbf7ed url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='19' height='19' viewBox='0 0 24 24' fill='none' stroke='%23843d3d' stroke-width='1.7' stroke-linecap='round'%3E%3Ccircle cx='11' cy='11' r='7'/%3E%3Cpath d='m20 20-4-4'/%3E%3C/svg%3E") no-repeat 15px center;color:#292923;font-size:14px;box-shadow:0 2px 8px rgba(65,48,29,.035)}
 .sidebar .search::placeholder{text-align:left;color:#948873;opacity:1}.sidebar .search:focus{border-color:#843d3d;box-shadow:0 0 0 3px rgba(132,61,61,.09)}
 .sidebar .place-filters{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:9px;margin:10px 0 5px}.sidebar .place-filters select{min-width:0;min-height:43px;padding:8px 28px 8px 10px;text-align:left;text-align-last:left;font-size:12px;border-radius:4px}
+.sidebar .place-filters #sortFilter{grid-column:1 / -1;width:100%;}
 .kyd-filter-status{display:flex;align-items:center;justify-content:space-between;gap:12px;min-height:29px;margin:7px 1px 2px}.kyd-filter-caption{color:#948873;font-size:9px;font-weight:700;letter-spacing:.17em}#kydClearFilters{padding:5px 9px;border:1px solid #d8cbb5;border-radius:3px;background:transparent;color:#843d3d;font-size:10px;cursor:pointer}#kydClearFilters[hidden]{display:none!important}
 .sidebar .stats{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin:8px 0 20px}.sidebar .stat{min-width:0;padding:13px 15px;border:1px solid #ded2bd;border-radius:4px;background:rgba(251,247,237,.72);text-align:left}.sidebar .stat strong{display:block;margin-bottom:3px;color:#843d3d;font-family:'Lora',serif;font-size:25px;line-height:1.1;font-weight:500}.sidebar .stat span{color:#827763;font-size:10px;letter-spacing:.06em}
 .sidebar .section-title{display:flex;align-items:baseline;justify-content:space-between;margin:18px 0 10px;padding-bottom:9px;border-bottom:1px solid #d8cbb5;color:#51483d;font-family:'Noto Serif KR','Noto Serif JP',serif;font-size:14px;letter-spacing:.01em}.sidebar .section-title #resultCount{color:#843d3d;font-family:'Manrope',sans-serif;font-size:11px;font-weight:700}
@@ -5166,6 +5167,14 @@ body.kyd-tab-meetup #calendarPanel .stay-auth-card,body.kyd-tab-my #calendarPane
 
     <option value="">모든 분위기·종류</option>
 
+  </select>
+
+  <select id="sortFilter" aria-label="술집 정렬">
+    <option value="default">기본순</option>
+    <option value="rating">별점 높은 순</option>
+    <option value="distance">거리 가까운 순</option>
+    <option value="newest">최신 등록순</option>
+    <option value="name">이름순</option>
   </select>
 
 </div>
@@ -6734,12 +6743,14 @@ function renderList() {
   const areaSelect = document.getElementById('areaFilter');
 
   const categorySelect = document.getElementById('categoryFilter');
+  const sortSelect = document.getElementById('sortFilter');
 
  
 
   const previousArea = areaSelect.value;
 
   const previousCategory = categorySelect.value;
+  const previousSort = sortSelect ? sortSelect.value : 'default';
 
  
 
@@ -6792,6 +6803,12 @@ function renderList() {
     : '';
 
  
+
+  if (sortSelect) {
+    const distanceOption = sortSelect.querySelector('option[value=\"distance\"]');
+    if (distanceOption) distanceOption.disabled = !currentSearchLocation;
+    sortSelect.value = previousSort === 'distance' && !currentSearchLocation ? 'default' : previousSort;
+  }
 
   const selectedArea = areaSelect.value;
 
@@ -6874,25 +6891,33 @@ function renderList() {
 
  
 
-  if (currentSearchLocation) {
-
+  const sortMode = sortSelect ? sortSelect.value : 'default';
+  if (sortMode === 'rating') {
+    list.sort((a, b) => (Number(b.rating) || 0) - (Number(a.rating) || 0));
+  } else if (sortMode === 'distance' && currentSearchLocation) {
     list.sort((a, b) => {
-
       if (a.distance === null) return 1;
-
       if (b.distance === null) return -1;
-
       return a.distance - b.distance;
-
     });
-
+  } else if (sortMode === 'newest') {
+    list.sort((a, b) => {
+      const da = Date.parse(a.created_at || a.updated_at || a.visited || '') || 0;
+      const db = Date.parse(b.created_at || b.updated_at || b.visited || '') || 0;
+      return db - da;
+    });
+  } else if (sortMode === 'name') {
+    list.sort((a, b) => String(a.name || '').localeCompare(String(b.name || ''), 'ja'));
+  } else if (sortMode === 'default' && currentSearchLocation) {
+    list.sort((a, b) => {
+      if (a.distance === null) return 1;
+      if (b.distance === null) return -1;
+      return a.distance - b.distance;
+    });
   }
 
- 
-
-  document.getElementById('resultCount').textContent =
-
-    list.length + '곳' + (currentSearchLocation ? ' · 거리순' : '');
+  const sortLabels = {default: currentSearchLocation ? ' · 거리순' : '', rating: ' · 별점순', distance: ' · 거리순', newest: ' · 최신순', name: ' · 이름순'};
+  document.getElementById('resultCount').textContent = list.length + '곳' + (sortLabels[sortMode] || '');
   const filterStatus = document.getElementById('kydFilterStatus');
   const clearFilters = document.getElementById('kydClearFilters');
   if (filterStatus && clearFilters) {
@@ -7618,6 +7643,9 @@ document.getElementById('search').addEventListener('input', renderList);
   document.getElementById('areaFilter')
 
   .addEventListener('change', renderList);
+
+document.getElementById('categoryFilter')?.addEventListener('change', renderList);
+document.getElementById('sortFilter')?.addEventListener('change', renderList);
 
 const clearMapFiltersButton = document.getElementById('kydClearFilters');
 if (clearMapFiltersButton) {
@@ -12011,7 +12039,7 @@ localStorage.setItem(
     '주변 술집 찾기':'近くのお店を探す', '검색':'検索', '📍 내 현재 위치 찾기':'📍 現在地を表示',
     '술집 이름, 음식, 키워드 검색':'店名・料理・キーワードで検索',
     '가게 이름 · 음식 · 분위기 · 동네 · 리뷰 검색':'店名・料理・雰囲気・エリア・口コミで検索',
-    '모든 동네':'すべてのエリア', '모든 분위기·종류':'すべての雰囲気・ジャンル', '필터 초기화 ×':'条件をクリア ×',
+    '모든 동네':'すべてのエリア', '모든 분위기·종류':'すべての雰囲気・ジャンル', '기본순':'おすすめ順', '별점 높은 순':'評価が高い順', '거리 가까운 순':'近い順', '최신 등록순':'新着順', '이름순':'店名順', '필터 초기화 ×':'条件をクリア ×',
     '등록된 술집':'登録店舗数', '평균 평점':'平均評価', '0곳':'0店舗',
     '교토의 밤을, 나만의 방식으로.':'京都の夜を、自分らしく。', '교토의 밤을,':'京都の夜を、',
     '나만의 방식으로.':'自分らしく。', '교토의 밤을, 나답게 찾아보세요.':'自分らしい京都の夜を見つけよう。',
