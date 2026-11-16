@@ -4274,9 +4274,65 @@ body.kyd-tab-meetup #calendarPanel .stay-auth-card,body.kyd-tab-my #calendarPane
 @media(prefers-reduced-motion:reduce){.kyd-place-detail-backdrop,.kyd-place-detail-dialog{animation:none!important}}
 </style>
 
+
+/* FIRST VISIT — scrapbook / Instagram collage landing */
+#kydIntroPage{position:fixed;inset:0;z-index:20000;display:flex;align-items:center;justify-content:center;overflow:auto;padding:clamp(14px,3vw,34px);box-sizing:border-box;background:#eee8dc;color:#28251f;font-family:inherit}
+#kydIntroPage[hidden]{display:none!important}
+body.kyd-intro-active{overflow:hidden}
+body.kyd-intro-active>header,body.kyd-intro-active>main,body.kyd-intro-active>#kyotoTabBar{visibility:hidden!important;pointer-events:none!important}
+.kyd-intro-sheet{position:relative;width:min(1120px,100%);min-height:min(720px,calc(100dvh - 40px));background:#f8f5ed;border:1px solid #ded5c7;box-shadow:0 24px 80px #43382720;padding:clamp(20px,4vw,48px);box-sizing:border-box;overflow:hidden}
+.kyd-intro-sheet:before{content:"";position:absolute;inset:12px;border:1px solid #e9e1d4;pointer-events:none}
+.kyd-intro-top{position:relative;z-index:2;display:flex;justify-content:space-between;align-items:center;gap:16px;font-size:10px;letter-spacing:.17em;color:#766c5e}
+.kyd-intro-langs{display:flex;align-items:center;gap:7px}.kyd-intro-langs button{border:0;background:none;color:#8c8275;font:inherit;letter-spacing:0;cursor:pointer;padding:4px}.kyd-intro-langs button[aria-pressed="true"]{color:#29251f;font-weight:800;text-decoration:underline;text-underline-offset:4px}
+.kyd-intro-heading{position:relative;z-index:2;max-width:650px;margin:clamp(22px,5vh,54px) 0 22px}
+.kyd-intro-kicker{font-size:10px;letter-spacing:.2em;color:#9b624b;font-weight:800;margin:0 0 13px}
+.kyd-intro-heading h1{font-family:Georgia,'Times New Roman',serif;font-size:clamp(39px,6.4vw,76px);line-height:.99;letter-spacing:-.055em;font-weight:500;margin:0;color:#29251f}
+.kyd-intro-heading h1 em{font-style:italic;color:#a65f46}
+.kyd-intro-heading p{font-size:clamp(12px,1.4vw,15px);line-height:1.8;color:#71685d;margin:18px 0 0;max-width:430px;word-break:keep-all}
+.kyd-intro-collage{position:relative;z-index:2;display:grid;grid-template-columns:1.08fr .92fr 1fr;gap:clamp(10px,2vw,22px);align-items:center;margin:28px 0 24px;min-height:260px}
+.kyd-intro-card{position:relative;display:flex;flex-direction:column;justify-content:flex-end;min-height:clamp(210px,28vw,300px);padding:17px;color:#fff;text-decoration:none;overflow:hidden;isolation:isolate;box-shadow:0 12px 25px #2b241d22;cursor:pointer;border:5px solid #fffdf8;box-sizing:border-box;transition:transform .25s,box-shadow .25s}
+.kyd-intro-card:hover{transform:translateY(-7px) rotate(0deg)!important;box-shadow:0 18px 32px #2b241d35}
+.kyd-intro-card:before{content:"";position:absolute;inset:0;z-index:-2;background-size:cover;background-position:center;transition:transform .5s}
+.kyd-intro-card:after{content:"";position:absolute;inset:0;z-index:-1;background:linear-gradient(180deg,#17130d00 28%,#17130dcc 100%)}
+.kyd-intro-card:nth-child(1){transform:rotate(-3deg);background:#594b3e}
+.kyd-intro-card:nth-child(1):before{background-image:url('https://images.unsplash.com/photo-1514933651103-005eec06c04b?auto=format&fit=crop&w=900&q=82')}
+.kyd-intro-card:nth-child(2){transform:translateY(13px) rotate(2.5deg);background:#74604e}
+.kyd-intro-card:nth-child(2):before{background-image:url('https://images.unsplash.com/photo-1528605248644-14dd04022da1?auto=format&fit=crop&w=900&q=82')}
+.kyd-intro-card:nth-child(3){transform:rotate(-1.5deg);background:#78634d}
+.kyd-intro-card:nth-child(3):before{background-image:url('https://images.unsplash.com/photo-1514362545857-3bc16c4c7d1b?auto=format&fit=crop&w=900&q=82')}
+.kyd-intro-card small{font-size:9px;letter-spacing:.18em;opacity:.85;margin-bottom:8px}
+.kyd-intro-card strong{font-family:Georgia,'Noto Serif KR',serif;font-size:clamp(21px,2.6vw,30px);font-weight:500;letter-spacing:-.04em;line-height:1.15}
+.kyd-intro-card span{font-size:11px;line-height:1.55;opacity:.9;margin-top:8px;max-width:230px}
+.kyd-intro-sticker{position:absolute;z-index:3;right:28%;top:43%;width:86px;height:86px;border-radius:50%;display:grid;place-items:center;text-align:center;background:#d5a36e;color:#fffdf5;font-family:Georgia,serif;font-size:12px;line-height:1.2;transform:rotate(12deg);box-shadow:0 5px 15px #35281930;border:1px dashed #fff8}
+.kyd-intro-bottom{position:relative;z-index:2;display:flex;justify-content:space-between;align-items:center;gap:16px;border-top:1px solid #e6ded2;padding-top:18px;color:#82786b;font-size:10px;letter-spacing:.13em}
+.kyd-intro-enter{border:0;background:#302c25;color:#fffaf1;padding:13px 20px;font:inherit;font-size:11px;letter-spacing:.08em;cursor:pointer;transition:background .2s}
+.kyd-intro-enter:hover{background:#a65f46}
+.kyd-intro-footnote{font-size:10px;letter-spacing:.04em;color:#9b9184;margin-top:8px}
+@media(max-width:680px){#kydIntroPage{padding:0;background:#f8f5ed;align-items:stretch}.kyd-intro-sheet{min-height:100dvh;width:100%;padding:23px 18px 20px;border:0;box-shadow:none}.kyd-intro-sheet:before{inset:8px}.kyd-intro-heading{margin:35px 0 15px}.kyd-intro-heading h1{font-size:clamp(39px,11vw,58px)}.kyd-intro-heading p{font-size:12px;margin-top:13px}.kyd-intro-collage{grid-template-columns:1fr 1fr;gap:12px;margin:24px 2px 22px;min-height:0}.kyd-intro-card{min-height:clamp(175px,49vw,245px);padding:12px;border-width:4px}.kyd-intro-card:nth-child(1){transform:rotate(-2deg)}.kyd-intro-card:nth-child(2){transform:translateY(10px) rotate(2deg)}.kyd-intro-card:nth-child(3){grid-column:1/-1;min-height:150px;width:72%;justify-self:center;transform:rotate(-1deg)}.kyd-intro-card strong{font-size:23px}.kyd-intro-card span{font-size:10px}.kyd-intro-sticker{width:66px;height:66px;font-size:10px;right:11%;top:51%}.kyd-intro-bottom{align-items:flex-start;flex-direction:column;gap:12px;padding:15px 2px 0}.kyd-intro-enter{width:100%;padding:15px}.kyd-intro-footnote{margin-top:-4px}}
+@media(prefers-reduced-motion:reduce){.kyd-intro-card{transition:none}}
+
 </head>
 
 <body>
+
+<section id="kydIntroPage" hidden aria-label="KYOTO AFTER DARK 소개">
+  <div class="kyd-intro-sheet">
+    <div class="kyd-intro-top"><span>KYOTO AFTER DARK <span aria-hidden="true">/</span> A NIGHTLIFE SCRAPBOOK</span><div class="kyd-intro-langs"><button type="button" data-kyd-lang="ko" aria-pressed="true">KO</button><span>/</span><button type="button" data-kyd-lang="ja" aria-pressed="false">JP</button></div></div>
+    <div class="kyd-intro-heading">
+      <p class="kyd-intro-kicker" data-intro-copy="kicker">YOUR NIGHT, YOUR KYOTO</p>
+      <h1 data-intro-copy="title">교토의 밤을,<br><em>취향대로 수집하다.</em></h1>
+      <p data-intro-copy="description">오늘 마실 곳을 찾고, 함께 마실 사람을 만나고, 오늘의 운세까지. 교토의 밤을 조금 더 재밌게 만드는 나만의 술집 지도.</p>
+    </div>
+    <div class="kyd-intro-collage">
+      <button type="button" class="kyd-intro-card" data-intro-action="map"><small>01 / FIND YOUR PLACE</small><strong data-intro-copy="barTitle">술집 찾기</strong><span data-intro-copy="barDesc">취향에 맞는 한 잔과 새로운 골목을 발견해 보세요.</span></button>
+      <button type="button" class="kyd-intro-card" data-intro-action="friends"><small>02 / MEET YOUR PEOPLE</small><strong data-intro-copy="friendTitle">술친구 찾기</strong><span data-intro-copy="friendDesc">교토에 있는 사람들과 오늘 밤의 약속을 만들어 보세요.</span></button>
+      <button type="button" class="kyd-intro-card" data-intro-action="fortune"><small>03 / A LITTLE LUCK</small><strong data-intro-copy="fortuneTitle">오늘의 술 운세</strong><span data-intro-copy="fortuneDesc">오늘의 한 잔을 위한 작은 운세와 미션을 뽑아보세요.</span></button>
+    </div>
+    <div class="kyd-intro-sticker" aria-hidden="true">ONE MORE<br>GOOD<br>STORY ✳</div>
+    <div class="kyd-intro-bottom"><div><span data-intro-copy="bottom">FIND A BAR · MEET A FRIEND · MAKE A NIGHT</span><div class="kyd-intro-footnote" data-intro-copy="footnote">교토의 밤, 여기서 시작해요.</div></div><button type="button" class="kyd-intro-enter" data-intro-action="map" data-intro-copy="enter">지도로 들어가기 ↗</button></div>
+  </div>
+</section>
+
 
 <header>
 
@@ -12715,6 +12771,35 @@ body.kyd-tab-chat #directChatPanel.is-open{
 })();
 
 </script>
+
+<script id="kyd-first-visit-intro">
+(function(){
+  const page=document.getElementById('kydIntroPage');
+  if(!page)return;
+  const copy={
+    ko:{kicker:'YOUR NIGHT, YOUR KYOTO',title:'교토의 밤을,<br><em>취향대로 수집하다.</em>',description:'오늘 마실 곳을 찾고, 함께 마실 사람을 만나고, 오늘의 운세까지. 교토의 밤을 조금 더 재밌게 만드는 나만의 술집 지도.',barTitle:'술집 찾기',barDesc:'취향에 맞는 한 잔과 새로운 골목을 발견해 보세요.',friendTitle:'술친구 찾기',friendDesc:'교토에 있는 사람들과 오늘 밤의 약속을 만들어 보세요.',fortuneTitle:'오늘의 술 운세',fortuneDesc:'오늘의 한 잔을 위한 작은 운세와 미션을 뽑아보세요.',bottom:'FIND A BAR · MEET A FRIEND · MAKE A NIGHT',footnote:'교토의 밤, 여기서 시작해요.',enter:'지도로 들어가기 ↗'},
+    ja:{kicker:'YOUR NIGHT, YOUR KYOTO',title:'京都の夜を、<br><em>自分らしく集めよう。</em>',description:'今夜のお店を探して、一緒に飲む人と出会い、今日の運勢も。京都の夜をもっと楽しくする、あなただけの居酒屋マップ。',barTitle:'居酒屋を探す',barDesc:'好みに合う一杯と、まだ知らない路地を見つけよう。',friendTitle:'飲み友達を探す',friendDesc:'京都にいる人たちと、今夜の約束を作ってみよう。',fortuneTitle:'今日のお酒占い',fortuneDesc:'今夜の一杯につながる運勢とミッションを引いてみよう。',bottom:'FIND A BAR · MEET A FRIEND · MAKE A NIGHT',footnote:'京都の夜は、ここから始まる。',enter:'マップを見る ↗'}
+  };
+  function applyLanguage(){const lang=window.KYOTO_AFTER_DARK_I18N?.getLanguage?.()==='ja'?'ja':'ko';const t=copy[lang];page.querySelectorAll('[data-intro-copy]').forEach(el=>{const key=el.dataset.introCopy;if(t[key]!==undefined){if(key==='title')el.innerHTML=t[key];else el.textContent=t[key];}});}
+  function closeIntro(action){
+    page.hidden=true;document.body.classList.remove('kyd-intro-active');
+    try{localStorage.setItem('kydIntroSeen','1');}catch(_){}
+    if(action==='friends'){
+      if(typeof window.kyotoAfterDarkSetTab==='function')window.kyotoAfterDarkSetTab('meetup');
+    }else if(action==='fortune'){
+      document.getElementById('sakeFortuneBtn')?.click();
+    }else if(typeof window.kyotoAfterDarkSetTab==='function'){
+      window.kyotoAfterDarkSetTab('map');
+    }
+    window.setTimeout(()=>window.map?.invalidateSize?.(),120);
+  }
+  page.addEventListener('click',event=>{const button=event.target.closest('[data-intro-action]');if(button)closeIntro(button.dataset.introAction);});
+  document.addEventListener('kyd:languagechange',applyLanguage);
+  let seen=false;try{seen=localStorage.getItem('kydIntroSeen')==='1';}catch(_){}
+  if(!seen){page.hidden=false;document.body.classList.add('kyd-intro-active');applyLanguage();}
+})();
+</script>
+
 </body>
 
 </html>
