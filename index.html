@@ -5483,7 +5483,7 @@ body.kyd-intro-active>header,body.kyd-intro-active>main,body.kyd-intro-active>#k
 />
 
 <p style="font-size:12px;color:#777;margin-top:6px;">
-  JPG, PNG, WebP 사진을 여러 장 선택할 수 있어요. (사진 1장당 5MB 이하)
+  JPG, PNG, WebP 사진을 여러 장 선택할 수 있어요. 원본은 최대 20MB, 업로드 전 자동으로 용량을 줄여요.
 </p>
 
 <div id="manualPhotoPreview" style="margin-top:10px;"></div>
@@ -7953,31 +7953,64 @@ const photoUploadBtn = document.getElementById('photoUploadBtn');
 
 photoUploadBtn.addEventListener('click', () => photoFileInput.click());
 
+async function kydCompressPhoto(file) {
+  const maxInput = 20 * 1024 * 1024;
+  const maxOutput = 4.4 * 1024 * 1024; // Stay below a common 5MB Storage bucket cap.
+  if (file.size > maxInput) throw new Error('원본 사진은 한 장당 20MB 이하로 선택해 주세요.');
+  let bitmap;
+  try {
+    bitmap = await createImageBitmap(file);
+  } catch (_) {
+    bitmap = await new Promise((resolve, reject) => {
+      const img = new Image();
+      const url = URL.createObjectURL(file);
+      img.onload = () => { URL.revokeObjectURL(url); resolve(img); };
+      img.onerror = () => { URL.revokeObjectURL(url); reject(new Error('사진을 읽을 수 없어요. JPG, PNG, WebP 파일인지 확인해 주세요.')); };
+      img.src = url;
+    });
+  }
+  const scale = Math.min(1, 2200 / Math.max(bitmap.width, bitmap.height));
+  const canvas = document.createElement('canvas');
+  canvas.width = Math.max(1, Math.round(bitmap.width * scale));
+  canvas.height = Math.max(1, Math.round(bitmap.height * scale));
+  const ctx = canvas.getContext('2d', { alpha:false });
+  ctx.fillStyle = '#fff'; ctx.fillRect(0,0,canvas.width,canvas.height);
+  ctx.drawImage(bitmap,0,0,canvas.width,canvas.height);
+  if (bitmap.close) bitmap.close();
+  let quality = .86, blob = await new Promise(resolve => canvas.toBlob(resolve,'image/jpeg',quality));
+  while (blob && blob.size > maxOutput && quality > .48) {
+    quality -= .08;
+    blob = await new Promise(resolve => canvas.toBlob(resolve,'image/jpeg',quality));
+  }
+  if (!blob) throw new Error('사진을 압축하지 못했어요.');
+  if (blob.size > maxOutput) throw new Error('사진 용량을 충분히 줄이지 못했어요. 다른 사진을 선택해 주세요.');
+  return new File([blob], `${file.name.replace(/\.[^.]+$/,'') || 'kyoto-photo'}.jpg`, { type:'image/jpeg', lastModified:Date.now() });
+}
+
 photoFileInput.addEventListener('change', async () => {
   const files = Array.from(photoFileInput.files || []);
   if (!files.length) return;
   const allowedTypes = ['image/jpeg', 'image/png', 'image/webp'];
-  const invalid = files.find(file => !allowedTypes.includes(file.type) || file.size > 5 * 1024 * 1024);
+  const invalid = files.find(file => !allowedTypes.includes(file.type) || file.size > 20 * 1024 * 1024);
   if (invalid) {
     alert(!allowedTypes.includes(invalid.type)
       ? 'JPG, PNG, WebP 사진만 업로드할 수 있어요.'
-      : '사진은 한 장당 5MB 이하로 선택해 주세요.');
+      : '원본 사진은 한 장당 20MB 이하로 선택해 주세요.');
     photoFileInput.value = '';
     return;
   }
-
   photoUploadBtn.disabled = true;
   const originalLabel = '📷 내 기기에서 사진 선택';
   const uploadedUrls = getPlacePhotoUrls(photoUrlInput.value);
   try {
     for (let i = 0; i < files.length; i++) {
+      photoUploadBtn.textContent = `사진 용량 줄이는 중... (${i + 1}/${files.length})`;
+      const file = await kydCompressPhoto(files[i]);
       photoUploadBtn.textContent = `사진 업로드 중... (${i + 1}/${files.length})`;
-      const file = files[i];
-      const extension = file.type.split('/')[1].replace('jpeg', 'jpg');
-      const filePath = `places/${Date.now()}-${crypto.randomUUID()}.${extension}`;
+      const filePath = `places/${Date.now()}-${crypto.randomUUID()}.jpg`;
       const { error: uploadError } = await supabaseClient.storage
         .from('place-photos')
-        .upload(filePath, file, { cacheControl: '3600', upsert: false, contentType: file.type });
+        .upload(filePath, file, { cacheControl: '3600', upsert: false, contentType: 'image/jpeg' });
       if (uploadError) throw uploadError;
       const { data } = supabaseClient.storage.from('place-photos').getPublicUrl(filePath);
       if (data?.publicUrl) uploadedUrls.push(data.publicUrl);
@@ -7989,7 +8022,7 @@ photoFileInput.addEventListener('change', async () => {
     console.error('사진 업로드 실패:', error);
     photoUrlInput.value = JSON.stringify(uploadedUrls);
     photoUrlInput.dispatchEvent(new Event('input'));
-    alert('사진 업로드에 실패했어요. Supabase Storage 권한을 확인해 주세요. 이미 업로드된 사진은 유지됩니다.');
+    alert(error?.message || '사진 업로드에 실패했어요. Supabase Storage 권한과 용량 제한을 확인해 주세요. 이미 업로드된 사진은 유지됩니다.');
     photoUploadBtn.textContent = originalLabel;
   } finally {
     photoFileInput.value = '';
@@ -9975,74 +10008,92 @@ function kydDrinkIcon(value) {
   return '🍹';
 }
 function kydAvatarMarkup(profile = {}) {
-  // Kyoto After Dark: editorial night-out avatars. Profile data changes silhouette,
-  // styling, palette and the drink prop; the user ID keeps each look consistent.
+  // KYOTO AFTER DARK: refined editorial character with the classic Japanese
+  // へのへのもへじ face. Profile traits change silhouette, styling and drink.
   const gender = String(profile.gender || '');
   const h = Math.min(220, Math.max(120, Number(profile.height_cm) || 170));
   const w = Math.min(180, Math.max(30, Number(profile.weight_kg) || 65));
   const bmi = w / ((h / 100) ** 2);
-  const body = Math.max(39, Math.min(59, 46 + (bmi - 21) * 1.35));
-  const heightScale = Math.max(.88, Math.min(1.12, .90 + (h - 150) / 250));
+  const body = Math.max(35, Math.min(55, 42 + (bmi - 21) * 1.15));
+  const heightScale = Math.max(.9, Math.min(1.13, .92 + (h - 150) / 260));
   const seedText = String(profile.user_id || profile.nickname || 'kyoto-night');
-  let seed = 0; for (let i = 0; i < seedText.length; i++) seed = (seed * 31 + seedText.charCodeAt(i)) >>> 0;
+  let seed = 0; for (let i=0;i<seedText.length;i++) seed=(seed*31+seedText.charCodeAt(i))>>>0;
   const palettes = [
-    {coat:'#344c4b', inner:'#e9dfca', accent:'#d39a62', bg:'#dce5dc'},
-    {coat:'#6b3f3d', inner:'#eee4d6', accent:'#d7b46d', bg:'#eadbd1'},
-    {coat:'#34465d', inner:'#e6e5dc', accent:'#c78c76', bg:'#dce2e9'},
-    {coat:'#75634b', inner:'#f0e5d1', accent:'#a7b5a0', bg:'#e9e1d2'},
-    {coat:'#51475d', inner:'#eee5db', accent:'#d1a66d', bg:'#e4deea'},
-    {coat:'#3d555e', inner:'#f0e7d8', accent:'#c98e82', bg:'#dce7e7'},
-    {coat:'#765247', inner:'#eee3d6', accent:'#b7aa79', bg:'#eadfd7'}
+    {coat:'#263f3c',inner:'#e9dfce',accent:'#c58b5b',bg:'#d9e3dc'},
+    {coat:'#653f3c',inner:'#f0e5d6',accent:'#d2aa70',bg:'#eadbd2'},
+    {coat:'#34465c',inner:'#e9e6dc',accent:'#bd8875',bg:'#dce3e9'},
+    {coat:'#66563f',inner:'#eee4d2',accent:'#9eaa91',bg:'#e8e0d1'},
+    {coat:'#51445a',inner:'#eee6dc',accent:'#c99a67',bg:'#e4deea'},
+    {coat:'#34515a',inner:'#f0e8d9',accent:'#c58c80',bg:'#dce7e6'},
+    {coat:'#754f43',inner:'#eee1d4',accent:'#b5a477',bg:'#eadfd7'}
   ];
-  const palette = palettes[seed % palettes.length];
-  const hairColors = ['#282827','#46352f','#68503d','#302d3a','#80664d'];
-  const hairColor = hairColors[(seed >>> 4) % hairColors.length];
-  const skin = ['#e9b995','#dba783','#f0c9a8','#c98f70'][(seed >>> 7) % 4];
-  const hair = gender === '여성'
-    ? `<path d="M54 52Q52 20 80 17Q111 17 108 54L106 101Q98 111 93 79L67 79Q62 109 54 99Z" fill="${hairColor}"/><path d="M55 47Q59 18 83 19Q104 18 109 47Q93 36 82 39Q67 36 55 47Z" fill="${hairColor}"/>`
-    : gender === '기타'
-      ? `<path d="M56 51Q57 20 82 19Q107 19 108 50L99 68L63 68Z" fill="${hairColor}"/><path d="M59 40Q77 21 103 39" fill="none" stroke="${hairColor}" stroke-width="9" stroke-linecap="round"/>`
-      : `<path d="M56 53Q54 21 81 18Q108 18 108 51L99 68Q82 57 64 69Z" fill="${hairColor}"/><path d="M60 39Q78 17 103 37" fill="none" stroke="${hairColor}" stroke-width="8" stroke-linecap="round"/>`;
-  const drink = kydDrinkIcon(profile.favorite_drinks);
-  const torsoLeft = 80 - body / 2;
-  const torsoRight = 80 + body / 2;
-  const legStart = 132 + (heightScale - 1) * 16;
-  const jacketShape = `M${torsoLeft+5} 76Q80 68 ${torsoRight-5} 76L${torsoRight+5} 137Q80 145 ${torsoLeft-5} 137Z`;
+  const palette=palettes[seed%palettes.length];
+  const hairColors=['#242321','#40312d','#654c3b','#34303a','#80654c'];
+  const hairColor=hairColors[(seed>>>4)%hairColors.length];
+  const skin=['#e9b995','#dba783','#f0c9a8','#c98f70'][(seed>>>7)%4];
+  const hairStyle=(seed>>>11)%4;
+  const hairBack = gender==='여성'
+    ? `<path d="M49 66Q43 18 81 14Q119 16 113 67L111 113Q104 125 98 103L64 103Q57 126 49 112Z" fill="${hairColor}"/>`
+    : gender==='기타'
+      ? `<path d="M50 59Q48 17 81 15Q114 16 112 58L105 77H56Z" fill="${hairColor}"/>`
+      : `<path d="M50 61Q47 17 81 15Q115 17 112 61L105 77H56Z" fill="${hairColor}"/>`;
+  const fringe = hairStyle===0
+    ? `<path d="M51 48Q66 12 106 35Q98 43 88 42Q69 34 51 54Z" fill="${hairColor}"/>`
+    : hairStyle===1
+      ? `<path d="M51 43Q76 8 111 39Q91 33 82 49Q68 40 51 54Z" fill="${hairColor}"/>`
+      : hairStyle===2
+        ? `<path d="M50 43Q56 12 82 15Q108 14 112 44Q92 29 79 39Q64 31 50 50Z" fill="${hairColor}"/>`
+        : `<path d="M49 47Q53 12 83 15Q113 16 112 48Q99 38 88 41Q68 33 49 54Z" fill="${hairColor}"/>`;
+  const drink=kydDrinkIcon(profile.favorite_drinks);
+  const torsoLeft=80-body/2, torsoRight=80+body/2;
+  const legTop=137+(heightScale-1)*15;
+  const jacket=`M${torsoLeft+4} 79Q80 70 ${torsoRight-4} 79L${torsoRight+5} 140Q80 148 ${torsoLeft-5} 140Z`;
   const glass = /🍺/.test(drink)
-    ? `<path d="M116 44h19l-2 24q-7 8-14 0Z" fill="#f5d28b" stroke="#fff8eb" stroke-width="2"/><path d="M118 50h15" stroke="#fff8eb" stroke-width="3"/><path d="M135 50q9 0 5 10" fill="none" stroke="#fff8eb" stroke-width="2"/>`
+    ? `<path d="M119 43h17l-2 23q-6 7-13 0Z" fill="#e8bd69" stroke="#fff8eb" stroke-width="2"/><path d="M136 49q9 0 5 9" fill="none" stroke="#fff8eb" stroke-width="2"/><path d="M120 49h14" stroke="#fff8eb" stroke-width="3"/>`
     : /🍷/.test(drink)
-      ? `<path d="M117 43h19q0 17-9.5 19Q117 60 117 43Z" fill="#9d4e58" stroke="#fff8eb" stroke-width="2"/><path d="M126.5 62v12m-7 0h14" stroke="#fff8eb" stroke-width="2" stroke-linecap="round"/>`
+      ? `<path d="M119 42h18q0 16-9 19Q119 58 119 42Z" fill="#914653" stroke="#fff8eb" stroke-width="2"/><path d="M128 61v12m-7 0h14" stroke="#fff8eb" stroke-width="2" stroke-linecap="round"/>`
       : /🍶/.test(drink)
-        ? `<path d="M119 43h15l-2 8h-11Z" fill="#f3eee3" stroke="#fff8eb" stroke-width="2"/><path d="M121 51v20q6 5 12 0V51" fill="#e9d7b4" stroke="#fff8eb" stroke-width="2"/>`
-        : `<path d="M117 43h19l-2 23q-7 7-14 0Z" fill="#d8a46f" stroke="#fff8eb" stroke-width="2"/><path d="M136 49q8 0 5 9" fill="none" stroke="#fff8eb" stroke-width="2"/><path d="M120 51h13" stroke="#fff8eb" stroke-width="2"/>`;
-  const accessory = (seed >>> 10) % 3 === 0
-    ? `<path d="M58 84l-8 8 8 8" fill="none" stroke="${palette.accent}" stroke-width="3" stroke-linecap="round"/>`
-    : (seed >>> 10) % 3 === 1
-      ? `<circle cx="101" cy="91" r="3" fill="${palette.accent}"/>`
-      : `<path d="M72 78l8 8 8-8" fill="none" stroke="${palette.accent}" stroke-width="2.5"/>`;
-  return `<svg viewBox="0 0 160 190" role="img" aria-label="프로필 취향을 반영한 교토의 밤 캐릭터" xmlns="http://www.w3.org/2000/svg">
-    <defs><linearGradient id="kydAvatarBg${seed}" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#fff" stop-opacity=".62"/><stop offset="1" stop-color="${palette.bg}"/></linearGradient></defs>
-    <ellipse cx="80" cy="166" rx="39" ry="6" fill="#40382f" opacity=".12"/>
-    <path d="M20 142Q10 91 42 54Q80 12 119 53Q151 89 140 142Q112 161 80 158Q45 160 20 142Z" fill="url(#kydAvatarBg${seed})"/>
-    <path d="M55 ${legStart}L53 165Q61 171 72 166L78 ${legStart+1}M84 ${legStart+1}L89 166Q99 171 107 165L103 ${legStart}" fill="#393b3b"/>
-    <path d="M52 164q-8 4-13 1l-3 5q12 7 23 0l-1-5m42-1q8 5 15 1l3 5q-11 8-22 0l1-5" fill="#272a2b"/>
-    <path d="M${torsoLeft} 81Q80 69 ${torsoRight} 81L${torsoRight+7} 139Q80 149 ${torsoLeft-7} 139Z" fill="${palette.coat}"/>
-    <path d="M72 76L80 91L89 76L97 137H63Z" fill="${palette.inner}"/>
-    <path d="M80 91v45" stroke="${palette.accent}" stroke-width="2" opacity=".9"/>
-    <path d="M${torsoLeft+2} 86Q48 91 45 120L37 137" fill="none" stroke="${palette.coat}" stroke-width="13" stroke-linecap="round"/>
-    <path d="M${torsoRight-2} 86Q112 85 119 66" fill="none" stroke="${palette.coat}" stroke-width="13" stroke-linecap="round"/>
+        ? `<path d="M120 43h16l-2 8h-12Z" fill="#f4eee2" stroke="#fff8eb" stroke-width="2"/><path d="M122 51v18q6 5 12 0V51" fill="#e8d6b3" stroke="#fff8eb" stroke-width="2"/>`
+        : `<path d="M119 43h18l-2 22q-7 7-14 0Z" fill="#c9905e" stroke="#fff8eb" stroke-width="2"/><path d="M137 49q8 0 5 9" fill="none" stroke="#fff8eb" stroke-width="2"/><path d="M122 50h13" stroke="#fff8eb" stroke-width="2"/>`;
+  const accessory=(seed>>>10)%3===0
+    ? `<path d="M105 28l5-5 5 5-5 5Z" fill="${palette.accent}"/>`
+    : (seed>>>10)%3===1
+      ? `<circle cx="105" cy="29" r="3.5" fill="${palette.accent}"/>`
+      : `<path d="M54 73l-5 7 5 7" fill="none" stroke="${palette.accent}" stroke-width="2.5" stroke-linecap="round"/>`;
+  return `<svg viewBox="0 0 160 190" role="img" aria-label="へのへのもへじ 얼굴의 교토 나이트 캐릭터" xmlns="http://www.w3.org/2000/svg">
+    <defs>
+      <linearGradient id="kydAvatarBg${seed}" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#fff" stop-opacity=".7"/><stop offset="1" stop-color="${palette.bg}"/></linearGradient>
+      <linearGradient id="kydAvatarCoat${seed}" x1="0" y1="0" x2="1" y2="1"><stop stop-color="${palette.coat}"/><stop offset="1" stop-color="#171f20"/></linearGradient>
+    </defs>
+    <ellipse cx="80" cy="169" rx="38" ry="5" fill="#40382f" opacity=".13"/>
+    <path d="M20 146Q12 92 42 56Q80 17 118 56Q149 92 140 146Q110 160 80 158Q48 160 20 146Z" fill="url(#kydAvatarBg${seed})"/>
+    ${hairBack}
+    <path d="M56 ${legTop}L53 166Q62 171 72 166L78 ${legTop+1}M84 ${legTop+1}L89 166Q99 171 107 166L103 ${legTop}" fill="#303536"/>
+    <path d="M52 165q-8 4-14 1l-3 5q12 7 23 0l-1-5m43-1q8 5 15 1l3 5q-11 8-22 0l1-5" fill="#242829"/>
+    <path d="${jacket}" fill="url(#kydAvatarCoat${seed})"/>
+    <path d="M72 77L80 92L89 77L96 139H64Z" fill="${palette.inner}"/>
+    <path d="M80 92v44" stroke="${palette.accent}" stroke-width="2"/>
+    <path d="M${torsoLeft+3} 86Q48 92 44 120L36 138" fill="none" stroke="${palette.coat}" stroke-width="12" stroke-linecap="round"/>
+    <path d="M${torsoRight-3} 86Q111 85 119 65" fill="none" stroke="${palette.coat}" stroke-width="12" stroke-linecap="round"/>
     <path d="M119 66l3-9" stroke="${skin}" stroke-width="8" stroke-linecap="round"/>
+    <path d="M35 138l-4 3" stroke="${skin}" stroke-width="5" stroke-linecap="round"/>
     <path d="M73 70h14v13H73Z" fill="${skin}"/>
-    <ellipse cx="81" cy="48" rx="25" ry="29" fill="${skin}"/>
-    ${hair}
-    <path d="M56 49Q54 29 68 22" fill="none" stroke="#fff" stroke-width="2" opacity=".18"/>
+    <ellipse cx="80" cy="48" rx="25" ry="29" fill="${skin}" stroke="#9f735d" stroke-opacity=".25" stroke-width="1"/>
+    ${fringe}
     ${accessory}
-    <path d="M44 121l-7 16" stroke="${skin}" stroke-width="7" stroke-linecap="round"/>
-    <path d="M35 137l-3 3" stroke="${skin}" stroke-width="5" stroke-linecap="round"/>
+    <!-- Classic Japanese へのへのもへじ face: deliberately visible, not covered -->
+    <g fill="#302b28" font-family="'Noto Sans JP','Yu Gothic',sans-serif" font-weight="800" text-anchor="middle">
+      <text x="68" y="43" font-size="13" transform="rotate(-12 68 43)">へ</text>
+      <text x="92" y="43" font-size="13" transform="rotate(12 92 43)">へ</text>
+      <text x="68" y="55" font-size="12">の</text>
+      <text x="92" y="55" font-size="12">の</text>
+      <text x="80" y="67" font-size="13">も</text>
+      <text x="80" y="78" font-size="12" transform="rotate(180 80 75)">へ</text>
+    </g>
     ${glass}
-    <circle cx="126" cy="31" r="15" fill="#fffaf0" stroke="${palette.accent}" stroke-width="1.5"/>
-    <text x="126" y="36" text-anchor="middle" font-size="15">${drink}</text>
-    <path d="M34 49l-4-5m4 5 6-2" stroke="${palette.accent}" stroke-width="2" stroke-linecap="round"/>
+    <circle cx="128" cy="30" r="14" fill="#fffaf0" stroke="${palette.accent}" stroke-width="1.5"/>
+    <text x="128" y="35" text-anchor="middle" font-size="14">${drink}</text>
+    <path d="M35 49l-4-5m4 5 6-2" stroke="${palette.accent}" stroke-width="2" stroke-linecap="round"/>
   </svg>`;
 }
 function kydEnsureProfileModal() {
@@ -12521,7 +12572,7 @@ localStorage.setItem(
     '추천 메뉴와 맛':'おすすめメニューと味', '직원의 친절도':'スタッフの接客', '사케 / 맥주 / 하이볼 등':'日本酒／ビール／ハイボールなど',
     '데이트 / 친구와 한잔 / 혼술':'デート／友人との一杯／一人飲み', '최대 150자':'最大150文字',
     '📷 내 기기에서 사진 선택':'📷 端末から写真を選択', '🔎 인터넷에서 사진 후보 검색':'🔎 ネットで写真候補を検索',
-    'JPG, PNG, WebP 사진을 여러 장 선택할 수 있어요. (사진 1장당 5MB 이하)':'JPG、PNG、WebP形式の画像を選択できます。',
+    'JPG, PNG, WebP 사진을 여러 장 선택할 수 있어요. 원본은 최대 20MB, 업로드 전 자동으로 용량을 줄여요.':'JPG、PNG、WebP形式の画像を選択できます。',
     '검색된 사진은 직접 확인한 뒤 선택할 수 있어요.':'検索結果を確認してから画像を選択できます。',
     '📍 주소로 위치 찾기':'📍 住所から場所を検索', '📍 지도에서 위치 선택':'📍 地図から場所を選択',
     '주소를 검색하면 지도에 위치가 표시됩니다.':'住所を検索すると地図上に場所が表示されます。',
