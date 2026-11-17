@@ -1,0 +1,5 @@
+
+User-agent: *
+Allow: /
+
+Sitemap: https://haneinkyoto.github.io/kyoto-after-dark/sitemap.xml
