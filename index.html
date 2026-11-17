@@ -4811,6 +4811,15 @@ body.kyd-intro-active>header,body.kyd-intro-active>main,body.kyd-intro-active>#k
 
 </div>
 
+<section id="kydMyJourney" class="kyd-my-journey" aria-label="나의 교토 방문 기록">
+  <div class="kyd-journey-heading"><span>MY KYOTO LOG</span><h3>내가 걸어 다닌 교토</h3><p>가게 근처에서 방문을 확인하고, 나만의 리뷰와 동선을 기록해 보세요.</p></div>
+  <div class="kyd-journey-actions"><button type="button" id="kydJourneyRefresh">기록 새로고침</button><button type="button" id="kydJourneyShare">내 동선 공유하기</button></div>
+  <div id="kydJourneyStats" class="kyd-journey-stats"></div>
+  <div id="kydJourneyMap" class="kyd-journey-map" aria-label="나의 방문 동선 지도"></div>
+  <div id="kydJourneyVisits" class="kyd-journey-visits" aria-live="polite"></div>
+  <div class="kyd-journey-shares"><h4>교토 산책 기록 게시판</h4><div id="kydJourneyShareList" aria-live="polite"></div></div>
+</section>
+
 <section id="ownerMessageSection" aria-labelledby="ownerMessageHeading">
   <div class="owner-message-heading">
     <span class="owner-message-kicker">A NOTE TO THE EDITOR</span>
@@ -4846,6 +4855,7 @@ body.kyd-intro-active>header,body.kyd-intro-active>main,body.kyd-intro-active>#k
     </div>
     <p id="ownerMessageStatus" role="status" aria-live="polite"></p>
   </form>
+  <div id="ownerReplyHistory" class="kyd-owner-reply-history" aria-live="polite"></div>
 
   <section id="ownerInbox" hidden aria-labelledby="ownerInboxHeading">
     <div class="owner-inbox-title-row">
@@ -12316,6 +12326,11 @@ localStorage.setItem(
       const dt=row.created_at?new Date(row.created_at).toLocaleString(isJa()?'ja-JP':'ko-KR'):'—';
       meta.textContent=[t().categoryNames[row.category]||row.category,row.sender_name||'회원',dt].join(' · ');article.append(meta);
       const body=document.createElement('p');body.className='owner-message-content';body.textContent=row.message;article.append(body);
+      const replyWrap=document.createElement('div');replyWrap.className='kyd-owner-reply-wrap';
+      const reply=document.createElement('textarea');reply.rows=2;reply.maxLength=2000;reply.placeholder='답변 작성…';reply.value=row.owner_reply||'';reply.setAttribute('aria-label','주인장 답변');
+      const replyBtn=document.createElement('button');replyBtn.type='button';replyBtn.textContent=row.owner_reply?'답변 수정':'답변 보내기';
+      replyBtn.addEventListener('click',async()=>{const value=reply.value.trim();if(!value){$('ownerInboxStatus').textContent='답변 내용을 입력해 주세요.';return;}replyBtn.disabled=true;const {error}=await supabaseClient.from('kyoto_owner_messages').update({owner_reply:value,replied_at:new Date().toISOString()}).eq('id',row.id);replyBtn.disabled=false;if(error){console.error(error);$('ownerInboxStatus').textContent='답변 저장에 실패했어요. SQL 업데이트를 적용했는지 확인해 주세요.';return;}row.owner_reply=value;row.replied_at=new Date().toISOString();replyBtn.textContent='답변 수정';$('ownerInboxStatus').textContent='답변을 저장했어요.';});
+      replyWrap.append(reply,replyBtn);article.append(replyWrap);
       const action=document.createElement('button');action.type='button';action.textContent=row.is_read?t().markUnread:t().markRead;
       action.addEventListener('click',()=>toggleRead(row.id,!row.is_read));article.append(action);list.append(article);
     });
@@ -12331,7 +12346,7 @@ localStorage.setItem(
   }
   async function loadInbox(){
     $('ownerInboxStatus').textContent=t().loading;
-    const {data,error}=await supabaseClient.from('kyoto_owner_messages').select('id,category,subject,message,sender_name,is_read,created_at').order('created_at',{ascending:false}).limit(100);
+    const {data,error}=await supabaseClient.from('kyoto_owner_messages').select('id,category,subject,message,sender_name,is_read,created_at,owner_reply,replied_at').order('created_at',{ascending:false}).limit(100);
     if(error){console.error('Owner inbox load failed:',error);$('ownerInboxStatus').textContent=t().loadFail;return;}
     cachedMessages=data||[];renderInboxCache();
   }
@@ -12386,7 +12401,7 @@ localStorage.setItem(
   if(!bar||!panel)return;
   panel.classList.add('kyd-tab-panel');
   const mapParts=[document.querySelector('.sidebar'),document.querySelector('.map-wrap')];
-  const selectors=['.stay-hero','.stay-auth-card','.stay-calendar-shell','#profileSection','#ownerMessageSection','#kydMyIntro','#kydMeetupIntro','.stay-calendar-heading','.stay-weekdays','#calendarGrid','#selectedDateLabel','#stayCountLabel','.stay-date-card','.stay-chat-card','.stay-meetup-card'];
+  const selectors=['.stay-hero','.stay-auth-card','.stay-calendar-shell','#profileSection','#kydMyJourney','#ownerMessageSection','#kydMyIntro','#kydMeetupIntro','.stay-calendar-heading','.stay-weekdays','#calendarGrid','#selectedDateLabel','#stayCountLabel','.stay-date-card','.stay-chat-card','.stay-meetup-card'];
   const parts=Object.fromEntries(selectors.map(s=>[s,panel.querySelector(s)]));
   let activeTab='map';
   function closeFloatingPanels(){
@@ -12435,6 +12450,7 @@ localStorage.setItem(
       showPart('.stay-hero',tab==='stay');
       showPart('.stay-auth-card',tab!=='chat');
       showPart('#profileSection',tab==='my');
+      showPart('#kydMyJourney',tab==='my');
       showPart('#ownerMessageSection',tab==='my');
       showPart('#kydMyIntro',tab==='my');
       showPart('#kydMeetupIntro',tab==='meetup');
@@ -13179,6 +13195,35 @@ body:has(.modal-backdrop.show) .kyd-my-location-dock{display:none}
   document.addEventListener('kyd:languagechange',applyLanguage);
   let seen=false;try{seen=localStorage.getItem('kydIntroSeen')==='1';}catch(_){}
   if(!seen){page.hidden=false;document.body.classList.add('kyd-intro-active');applyLanguage();}
+})();
+</script>
+
+<style id="kyd-journey-enhancements">
+.kyd-my-journey{margin:24px 0;padding:20px;border:1px solid #e7dfd2;background:#fbf9f4;color:#373128}.kyd-journey-heading>span{font:11px Georgia;letter-spacing:.16em;color:#9a795f}.kyd-journey-heading h3{margin:6px 0;font:500 21px Georgia,'Noto Serif KR',serif}.kyd-journey-heading p{font-size:12px;color:#81786d;line-height:1.7}.kyd-journey-actions{display:flex;gap:8px;flex-wrap:wrap;margin:14px 0}.kyd-journey-actions button,.kyd-journey-visits button,.kyd-journey-shares button,.kyd-owner-reply-wrap button{border:1px solid #796b58;background:#554b3e;color:#fffaf1;padding:9px 13px;border-radius:3px;font-size:12px}.kyd-journey-stats{display:flex;gap:8px;flex-wrap:wrap;margin:12px 0}.kyd-journey-stat{padding:10px 13px;background:#f1ece2;border:1px solid #e4dbcd;font-size:12px}.kyd-journey-map{height:250px;border:1px solid #e2d9ca;background:#eee9df;margin:12px 0;overflow:hidden}.kyd-journey-visits article,.kyd-journey-shares article{padding:14px 0;border-top:1px solid #e7dfd2}.kyd-journey-visits h4,.kyd-journey-shares h4{margin:0 0 6px;font:500 15px Georgia,'Noto Serif KR',serif}.kyd-journey-visits p,.kyd-journey-shares p{font-size:12px;line-height:1.65;color:#70675d;white-space:pre-wrap}.kyd-journey-visits textarea{width:100%;box-sizing:border-box;min-height:68px;padding:9px;border:1px solid #ddd3c5;background:#fffefa;font:12px/1.6 inherit}.kyd-owner-reply-wrap{display:grid;gap:7px;margin:12px 0;padding:12px;background:#f5f1e9;border:1px solid #e5dccd}.kyd-owner-reply-wrap textarea{width:100%;box-sizing:border-box;min-height:60px;padding:9px;border:1px solid #ddd3c5;background:#fffefa}.kyd-owner-reply-history{margin:10px 0}.kyd-owner-reply-history article{padding:10px;background:#f4f0e8;border-left:3px solid #a47b61;margin:8px 0;font-size:12px}.kyd-visit-trigger{display:block;width:100%;margin-top:8px;padding:9px;border:1px solid #8b765e;background:#f7f1e7;color:#554b3e;border-radius:3px;font-size:12px}.kyd-visit-trigger:disabled{opacity:.55}@media(max-width:600px){.kyd-my-journey{padding:14px;margin:16px 0}.kyd-journey-map{height:220px}.kyd-journey-actions button{flex:1}}
+</style>
+<script id="kyd-journey-and-owner-replies">
+(()=>{
+'use strict';
+const $=id=>document.getElementById(id); const esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const status=(m)=>{const n=$('kydJourneyStats');if(n)n.dataset.status=m;};
+const dist=(a,b,c,d)=>{const R=6371000,r=x=>x*Math.PI/180,dl=r(c-a),dn=r(d-b),x=Math.sin(dl/2)**2+Math.cos(r(a))*Math.cos(r(c))*Math.sin(dn/2)**2;return 2*R*Math.asin(Math.sqrt(x));};
+let journeyMap=null,journeyLayer=null,journeyRows=[];
+function currentPlace(id){return (window.KYOTO_PLACES||[]).find(p=>String(p.id)===String(id))||(typeof places!=='undefined'?places.find(p=>String(p.id)===String(id)):null);}
+async function markVisit(place){if(typeof communityUser==='undefined'||!communityUser){alert('방문 기록은 로그인 후 사용할 수 있어요.');$('showLoginBtn')?.click();return;}if(!navigator.geolocation){alert('이 브라우저에서는 위치 확인을 지원하지 않아요.');return;}const btn=document.querySelector(`[data-kyd-visit="${CSS.escape(String(place.id))}"]`);if(btn){btn.disabled=true;btn.textContent='현재 위치 확인 중…';}
+ navigator.geolocation.getCurrentPosition(async pos=>{const lat=Number(place.lat),lng=Number(place.lng);if(!Number.isFinite(lat)||!Number.isFinite(lng)){alert('이 가게의 지도 좌표가 등록되어 있지 않아 방문 위치를 확인할 수 없어요.');if(btn){btn.disabled=false;btn.textContent='📍 이곳 방문 완료';}return;}const meters=dist(pos.coords.latitude,pos.coords.longitude,lat,lng);if(meters>250){alert(`현재 가게에서 약 ${Math.round(meters)}m 떨어져 있어요. 가게 근처 250m 이내에서 다시 눌러 주세요.`);if(btn){btn.disabled=false;btn.textContent='📍 이곳 방문 완료';}return;}const review=prompt(`${place.name} 방문을 확인했어요! 나만 볼 리뷰를 남겨 주세요. (나중에 MY에서 수정·공유 가능)`,'');if(review===null){if(btn){btn.disabled=false;btn.textContent='📍 이곳 방문 완료';}return;}const payload={user_id:communityUser.id,place_id:String(place.id),place_name:place.name||'이자카야',place_lat:lat,place_lng:lng,visited_at:new Date().toISOString(),private_review:review.trim()};const {error}=await communityClient.from('kyoto_user_visits').upsert(payload,{onConflict:'user_id,place_id'});if(error){console.error(error);alert('방문 기록 저장에 실패했어요. 동봉된 SQL 설정을 먼저 적용했는지 확인해 주세요.');if(btn){btn.disabled=false;btn.textContent='📍 이곳 방문 완료';}return;}if(btn){btn.textContent='✓ 방문 기록됨';btn.disabled=true;}await loadJourney();},err=>{alert(err.code===1?'위치 권한이 필요해요. 브라우저 위치 권한을 허용해 주세요.':'현재 위치를 확인하지 못했어요. 잠시 후 다시 시도해 주세요.');if(btn){btn.disabled=false;btn.textContent='📍 이곳 방문 완료';}},{enableHighAccuracy:true,timeout:12000,maximumAge:30000});}
+function addVisitButtons(){document.querySelectorAll('.place-card').forEach(card=>{if(card.querySelector('.kyd-visit-trigger'))return;const id=card.dataset.id;const p=currentPlace(id);if(!p)return;const b=document.createElement('button');b.type='button';b.className='kyd-visit-trigger';b.dataset.kydVisit=id;b.textContent='📍 이곳 방문 완료';b.addEventListener('click',e=>{e.stopPropagation();markVisit(p);});card.appendChild(b);});}
+async function loadJourney(){if(typeof communityUser==='undefined'||!communityUser)return;const list=$('kydJourneyVisits'),stats=$('kydJourneyStats');if(!list||!stats)return;list.textContent='방문 기록을 불러오는 중…';const {data,error}=await communityClient.from('kyoto_user_visits').select('id,place_id,place_name,place_lat,place_lng,visited_at,private_review').eq('user_id',communityUser.id).order('visited_at',{ascending:true}).limit(500);if(error){list.textContent='방문 기록을 불러오지 못했어요. SQL 설정과 로그인 상태를 확인해 주세요.';console.error(error);return;}journeyRows=data||[];stats.innerHTML=`<span class="kyd-journey-stat">방문 가게 <b>${journeyRows.length}</b>곳</span><span class="kyd-journey-stat">기록한 리뷰 <b>${journeyRows.filter(x=>x.private_review).length}</b>개</span>`;list.replaceChildren();if(!journeyRows.length){list.textContent='아직 방문 기록이 없어요. 지도에서 가게 근처에 도착한 뒤 방문 완료를 눌러 보세요.';}journeyRows.slice().reverse().forEach(row=>{const a=document.createElement('article');const h=document.createElement('h4');h.textContent=row.place_name;const meta=document.createElement('small');meta.textContent=new Date(row.visited_at).toLocaleString(document.documentElement.lang==='ja'?'ja-JP':'ko-KR');const ta=document.createElement('textarea');ta.maxLength=1500;ta.value=row.private_review||'';ta.placeholder='나만 볼 리뷰를 기록해 보세요';const save=document.createElement('button');save.type='button';save.textContent='리뷰 저장';save.addEventListener('click',async()=>{save.disabled=true;const {error}=await communityClient.from('kyoto_user_visits').update({private_review:ta.value.trim()}).eq('id',row.id).eq('user_id',communityUser.id);save.disabled=false;if(error){alert('리뷰 저장에 실패했어요.');console.error(error);}else{row.private_review=ta.value.trim();alert('나의 리뷰를 저장했어요.');}});a.append(h,meta,ta,save);list.append(a);});drawJourneyMap();await loadJourneyShares();}
+function drawJourneyMap(){const el=$('kydJourneyMap');if(!el||!window.L)return;if(!journeyMap){journeyMap=L.map(el,{scrollWheelZoom:false});L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{attribution:'© OpenStreetMap'}).addTo(journeyMap);journeyLayer=L.layerGroup().addTo(journeyMap);}journeyLayer.clearLayers();const pts=journeyRows.filter(r=>Number.isFinite(+r.place_lat)&&Number.isFinite(+r.place_lng));pts.forEach((r,i)=>L.marker([+r.place_lat,+r.place_lng]).bindPopup(`${i+1}. ${esc(r.place_name)}`).addTo(journeyLayer));if(pts.length>1)L.polyline(pts.map(r=>[+r.place_lat,+r.place_lng]),{color:'#a4775b',weight:3,dashArray:'5 7'}).addTo(journeyLayer);if(pts.length){journeyMap.fitBounds(pts.map(r=>[+r.place_lat,+r.place_lng]),{padding:[24,24],maxZoom:15});}else journeyMap.setView([35.0116,135.7681],12);setTimeout(()=>journeyMap.invalidateSize(),120);}
+async function shareJourney(){if(!communityUser){alert('로그인해 주세요.');return;}const chosen=journeyRows.filter(r=>r.private_review||true);if(!chosen.length){alert('공유할 방문 기록이 없어요.');return;}const title=prompt('공유할 교토 동선의 제목을 입력해 주세요.','나의 교토 한잔 코스');if(!title)return;const note=prompt('코스에 대한 짧은 소개를 적어 주세요.','직접 다녀온 가게들을 기록했어요.');const visits=chosen.map(r=>({place_id:r.place_id,place_name:r.place_name,place_lat:r.place_lat,place_lng:r.place_lng,visited_at:r.visited_at,review:r.private_review||''}));const {error}=await communityClient.from('kyoto_route_shares').insert({user_id:communityUser.id,title:title.slice(0,100),description:(note||'').slice(0,1000),visits});if(error){console.error(error);alert('동선 공유에 실패했어요. SQL 설정을 확인해 주세요.');return;}await loadJourneyShares();}
+async function loadJourneyShares(){const box=$('kydJourneyShareList');if(!box)return;box.textContent='공유 기록을 불러오는 중…';const {data,error}=await communityClient.from('kyoto_route_shares').select('id,user_id,title,description,visits,created_at').order('created_at',{ascending:false}).limit(30);if(error){box.textContent='공유 게시판을 불러오지 못했어요.';console.error(error);return;}box.replaceChildren();if(!data?.length){box.textContent='아직 공유된 동선이 없어요.';return;}data.forEach(row=>{const a=document.createElement('article'),h=document.createElement('h4'),p=document.createElement('p'),meta=document.createElement('small');h.textContent=row.title;p.textContent=row.description||'';meta.textContent=`${(row.visits||[]).length}곳 · ${new Date(row.created_at).toLocaleDateString()}`;a.append(h,p,meta);(row.visits||[]).forEach(v=>{const line=document.createElement('p');line.textContent=`${v.place_name}${v.review?' — '+v.review:''}`;a.append(line);});box.append(a);});}
+async function loadOwnerReplies(){if(typeof communityUser==='undefined'||!communityUser)return;const box=$('ownerReplyHistory');if(!box)return;const {data,error}=await communityClient.from('kyoto_owner_messages').select('id,subject,owner_reply,replied_at,created_at').eq('sender_user_id',communityUser.id).not('owner_reply','is',null).order('replied_at',{ascending:false}).limit(20);box.replaceChildren();if(error){console.warn('owner replies:',error);return;}if(!data?.length)return;const h=document.createElement('h4');h.textContent='주인장의 답변';box.append(h);data.forEach(r=>{const a=document.createElement('article'),t=document.createElement('strong'),p=document.createElement('p');t.textContent=r.subject;p.textContent=r.owner_reply;a.append(t,p);box.append(a);});}
+$('kydJourneyRefresh')?.addEventListener('click',loadJourney);$('kydJourneyShare')?.addEventListener('click',shareJourney);
+document.querySelectorAll('[data-kyd-tab="my"]').forEach(b=>b.addEventListener('click',()=>{setTimeout(()=>{loadJourney();loadOwnerReplies();},100);}));
+const observer=new MutationObserver(addVisitButtons);observer.observe(document.body,{childList:true,subtree:true});addVisitButtons();
+if(typeof window.loadMeetups==='function'){const old=window.loadMeetups;window.loadMeetups=async function(){const date=document.getElementById('meetupDate');if(date&&selectedDate)date.value=selectedDate;return old();};}
+const dateInput=$('meetupDate');if(dateInput){dateInput.addEventListener('change',async()=>{const d=dateInput.value;if(!d)return;selectedDate=d;const label=$('selectedDateLabel');if(label)label.textContent=`선택한 날짜: ${d}`;if(typeof loadMeetups==='function')await loadMeetups();});}
+// Keep chat usable on mobile: Enter sends, Shift+Enter inserts a line; avoid duplicate sends.
+const chatInput=$('chatInput'),send=$('sendChatBtn');if(chatInput&&send){chatInput.addEventListener('keydown',e=>{if(e.key==='Enter'&&!e.shiftKey&&!e.isComposing){e.preventDefault();send.click();}});}
 })();
 </script>
 
