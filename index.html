@@ -10072,8 +10072,8 @@ function kydDrinkIcon(value) {
   return '🍹';
 }
 function kydAvatarMarkup(profile = {}) {
-  // Kyoto editorial portrait: restrained kimono silhouette, washi medallion,
-  // and a small へのへのもへじ face. Profile details subtly vary the silhouette.
+  // Contemporary ukiyo-e portrait: woodblock contours, restrained pigments,
+  // individually drawn hair locks and a layered kimono. No headwrap/headscarf.
   const h = Math.min(220, Math.max(120, Number(profile.height_cm) || 170));
   const w = Math.min(180, Math.max(30, Number(profile.weight_kg) || 65));
   const bmi = w / ((h / 100) ** 2);
@@ -10082,44 +10082,54 @@ function kydAvatarMarkup(profile = {}) {
   const seedText = String(profile.user_id || profile.nickname || 'kyoto-night');
   let seed = 0; for (let i=0;i<seedText.length;i++) seed=(seed*31+seedText.charCodeAt(i))>>>0;
   const palettes = [
-    {robe:'#263f3b',light:'#e8dfcf',accent:'#a66b50',paper:'#eee8dc',hair:'#252523'},
-    {robe:'#69443f',light:'#f0e5d5',accent:'#b58b5b',paper:'#eee2d8',hair:'#302724'},
-    {robe:'#35465a',light:'#e9e5d9',accent:'#9a7764',paper:'#e4e8e8',hair:'#26272b'},
-    {robe:'#66583f',light:'#eee4d2',accent:'#78836d',paper:'#ebe6d9',hair:'#302d27'},
-    {robe:'#51475a',light:'#eee6dc',accent:'#a77d65',paper:'#e8e2e9',hair:'#29252e'},
-    {robe:'#365158',light:'#f0e8d9',accent:'#b17b69',paper:'#e0e9e5',hair:'#242a2b'}
+    {robe:'#263b3a',light:'#e9dfca',accent:'#a65f49',paper:'#eee6d6',hair:'#292522',skin:'#dfb99b'},
+    {robe:'#70443e',light:'#f0e4d0',accent:'#b18a52',paper:'#eee1d5',hair:'#302522',skin:'#dfb99b'},
+    {robe:'#34465a',light:'#e8e3d5',accent:'#9c715d',paper:'#e4e6df',hair:'#28272a',skin:'#d9b092'},
+    {robe:'#62563e',light:'#eee3ce',accent:'#77816a',paper:'#e9e3d5',hair:'#302b25',skin:'#e0b99b'},
+    {robe:'#514456',light:'#eee5d9',accent:'#a87961',paper:'#e8e1df',hair:'#29252b',skin:'#dcb397'},
+    {robe:'#36545a',light:'#f0e7d7',accent:'#b17b68',paper:'#e0e8e2',hair:'#252b2b',skin:'#dfb99b'}
   ];
   const p=palettes[seed%palettes.length];
   const drink=kydDrinkIcon(profile.favorite_drinks);
-  const faceY=55, shoulder=body/2;
-  const hair = profile.gender==='여성'
-    ? `<path d="M55 61Q48 18 80 17Q112 18 106 61L111 91Q102 104 98 82L62 82Q58 103 49 91Z" fill="${p.hair}"/>`
-    : `<path d="M55 55Q53 19 80 17Q108 18 106 56Q91 43 80 47Q66 43 55 61Z" fill="${p.hair}"/>`;
-  return `<svg viewBox="0 0 160 180" role="img" aria-label="교토 에디토리얼 기모노 캐릭터" xmlns="http://www.w3.org/2000/svg">
+  const shoulder=body/2;
+  const female = /여성|female|woman/i.test(String(profile.gender||''));
+  // Hair is drawn as a recognizable coiffure with a visible forehead and separated locks.
+  const hair = female
+    ? `<path d="M55 59C51 38 58 19 76 15C94 10 108 25 107 48C106 59 103 68 99 77L94 59C91 48 86 42 81 38C76 48 67 54 58 57Z" fill="${p.hair}" stroke="#211f1d" stroke-width="1.7" stroke-linejoin="round"/>
+       <path d="M57 47C51 61 53 83 60 96C64 100 67 96 66 89L64 60M101 46C109 61 108 82 101 95C97 99 94 95 95 87L97 59" fill="${p.hair}" stroke="#211f1d" stroke-width="1.7" stroke-linecap="round"/>
+       <path d="M58 38C65 22 83 17 96 29M62 47C69 39 75 31 77 23M84 23C98 29 102 39 103 49" fill="none" stroke="#8d7964" stroke-opacity=".55" stroke-width="1.1" stroke-linecap="round"/>
+       <path d="M70 19Q80 12 91 18" fill="none" stroke="${p.accent}" stroke-width="2" stroke-linecap="round"/>
+       <circle cx="96" cy="25" r="3" fill="${p.accent}"/>`
+    : `<path d="M55 57C51 38 59 20 76 16C92 12 106 23 108 41L104 58C98 50 93 44 86 42C78 48 67 48 59 59Z" fill="${p.hair}" stroke="#211f1d" stroke-width="1.7" stroke-linejoin="round"/>
+       <path d="M58 37C66 23 82 18 95 26M62 43C70 33 78 28 87 25M88 23C99 28 103 35 105 43" fill="none" stroke="#8d7964" stroke-opacity=".55" stroke-width="1.2" stroke-linecap="round"/>`;
+  const patternId=`kydUkiyoe${seed}`;
+  return `<svg viewBox="0 0 160 180" role="img" aria-label="교토 우키요에풍 인물 캐릭터" xmlns="http://www.w3.org/2000/svg">
     <defs>
-      <pattern id="kydWashi${seed}" width="8" height="8" patternUnits="userSpaceOnUse"><path d="M0 2h8M2 0v8" stroke="#8b806e" stroke-opacity=".08" stroke-width=".5"/></pattern>
+      <pattern id="${patternId}" width="9" height="9" patternUnits="userSpaceOnUse"><path d="M0 2L9 7M-2 7L3 9" stroke="#51483d" stroke-opacity=".10" stroke-width=".55"/></pattern>
     </defs>
-    <circle cx="80" cy="83" r="72" fill="${p.paper}"/>
-    <circle cx="80" cy="83" r="72" fill="url(#kydWashi${seed})"/>
-    <circle cx="80" cy="83" r="66" fill="none" stroke="${p.accent}" stroke-opacity=".55" stroke-width=".8"/>
-    <g transform="translate(80 0) scale(${scale} 1) translate(-80 0)">
-      <path d="M${80-shoulder-8} 111Q80 91 ${80+shoulder+8} 111L127 165H33Z" fill="${p.robe}"/>
-      <path d="M65 103L80 119L95 103L110 165H50Z" fill="${p.light}"/>
-      <path d="M80 119L92 132L80 165L68 132Z" fill="${p.robe}"/>
-      <path d="M58 111L80 130L102 111" fill="none" stroke="${p.accent}" stroke-width="2"/>
-      <path d="M80 132v30" stroke="${p.accent}" stroke-width="1.2"/>
-      <path d="M57 108Q80 99 103 108" fill="none" stroke="${p.accent}" stroke-width="1"/>
-      <ellipse cx="80" cy="57" rx="23" ry="28" fill="#d9ad8d"/>
+    <circle cx="80" cy="83" r="73" fill="${p.paper}"/>
+    <circle cx="80" cy="83" r="73" fill="url(#${patternId})"/>
+    <circle cx="80" cy="83" r="67" fill="none" stroke="${p.accent}" stroke-width="1.1"/>
+    <g transform="translate(80 0) scale(${scale} 1) translate(-80 0)" stroke-linejoin="round">
+      <path d="M${80-shoulder-8} 110Q80 91 ${80+shoulder+8} 110L129 166H31Z" fill="${p.robe}" stroke="#292720" stroke-width="1.8"/>
+      <path d="M65 101L80 116L95 101L111 166H49Z" fill="${p.light}" stroke="#292720" stroke-width="1.5"/>
+      <path d="M65 102L80 119L72 133L55 116Z" fill="${p.robe}" stroke="#292720" stroke-width="1.1"/>
+      <path d="M95 102L80 119L88 133L105 116Z" fill="${p.robe}" stroke="#292720" stroke-width="1.1"/>
+      <path d="M80 119L92 133L80 166L68 133Z" fill="${p.light}" stroke="${p.accent}" stroke-width="1.2"/>
+      <path d="M53 139Q80 146 107 139M48 155Q80 163 112 155" fill="none" stroke="${p.accent}" stroke-width="1.1"/>
+      <path d="M57 111Q80 101 103 111" fill="none" stroke="${p.accent}" stroke-width="2"/>
+      <path d="M80 133v31" stroke="${p.accent}" stroke-width="1.1"/>
+      <path d="M69 109l-5 8 8 5M91 109l5 8-8 5" fill="none" stroke="#292720" stroke-width=".9"/>
+      <ellipse cx="80" cy="57" rx="22" ry="27" fill="${p.skin}" stroke="#292720" stroke-width="1.5"/>
       ${hair}
-      <path d="M59 49Q61 27 80 26Q100 27 102 49" fill="none" stroke="${p.hair}" stroke-width="4" stroke-linecap="round"/>
-      <g fill="#282622" font-family="serif" font-weight="600" text-anchor="middle">
-        <text x="70" y="54" font-size="8">へ</text><text x="90" y="54" font-size="8">へ</text>
-        <text x="70" y="64" font-size="7">の</text><text x="90" y="64" font-size="7">の</text>
-        <text x="80" y="74" font-size="8">も</text>
+      <g fill="#292521" font-family="serif" font-weight="600" text-anchor="middle">
+        <text x="70" y="55" font-size="8">へ</text><text x="90" y="55" font-size="8">へ</text>
+        <text x="70" y="65" font-size="7">の</text><text x="90" y="65" font-size="7">の</text>
+        <text x="80" y="75" font-size="8">も</text>
       </g>
       <path d="M75 83h10" stroke="${p.accent}" stroke-width="1.2" stroke-linecap="round"/>
     </g>
-    <circle cx="119" cy="35" r="14" fill="#f8f4eb" stroke="${p.accent}" stroke-width="1.2"/>
+    <circle cx="119" cy="35" r="14" fill="${p.paper}" stroke="${p.accent}" stroke-width="1.2"/>
     <text x="119" y="39" text-anchor="middle" font-size="12">${drink}</text>
     <text x="80" y="174" text-anchor="middle" font-size="6.5" letter-spacing="2" fill="#766c5e">KYOTO NIGHT</text>
   </svg>`;
