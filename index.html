@@ -3141,33 +3141,25 @@ h4 {
   font-size: 20px;
   cursor: pointer;
 }
+/* High-contrast map markers */
+.kyd-shop-pin { width:38px;height:38px;display:flex;align-items:center;justify-content:center;background:#F06445;border:3px solid #fff;border-radius:50%;box-shadow:0 2px 7px rgba(30,24,18,.38),0 0 0 1px rgba(240,100,69,.25);transition:transform .18s ease,box-shadow .18s ease; }
+.kyd-shop-marker:hover .kyd-shop-pin { transform:scale(1.14);box-shadow:0 4px 12px rgba(30,24,18,.38),0 0 0 3px rgba(240,100,69,.18); }
+.kyd-person-pin { width:38px;height:38px;display:flex;align-items:center;justify-content:center;background:#16C79A;border:3px solid #fff;border-radius:50%;box-shadow:0 0 0 2px #16C79A,0 2px 8px rgba(18,52,43,.38),0 0 12px rgba(22,199,154,.45);animation:kydPersonPulse 2.4s ease-in-out infinite; }
+.kyd-person-pin svg { width:21px;height:21px; }
+@keyframes kydPersonPulse { 0%,100%{box-shadow:0 0 0 2px #16C79A,0 2px 8px rgba(18,52,43,.38),0 0 8px rgba(22,199,154,.3)} 50%{box-shadow:0 0 0 4px rgba(22,199,154,.35),0 2px 8px rgba(18,52,43,.38),0 0 16px rgba(22,199,154,.55)} }
+@media (prefers-reduced-motion: reduce) { .kyd-person-pin { animation:none; } }
+
 /* KYOTO AFTER DARK — Vintage Parchment Map */
 #map .leaflet-tile-pane {
- /* Vintage zoom controls */
+  filter: sepia(12%) saturate(92%) brightness(1.04) contrast(1.06);
+}
 #map .leaflet-control-zoom a {
-  background: #F3EBDD !important;
-  color: #514536 !important;
-  border-color: #c9b99e !important;
-  box-shadow: none !important;
+  background: #F3EBDD !important; color: #514536 !important;
+  border-color: #c9b99e !important; box-shadow: none !important;
   transition: background 0.2s ease;
 }
-
-#map .leaflet-control-zoom a:hover {
-  background: #e5d6bd !important;
-  color: #843D3D !important;
-}
-
-#map .leaflet-control-zoom {
-  border: 1px solid #c9b99e !important;
-  border-radius: 8px !important;
-  overflow: hidden;
-}
-filter:
-  sepia(32%)
-  saturate(72%)
-  brightness(1.02)
-  contrast(1.08);
-}
+#map .leaflet-control-zoom a:hover { background:#e5d6bd !important; color:#843D3D !important; }
+#map .leaflet-control-zoom { border:1px solid #c9b99e !important; border-radius:8px !important; overflow:hidden; }
 /* Vintage paper texture overlay */
 #map {
   position: relative;
@@ -6379,35 +6371,15 @@ map.on('click', function (e) {
 });
 
 const pin = L.divIcon({
-
-  className: '',
-
-  html: '<div class="custom-pin"></div>',
-
-  iconSize: [23, 23],
-
-  iconAnchor: [11, 22]
-
+  className: 'kyd-shop-marker',
+  html: `<div class="kyd-shop-pin" aria-label="가게"><svg width="22" height="22" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 10.2V20h16v-9.8M3 9l2-5h14l2 5c0 1.5-1.2 2.5-2.7 2.5S15.6 10.5 15.6 9c0 1.5-1.2 2.5-2.7 2.5S10.2 10.5 10.2 9c0 1.5-1.2 2.5-2.7 2.5S4.8 10.5 4.8 9" fill="none" stroke="white" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/><path d="M9 20v-5h6v5" fill="none" stroke="white" stroke-width="1.7" stroke-linejoin="round"/></svg></div>`,
+  iconSize: [38, 42], iconAnchor: [19, 39]
 });
-// 사람 위치 전용 핀: 보라색 원형 + 사람 아이콘
-// 사람 위치 전용 핀: 보라색 원형 + 흰색 사람 실루엣 + 네온 그린 테두리
+// 사람 위치 핀: 민트색 + 흰 사람 아이콘
 const userPin = L.divIcon({
-  className: '',
+  className: 'kyd-person-marker',
   html: `
-    <div style="
-      width: 34px;
-      height: 34px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      background: #7654a8;
-      border: 2px solid #B6FF00;
-      border-radius: 50%;
-      box-shadow:
-        0 0 6px rgba(182, 255, 0, 0.8),
-        0 0 14px rgba(182, 255, 0, 0.45),
-        0 2px 7px rgba(0, 0, 0, 0.25);
-    ">
+    <div class="kyd-person-pin" aria-label="위치 공유 중인 사람">
       <svg
         width="21"
         height="21"
@@ -6715,7 +6687,7 @@ async function renderUserMarkers() {
 
       .from('kyoto_public_locations')
 
-      .select('user_id, nickname, latitude, longitude');
+      .select('user_id, nickname, latitude, longitude, updated_at');
 
  
 
@@ -6729,7 +6701,14 @@ async function renderUserMarkers() {
 
  
 
-  const userIds = (locations || []).map(p => p.user_id);
+  // 위치 공유는 updated_at 기준 24시간만 유효합니다. 만료된 공유는 지도에서 숨깁니다.
+  const now = Date.now();
+  const activeLocations = (locations || []).filter(location => {
+    const sharedAt = Date.parse(location.updated_at || '');
+    return Number.isFinite(sharedAt) && now >= sharedAt && now - sharedAt < 24 * 60 * 60 * 1000;
+  });
+
+  const userIds = activeLocations.map(p => p.user_id);
 
   if (userIds.length === 0) return;
 
@@ -6773,7 +6752,7 @@ async function renderUserMarkers() {
 
  
 
-  (locations || []).forEach(location => {
+  activeLocations.forEach(location => {
 
     const profile = profileById[location.user_id];
 
@@ -6865,12 +6844,16 @@ async function renderUserMarkers() {
 
     const locationNote = document.createElement('p');
 
-    locationNote.textContent = 'GPS 위치 공개 중';
-
-    locationNote.style.color = '#777';
-
+    const sharedAt = Date.parse(location.updated_at);
+    const elapsedMs = Math.max(0, Date.now() - sharedAt);
+    const elapsedHours = Math.floor(elapsedMs / (60 * 60 * 1000));
+    const elapsedMinutes = Math.floor(elapsedMs / (60 * 1000));
+    const sharedLabel = elapsedMinutes < 5 ? '방금 위치 공유' : elapsedHours < 1 ? `${elapsedMinutes}분 전에 위치 공유` : `${elapsedHours}시간 전에 위치 공유`;
+    const remainingHours = Math.max(0, 23 - elapsedHours);
+    const remainingMinutes = Math.max(0, 59 - Math.floor((elapsedMs % (60 * 60 * 1000)) / (60 * 1000)));
+    locationNote.textContent = `${sharedLabel} · ${remainingHours}시간 ${remainingMinutes}분 후 만료`;
+    locationNote.style.color = '#16866B';
     locationNote.style.fontSize = '12px';
-
     popup.appendChild(locationNote);
 
     const messageButton = document.createElement('button');
@@ -11813,6 +11796,9 @@ refreshCommunityUser();
 loadPlaces();
 
 renderUserMarkers();
+
+// 열린 지도에서도 만료된 사람 핀을 1분 안에 자동 제거합니다.
+window.setInterval(renderUserMarkers, 60 * 1000);
 
  // ===== 오늘의 술 운세 열기 및 뽑기 =====
 
