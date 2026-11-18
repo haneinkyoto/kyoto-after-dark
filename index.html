@@ -4478,6 +4478,7 @@ header {
   🎴 오늘의 술 운세
 </button>
  <button type="button" id="kydFunOpen">🎲 술자리 놀거리</button>
+ <button type="button" id="kydAdminOpen">🛠 회원 관리</button>
 
 </div>
 
@@ -4615,6 +4616,8 @@ header {
   <div id="communityLoggedIn" style="display:none;">
 
     <p id="communityNicknameLabel"></p>
+
+    <a id="communityAdminLink" href="./admin.html" style="display:none;align-items:center;justify-content:center;margin:0 0 10px;padding:10px 14px;border:1px solid #5b4a3b;background:#5b4a3b;color:#fff;text-decoration:none;font-size:12px;">관리자 페이지 열기 ↗</a>
 
     <button type="button" id="communityLogoutBtn">로그아웃</button>
 
@@ -8359,6 +8362,7 @@ let pendingDates = new Set();
 let myStayDates = new Set();
 
 let communityUser = null;
+window.__kydGetCommunityUser = () => communityUser;
 
  
 
@@ -8435,6 +8439,10 @@ function setCommunityStatus(id, message) {
 function updateCommunityAuthUI() {
 
   const loggedIn = Boolean(communityUser);
+  const adminLink = document.getElementById('communityAdminLink');
+  if (adminLink) {
+    adminLink.style.display = communityUser?.id === '3383bd06-d07a-4213-9181-cbdb3c99036d' ? 'inline-flex' : 'none';
+  }
  // 프로필 등록 버튼과 입력 영역 표시 제어
   const profileToggleBtn = document.getElementById('profileToggleBtn');
   const profileFormWrap = document.getElementById('profileFormWrap');
@@ -13390,6 +13398,33 @@ const chatInput=$('chatInput'),send=$('sendChatBtn');if(chatInput&&send){chatInp
  }
  open?.addEventListener('click',()=>{modal.classList.add('open');modal.setAttribute('aria-hidden','false');render();});document.getElementById('kydFunClose').addEventListener('click',close);modal.addEventListener('click',e=>{if(e.target===modal)close();});function close(){modal.classList.remove('open');modal.setAttribute('aria-hidden','true');}
  document.querySelectorAll('[data-fun-tab]').forEach(b=>b.addEventListener('click',()=>{tab=b.dataset.funTab;render();}));document.addEventListener('kyd:languagechange',()=>{if(modal.classList.contains('open'))render();});
+})();
+</script>
+
+
+<!-- KYOTO ADMIN MEMBERS PANEL -->
+<style>
+#kydAdminOpen{display:none!important}#kydAdminOpen.kyd-admin-ready{display:inline-flex!important}
+#kydAdminModal{position:fixed;inset:0;z-index:100700;background:rgba(30,25,20,.48);backdrop-filter:blur(4px);display:none;align-items:center;justify-content:center;padding:16px;box-sizing:border-box}
+#kydAdminModal.open{display:flex}#kydAdminDialog{width:min(920px,100%);max-height:88vh;overflow:auto;background:#fbf8f1;border:1px solid #e5d9c8;box-shadow:0 20px 70px rgba(0,0,0,.25);padding:22px;color:#393229}
+#kydAdminDialog h2{font:500 24px Georgia,'Noto Serif KR','Noto Serif JP',serif;margin:0 0 6px}#kydAdminDialog .sub{font-size:12px;color:#817568;margin:0 0 16px}
+.kyd-admin-stats{display:flex;gap:10px;flex-wrap:wrap;margin:12px 0}.kyd-admin-stat{background:#f0e9de;border:1px solid #e3d8c8;padding:12px 16px;min-width:120px}.kyd-admin-stat small{display:block;color:#817568;font-size:10px}.kyd-admin-stat strong{font-size:22px}
+#kydAdminSearch{width:100%;box-sizing:border-box;padding:11px;border:1px solid #d9cdbd;background:#fffdf8;margin:10px 0 12px;font:inherit;font-size:12px}
+.kyd-admin-table{width:100%;border-collapse:collapse;font-size:12px}.kyd-admin-table th,.kyd-admin-table td{text-align:left;padding:9px 8px;border-bottom:1px solid #e7ded2;vertical-align:top}.kyd-admin-table th{font-size:10px;color:#817568;white-space:nowrap}.kyd-admin-table td small{display:block;color:#988d80;margin-top:3px;word-break:break-all}.kyd-admin-close{float:right;border:0;background:#eee6da;padding:7px 11px;color:#65584a;cursor:pointer}.kyd-admin-status{padding:12px;color:#817568;font-size:12px}
+@media(max-width:600px){#kydAdminDialog{padding:16px}#kydAdminDialog h2{font-size:20px}.kyd-admin-table{min-width:650px}.kyd-admin-table-wrap{overflow:auto}}
+</style>
+<div id="kydAdminModal" aria-hidden="true"><section id="kydAdminDialog" role="dialog" aria-modal="true" aria-labelledby="kydAdminTitle"><button type="button" class="kyd-admin-close" id="kydAdminClose">닫기 ×</button><h2 id="kydAdminTitle">회원 관리</h2><p class="sub">관리자 전용 · 인증 회원 데이터</p><div id="kydAdminStats" class="kyd-admin-stats"></div><input id="kydAdminSearch" type="search" placeholder="닉네임 또는 이메일 검색"><div id="kydAdminStatus" class="kyd-admin-status">회원 정보를 불러오는 중…</div><div class="kyd-admin-table-wrap"><table class="kyd-admin-table"><thead><tr><th>닉네임</th><th>이메일</th><th>가입일</th><th>최근 로그인</th><th>회원 ID</th></tr></thead><tbody id="kydAdminRows"></tbody></table></div></section></div>
+<script>
+(()=>{
+ const openBtn=document.getElementById('kydAdminOpen'),modal=document.getElementById('kydAdminModal'),closeBtn=document.getElementById('kydAdminClose'),search=document.getElementById('kydAdminSearch'),rows=document.getElementById('kydAdminRows'),stats=document.getElementById('kydAdminStats'),status=document.getElementById('kydAdminStatus');
+ let members=[];
+ const ko=()=>!document.documentElement.lang.toLowerCase().startsWith('ja') && (window.KYD_LANG||'ko')!=='ja';
+ const date=(v)=>v?new Date(v).toLocaleString(ko()?'ko-KR':'ja-JP'):'—';
+ function updateAccess(){const id=window.KYOTO_ADMIN_USER_ID;const user=window.__kydGetCommunityUser?.();const isAdmin=Boolean(id&&user&&user.id===id);openBtn?.classList.toggle('kyd-admin-ready',isAdmin);}
+ function render(){const q=search.value.trim().toLowerCase();const list=members.filter(m=>(m.nickname+' '+m.email+' '+m.id).toLowerCase().includes(q));rows.innerHTML=list.map(m=>`<tr><td>${escapeHtml(m.nickname||'—')}</td><td>${escapeHtml(m.email||'—')}</td><td>${date(m.created_at)}</td><td>${date(m.last_sign_in_at)}</td><td><small>${escapeHtml(m.id)}</small></td></tr>`).join('');}
+ function escapeHtml(v){return String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
+ async function load(){status.textContent='회원 정보를 불러오는 중…';rows.innerHTML='';stats.innerHTML='';try{const client=window.__kydCommunityClient;if(!client)throw new Error('로그인 클라이언트를 찾지 못했어요.');const {data,error}=await client.functions.invoke('kyd-admin-members');if(error)throw error;members=data.members||[];stats.innerHTML=`<div class="kyd-admin-stat"><small>전체 회원</small><strong>${members.length}</strong></div><div class="kyd-admin-stat"><small>프로필 등록</small><strong>${members.filter(m=>m.nickname).length}</strong></div><div class="kyd-admin-stat"><small>미인증 이메일</small><strong>${members.filter(m=>!m.email_confirmed_at).length}</strong></div>`;status.textContent=members.length?'':'회원이 아직 없어요.';render();}catch(e){status.textContent='조회 실패: '+(e.message||'관리자 권한 또는 Edge Function 설정을 확인하세요.');console.error('admin members',e);}}
+ openBtn?.addEventListener('click',()=>{modal.classList.add('open');modal.setAttribute('aria-hidden','false');load();});closeBtn?.addEventListener('click',()=>{modal.classList.remove('open');modal.setAttribute('aria-hidden','true');});modal.addEventListener('click',e=>{if(e.target===modal){modal.classList.remove('open');modal.setAttribute('aria-hidden','true');}});search.addEventListener('input',render);document.addEventListener('kyd:languagechange',updateAccess);document.addEventListener('DOMContentLoaded',updateAccess);setTimeout(updateAccess,1000);setInterval(updateAccess,3000);
 })();
 </script>
 
