@@ -654,44 +654,111 @@ body.kyd-intro-active>header,body.kyd-intro-active>main,body.kyd-intro-active>#k
 .kyd-body-fields input{width:100%;box-sizing:border-box}
 @media(max-width:480px){.kyd-character-board{grid-template-columns:repeat(2,minmax(0,1fr));gap:10px!important}.kyd-board-post{padding:11px 9px!important;min-height:225px}.kyd-profile-dialog{padding:22px 17px 18px}.kyd-profile-avatar{width:98px;flex-basis:98px}.kyd-profile-public{gap:12px}}
 
-/* 모바일 개인 채팅 공간 확장 */
+/* =====================================================
+   KYOTO AFTER DARK
+   MOBILE DIRECT MESSAGE — FULL SCREEN THREAD
+   ===================================================== */
+
+/* 채팅 탭의 전체 화면 구조 */
 @media (max-width: 800px) {
 
-  /* 대화방이 열려 있을 때 목록과 사람 추천 숨기기 */
-  #directChatPanel:has(#directThread:not([style*="display: none"]))
-  #directChatPanel .dm-section[aria-labelledby="dmInboxHeading"],
-  #directChatPanel:has(#directThread:not([style*="display: none"]))
+  body.kyd-tab-chat #directChatPanel {
+    display: flex !important;
+    flex-direction: column !important;
+    overflow: hidden !important;
+  }
+
+  body.kyd-tab-chat #directChatPanel .dm-drawer-content {
+    display: flex !important;
+    flex: 1 1 0% !important;
+    flex-direction: column !important;
+    min-height: 0 !important;
+    overflow: hidden !important;
+    padding: 10px !important;
+  }
+
+  /* 대화방이 열려 있을 때 */
+  body.kyd-tab-chat #directChatPanel.is-thread-open
+  .dm-section[aria-labelledby="dmInboxHeading"],
+  body.kyd-tab-chat #directChatPanel.is-thread-open
   .dm-people-section {
     display: none !important;
   }
 
-  /* 채팅 콘텐츠가 남은 높이를 전부 사용 */
-  body.kyd-tab-chat #directChatPanel .dm-drawer-content {
-    overflow: hidden !important;
-    min-height: 0 !important;
-  }
-
-  /* 실제 대화방 확장 */
-  body.kyd-tab-chat #directChatPanel .dm-thread {
+  /* 대화방 전체 확장 */
+  body.kyd-tab-chat #directChatPanel.is-thread-open
+  #directThread {
+    display: flex !important;
     flex: 1 1 0% !important;
-    min-height: 0 !important;
-    height: 100% !important;
-    margin: 0 auto !important;
-    max-width: 920px !important;
-  }
-
-  /* 메시지 내역 스크롤 */
-  body.kyd-tab-chat #directChatPanel .dm-messages {
-    flex: 1 1 0% !important;
+    flex-direction: column !important;
+    width: 100% !important;
+    height: auto !important;
     min-height: 0 !important;
     max-height: none !important;
-    overflow-y: auto !important;
+    margin: 0 !important;
+    overflow: hidden !important;
   }
 
-  /* 입력 영역은 아래에 유지 */
-  body.kyd-tab-chat #directChatPanel .dm-composer {
+  /* 대화방 상단 */
+  body.kyd-tab-chat #directChatPanel.is-thread-open
+  .dm-thread-header {
+    flex: 0 0 auto !important;
+  }
+
+  /* 메시지 내역만 스크롤 */
+  body.kyd-tab-chat #directChatPanel.is-thread-open
+  #directMessages {
+    display: flex !important;
+    flex: 1 1 0% !important;
+    flex-direction: column !important;
+    min-height: 0 !important;
+    max-height: none !important;
+    overflow-x: hidden !important;
+    overflow-y: auto !important;
+    -webkit-overflow-scrolling: touch !important;
+    overscroll-behavior: contain !important;
+  }
+
+  /* 메시지 입력창 */
+  body.kyd-tab-chat #directChatPanel.is-thread-open
+  #directMessageForm {
+    display: flex !important;
     flex: 0 0 auto !important;
     position: relative !important;
+    align-items: flex-end !important;
+    background: var(--dm-card) !important;
+  }
+
+  body.kyd-tab-chat #directChatPanel.is-thread-open
+  #directMessageInput {
+    min-height: 44px !important;
+    max-height: 120px !important;
+    font-size: 16px !important;
+    resize: none !important;
+  }
+
+  /* 입력 안내 문구 */
+  body.kyd-tab-chat #directChatPanel.is-thread-open
+  .dm-composer-hint {
+    display: none !important;
+  }
+
+  /* 채팅방 목록 화면 */
+  body.kyd-tab-chat #directChatPanel:not(.is-thread-open)
+  #directThread {
+    display: none !important;
+  }
+}
+
+/* 작은 화면에서도 입력창과 헤더 확보 */
+@media (max-width: 600px) {
+  body.kyd-tab-chat #directChatPanel .dm-header {
+    flex: 0 0 auto !important;
+  }
+
+  body.kyd-tab-chat #directChatPanel.is-thread-open
+  .dm-thread {
+    border-radius: 14px !important;
   }
 }
 
@@ -11103,6 +11170,7 @@ async function openDirectConversation(otherUserId, otherName) {
   const thread = document.getElementById('directThread');
 
   thread.style.display = 'flex';
+ drawer.classList.add('is-thread-open');
 
   document.getElementById('directThreadTitle').textContent = activeDirectOtherName;
   document.getElementById('directThreadTitle').dataset.kydProfileId = otherUserId;
@@ -11606,15 +11674,24 @@ document.getElementById('directMessageInput')?.addEventListener('keydown', event
 
 });
 
-document.getElementById('directBackBtn')?.addEventListener('click', () => {
 
-  document.getElementById('directThread').style.display = 'none';
+document.getElementById('directBackBtn')?.addEventListener('click', async () => {
 
+  const thread = document.getElementById('directThread');
+  const drawer = document.getElementById('directChatPanel');
+
+  // 대화방 닫기
+  thread.style.display = 'none';
+
+  // 대화 목록 화면으로 복귀
+  drawer.classList.remove('is-thread-open');
+
+  // 현재 대화 상태 초기화
   activeDirectConversationId = null;
-
   activeDirectOtherUserId = null;
 
-  loadDirectInbox();
+  // 대화 목록 새로고침
+  await loadDirectInbox();
 
 });
 
