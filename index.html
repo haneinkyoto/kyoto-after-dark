@@ -13335,15 +13335,59 @@ const chatInput=$('chatInput'),send=$('sendChatBtn');if(chatInput&&send){chatInp
  const personaJaDesc=['メニューで初めて見る料理を探してみよう。','今夜の乾杯の言葉を提案してみて。','いい音楽と一杯、会話はゆっくり。','次のお店を見つけたら保存するタイプ。','最初の一杯の味と香りをじっくり楽しもう。','昔話が今夜のテーマになるかも。','今夜の一場面を記録したいタイプ。','路地の小さなお店を探したい日。','今日はルーレットに決めてもらおう。','同行者に一つ褒め言葉を伝えてみて。','新しいお酒といつものお酒を比べてみよう。','急がず一軒をじっくり楽しむタイプ。','予定外の一軒を見つけると嬉しい。','今日の質問を一つ用意してみよう。','些細なことでも笑う準備はできてる。','評価より自分の感覚を信じるタイプ。','一杯の後の京都の路地も楽しみたい夜。','今日一番おいしい一口を選んでみよう。','同行者の好みや体調を気にかけるタイプ。','一人の時間を素敵に過ごす日。','今日のハイボールを自分で評価しよう。','香りや温度の違いを感じてみたい日。','締めまで新しい味を探そう。','また来たいお店を見つけるタイプ。','自分のペースで楽しく過ごそう。','友達にゲームを提案してみて。','自分のおすすめを同行者と共有しよう。','今夜を映画のタイトルみたいに表現してみて。','地図に新しいピンを一つ追加しよう。','最後のおつまみまでゆっくり楽しむタイプ。'];
  const balanceJa=[['ビールだけを一生飲む','ハイボールだけを一生飲む'],['毎日同じ行きつけ','毎日新しいお店'],['高いお酒一杯','安いお酒五杯'],['おつまみなしでお酒','お酒なしでおつまみ'],['必ずカウンター席','必ずテーブル席'],['一人飲みの自由','友達とのグループ飲み'],['日本酒だけ','ワインだけ'],['二軒目まで行く','一軒目で完璧に終了'],['メニューを自分が決める','友達に全部任せる'],['静かなバー','賑やかな居酒屋'],['餃子無料が一生','焼き鳥無料が一生'],['辛いおつまみ','しょっぱいおつまみ'],['最初は生ビール','最初はハイボール'],['店内ライブ','スポーツ中継'],['毎回予約','毎回飛び込み'],['いつものお酒','毎回新しいお酒'],['友達の行きつけ','自分が見つけた穴場'],['毎日早飲み','毎日深夜飲み'],['飲み会の写真を残す','写真なしで思い出す'],['一時間の飲み会','四時間の飲み会'],['おでん専門店','焼き鳥専門店'],['レトロ居酒屋','おしゃれなバー'],['自分が払う','次回友達が払う'],['レモンサワーだけ','柚子サワーだけ'],['新しい飲み友達','昔からの友達と深い話'],['毎日同じおつまみ','毎日新しいおつまみ'],['京都の繁華街','京都の郊外の路地'],['昼飲み','夜飲み'],['完璧な味','完璧な雰囲気'],['居酒屋100軒巡り','一軒に100回通う'],['飲み放題','いいお酒を一杯ずつ'],['飲み会でゲーム','飲み会で真剣な話'],['雨の日の居酒屋','晴れの日の居酒屋'],['立ち飲み','座って飲む'],['串を一本ずつ注文','大皿料理をシェア'],['お酒のメニューから先','おつまみメニューから先'],['友達おすすめのお酒','店員おすすめのお酒'],['深夜営業のお店','早く閉まる穴場店'],['三軒飲み歩き','一軒で長居'],['今日の占い通りに飲む','自分の好みで飲む'],['京都の日本酒','全国各地のお酒'],['一人旅で飲む','友達と旅行して飲む'],['居酒屋で読書','居酒屋で人間観察'],['毎回同じメンバー','毎回違うメンバー'],['お店の看板メニュー','メニューにないおすすめ'],['飲み会で歌','飲み会でボードゲーム'],['一杯だけ飲む','ノンアルで長く楽しむ'],['伝統的な雰囲気','モダンな雰囲気'],['おつまみを全部試す','お気に入りだけ注文'],['飲み会の場所を決める','飲み会のメニューを決める']];
  const areas=[['시조오미야','四条大宮'],['가와라마치','河原町'],['니조','二条'],['산조','三条'],['카라스마','烏丸'],['기온','祇園'],['데마치야나기','出町柳'],['키타오지','北大路'],['사이인','西院'],['교토역','京都駅'],['후시미','伏見'],['아라시야마','嵐山']];
+ const extraBalance=[
+ ['내가 좋아하는 사람의 술버릇을 매일 보기','내 술버릇을 좋아하는 사람이 매일 보기','好きな人の飲み癖を毎日見る','自分の飲み癖を好きな人に毎日見られる'],
+ ['술자리마다 전 애인이 옆 테이블','술자리마다 전 애인의 친구가 옆자리','飲み会のたび元恋人が隣のテーブル','飲み会のたび元恋人の友達が隣席'],
+ ['내가 고른 가게마다 메뉴가 하나씩 품절','친구가 고른 가게마다 내 최애 메뉴 품절','自分が選ぶ店では毎回一品売り切れ','友達が選ぶ店では毎回好きなメニューが売り切れ'],
+ ['술 취하면 무조건 노래 부르기','술 취하면 무조건 진지한 인생 상담','酔うと必ず歌う','酔うと必ず人生相談を始める'],
+ ['매번 첫 잔 사진을 100장 찍는 친구','매번 안주 사진을 찍기 전에 먹는 친구','毎回最初の一杯を100枚撮る友達','毎回料理の写真を撮る前に食べる友達'],
+ ['내 비밀을 술집 사장님이 알고 있음','술집 사장님이 내 이름 대신 별명으로 부름','店主に秘密を知られている','店主に本名ではなくあだ名で呼ばれる'],
+ ['친구가 술값 계산할 때마다 1엔 동전으로 냄','친구가 계산할 때마다 카드 10장 꺼냄','友達が会計のたび1円玉で払う','友達が会計のたびカードを10枚出す'],
+ ['모든 술집에서 내 입맛에 맞는 술만 추천','모든 술집에서 내 취향 아닌 술만 추천','どのお店でも好みにぴったりのお酒を勧められる','どのお店でも苦手なお酒ばかり勧められる'],
+ ['술자리에서 내 말만 자막으로 화면에 뜸','친구 말이 전부 속마음 자막으로 뜸','飲み会で自分の発言だけ字幕表示','友達の発言が全部心の声字幕になる'],
+ ['매번 2차 장소를 내가 정하고 실패','매번 친구가 정하고 대성공','毎回二軒目を自分が決めて失敗','毎回友達が決めて大成功'],
+ ['평생 안주 주문은 가능, 술 주문은 금지','평생 술 주문은 가능, 안주 주문은 금지','一生おつまみだけ注文できる','一生お酒だけ注文できる'],
+ ['좋아하는 술이 단종되고 비슷한 술만 남음','싫어하는 술이 전국 모든 가게의 기본 술이 됨','好きなお酒が終売して似たお酒だけ残る','苦手なお酒が全国のお店の定番になる'],
+ ['술자리에서 내 휴대폰 배경화면을 모두에게 공개','최근 검색 기록을 모두에게 공개','飲み会でスマホの壁紙を全員に公開','最近の検索履歴を全員に公開'],
+ ['친구가 내 술 취향을 완벽히 맞추지만 옷 취향은 최악','친구가 옷은 완벽히 골라주지만 술은 항상 최악','お酒の好みは完璧に当てるが服のセンスは最悪な友達','服は完璧に選ぶが酒のセンスは最悪な友達'],
+ ['술집에서 주문할 때마다 사장님과 5분 토론','주문할 때마다 메뉴판이 10분간 사라짐','注文のたび店主と5分議論','注文のたびメニューが10分消える'],
+ ['내가 좋아하는 가게가 항상 만석','내가 싫어하는 가게가 항상 빈자리','好きなお店がいつも満席','苦手なお店がいつも空いている'],
+ ['술자리에서 모든 사람이 내 별명을 잘못 부름','모든 사람이 내 이름을 정확히 부르지만 과거 흑역사를 기억','飲み会で全員にあだ名を間違えられる','全員が名前を正しく呼ぶが黒歴史を覚えている'],
+ ['친구가 매번 30분 늦지만 최고의 술집을 찾음','친구가 항상 제시간이지만 최악의 술집을 찾음','友達は毎回30分遅れるが最高のお店を見つける','友達は時間通りだが最悪のお店を見つける'],
+ ['평생 술자리에서 내 이야기만 듣기','평생 술자리에서 내 이야기만 하기','一生飲み会で人の話だけ聞く','一生飲み会で自分の話だけする'],
+ ['술집에서 우연히 유명인이 옆자리, 말을 걸면 민망','술집에서 친구의 부모님이 옆자리, 모르는 척 불가','居酒屋で有名人が隣、話しかけると気まずい','居酒屋で友達の親が隣、知らないふりできない']
+ ];
+ const extraBalanceJa=extraBalance.map(x=>[x[2],x[3]]);
+ const balanceContexts=[['오늘 첫 술자리라면','今夜最初の飲み会なら'],['친구들과 여행 중이라면','友達との旅行中なら'],['소개팅 후 뒤풀이에서라면','デート後の飲み会なら'],['단골 가게에서라면','行きつけのお店なら'],['회사 회식에서라면','会社の飲み会なら']];
+ let balanceDeck=[],balanceHistory=[];
  const stampKey='kydFunStamps-v1';let tab='menu',currentBalance=null;
  function esc(v){return String(v).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
  function render(){document.querySelectorAll('[data-fun-tab]').forEach(b=>{b.classList.toggle('active',b.dataset.funTab===tab);b.textContent=({menu:tr('🍢 메뉴 룰렛','🍢 おつまみルーレット'),stamps:tr('🏮 도장깨기','🏮 スタンプラリー'),persona:tr('🎭 술자리 캐릭터','🎭 飲み会キャラ'),balance:tr('⚖️ 밸런스 게임','⚖️ 二択ゲーム')})[b.dataset.funTab];});document.getElementById('kydFunTitle').textContent=tr('술자리 놀거리','飲み会コンテンツ');
  if(tab==='menu'){panel.innerHTML=`<h3>${tr('오늘의 메뉴 룰렛','今日のおつまみルーレット')}</h3><p class="kyd-fun-sub">${tr('뭘 먹을지 고민될 때 버튼 하나로 골라보세요.','何を食べるか迷ったらボタンで決めよう。')}</p><div class="kyd-fun-result" id="kydMenuResult">🍢 ${tr('오늘의 안주는?','今日のおつまみは？')}</div><div class="kyd-fun-actions"><button id="kydMenuSpin">🎲 ${tr('룰렛 돌리기','ルーレットを回す')}</button></div>`;document.getElementById('kydMenuSpin').onclick=()=>{let x=menu[Math.floor(Math.random()*menu.length)];document.getElementById('kydMenuResult').textContent='🍢 '+x[ja()?1:0];};}
  if(tab==='persona'){panel.innerHTML=`<h3>${tr('오늘의 술자리 캐릭터','今日の飲み会キャラ')}</h3><p class="kyd-fun-sub">${tr('오늘 밤 당신의 역할은 무엇일까요?','今夜あなたはどんな役？')}</p><div class="kyd-fun-result" id="kydPersonaResult">🎭 ${tr('캐릭터를 뽑아보세요','キャラを引いてみよう')}</div><div class="kyd-fun-actions"><button id="kydPersonaDraw">🎲 ${tr('캐릭터 뽑기','キャラを引く')}</button></div>`;document.getElementById('kydPersonaDraw').onclick=()=>{let i=Math.floor(Math.random()*personas.length),x=personas[i];document.getElementById('kydPersonaResult').innerHTML=`🎭 <strong>${esc(ja()?personaJaNames[i]:x[0])}</strong><br><span class="kyd-fun-sub">${esc(ja()?personaJaDesc[i]:x[1])}</span>`;};}
  if(tab==='balance'){panel.innerHTML=`<h3>${tr('술자리 밸런스 게임','飲み会究極の二択')}</h3><p class="kyd-fun-sub">${tr('친구와 서로 선택하고 이유를 이야기해 보세요.','友達と選んで理由を話してみよう。')}</p><div class="kyd-fun-result" id="kydBalanceQ">⚖️ ${tr('질문을 뽑아보세요','お題を引いてみよう')}</div><div class="kyd-fun-choice" id="kydBalanceChoices"></div><div class="kyd-fun-actions"><button id="kydBalanceNext">🎲 ${tr('다른 질문','次のお題')}</button></div>`;document.getElementById('kydBalanceNext').onclick=drawBalance;drawBalance();}
- if(tab==='stamps'){let done=JSON.parse(localStorage.getItem(stampKey)||'[]');let n=done.length;panel.innerHTML=`<h3>${tr('교토 술집 도장깨기','京都飲み歩きスタンプラリー')}</h3><p class="kyd-fun-sub">${tr('방문한 지역에 도장을 찍어 나만의 교토 술 지도를 완성하세요. 이 기록은 이 기기에 저장됩니다.','訪れたエリアにスタンプを押して、自分だけの京都飲みマップを完成させよう。記録はこの端末に保存されます。')}</p><div>${tr('완성도','達成率')} ${n}/${areas.length}</div><div class="kyd-fun-meter"><span style="width:${n/areas.length*100}%"></span></div><div class="kyd-stamp-grid">${areas.map((a,i)=>`<div class="kyd-stamp ${done.includes(i)?'done':''}"><div>${done.includes(i)?'🏮':'○'}</div><div class="kyd-stamp-name">${a[ja()?1:0]}</div><button data-stamp="${i}">${done.includes(i)?tr('도장 취소','取り消す'):tr('방문 도장','スタンプ')}</button></div>`).join('')}</div><p class="kyd-fun-sub">${n===areas.length?tr('축하해요! 교토 12개 지역을 모두 정복했어요!','おめでとう！京都12エリア制覇！'):tr('도장을 모으면 지역 정복 칭호를 획득할 수 있어요.','スタンプを集めてエリア制覇を目指そう。')}</p>`;panel.querySelectorAll('[data-stamp]').forEach(b=>b.onclick=()=>{let i=+b.dataset.stamp;done=done.includes(i)?done.filter(x=>x!==i):[...done,i];localStorage.setItem(stampKey,JSON.stringify(done));render();});}
+ if(tab==='stamps'){
+   // Stamp targets are only places with an actual public review written in the map data.
+   const reviewedPlaces=(Array.isArray(places)?places:[]).filter(p=>p&&p.review&&String(p.review).trim());
+   const stampKey='kydFunReviewedPlaceStamps-v2';
+   let done=JSON.parse(localStorage.getItem(stampKey)||'[]');
+   const validIds=reviewedPlaces.map(p=>String(p.id));done=done.filter(id=>validIds.includes(String(id)));
+   const n=done.length,total=reviewedPlaces.length,progress=total?Math.round(n/total*100):0;
+   const locationOf=p=>p.area||p.region||p.neighborhood||p.address||'';
+   panel.innerHTML=`<h3>${tr('내 리뷰 가게 도장깨기','レビューしたお店のスタンプラリー')}</h3><p class="kyd-fun-sub">${tr('내가 리뷰를 작성한 가게만 도장깨기 대상이에요. 교토 전체를 돌 필요 없이, 리뷰한 가게를 하나씩 방문해 기록하세요. 도장 기록은 이 기기에 저장됩니다.','自分がレビューを書いたお店だけが対象です。京都全域を巡る必要はありません。レビューしたお店を訪れてスタンプを集めよう。記録はこの端末に保存されます。')}</p><div>${tr('방문 완료','訪問済み')} <b>${n}/${total}</b> ${tr('곳','軒')} · ${progress}%</div><div class="kyd-fun-meter"><span style="width:${progress}%"></span></div>${total?`<div class="kyd-stamp-grid">${reviewedPlaces.map(p=>{const id=String(p.id),isDone=done.includes(id),name=p.name||p.title||tr('이름 없는 가게','店名不明');return `<div class="kyd-stamp ${isDone?'done':''}"><div>${isDone?'🏮':'○'}</div><div class="kyd-stamp-name">${esc(name)}</div>${locationOf(p)?`<div class="kyd-fun-sub">${esc(locationOf(p))}</div>`:''}<button data-stamp-place="${esc(id)}">${isDone?tr('도장 취소','取り消す'):tr('방문 도장','スタンプ')}</button></div>`}).join('')}</div><p class="kyd-fun-sub">${n===total?tr('축하해요! 리뷰한 가게를 모두 방문했어요!','おめでとう！レビューしたお店をすべて訪問しました！'):tr('새로운 가게 리뷰를 추가하면 목록에도 자동으로 반영됩니다.','新しいお店のレビューを追加すると、リストにも反映されます。')}</p>`:`<p class="kyd-fun-sub">${tr('아직 리뷰를 작성한 가게가 없어요. 지도에서 가게 리뷰를 작성하면 여기에 도장깨기 목록이 생깁니다.','まだレビューしたお店がありません。マップでお店のレビューを書くと、ここにスタンプ対象が表示されます。')}</p>`}`;
+   panel.querySelectorAll('[data-stamp-place]').forEach(b=>b.onclick=()=>{const id=b.dataset.stampPlace;done=done.includes(id)?done.filter(x=>x!==id):[...done,id];localStorage.setItem(stampKey,JSON.stringify(done));render();});
  }
- function drawBalance(){let i=Math.floor(Math.random()*balances.length),x=balances[i];currentBalance=x;document.getElementById('kydBalanceQ').textContent=tr('둘 중 하나만 고른다면?','どちらか一つ選ぶなら？');const box=document.getElementById('kydBalanceChoices');box.innerHTML=x.map((v,j)=>`<button type="button" data-choice="${j}">${esc(ja()?balanceJa[i][j]:v)}</button>`).join('');box.querySelectorAll('button').forEach(b=>b.onclick=()=>{box.querySelectorAll('button').forEach(z=>z.classList.remove('chosen'));b.classList.add('chosen');});}
+ }
+ function drawBalance(){
+   const pool=balances.map((x,i)=>({ko:x,ja:balanceJa[i]})).concat(extraBalance.map(x=>({ko:[x[0],x[1]],ja:[x[2],x[3]]})));
+   // Five situational framings create 350 distinct prompt/context combinations; shuffle and avoid repeats until the deck is exhausted.
+   const full=pool.flatMap((q,i)=>balanceContexts.map((c,j)=>({id:`${i}-${j}`,q,c})));
+   if(!balanceDeck.length)balanceDeck=full.slice().sort(()=>Math.random()-.5);
+   const item=balanceDeck.pop();currentBalance=item.q;const x=ja()?item.q.ja:item.q.ko,context=ja()?item.c[1]:item.c[0];
+   document.getElementById('kydBalanceQ').textContent=`${context} · ${tr('둘 중 하나만 고른다면?','どちらか一つ選ぶなら？')}`;
+   const box=document.getElementById('kydBalanceChoices');box.innerHTML=x.map((v,j)=>`<button type="button" data-choice="${j}">${esc(v)}</button>`).join('');
+   box.querySelectorAll('button').forEach(b=>b.onclick=()=>{box.querySelectorAll('button').forEach(z=>z.classList.remove('chosen'));b.classList.add('chosen');});
+ }
  open?.addEventListener('click',()=>{modal.classList.add('open');modal.setAttribute('aria-hidden','false');render();});document.getElementById('kydFunClose').addEventListener('click',close);modal.addEventListener('click',e=>{if(e.target===modal)close();});function close(){modal.classList.remove('open');modal.setAttribute('aria-hidden','true');}
  document.querySelectorAll('[data-fun-tab]').forEach(b=>b.addEventListener('click',()=>{tab=b.dataset.funTab;render();}));document.addEventListener('kyd:languagechange',()=>{if(modal.classList.contains('open'))render();});
 })();
