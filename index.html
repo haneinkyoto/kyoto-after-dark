@@ -13851,7 +13851,7 @@ async function markVisit(place){
   }catch(error){console.error(error);alert(msg('방문 기록 저장에 실패했어요. 새 여정 기능용 SQL을 적용했는지 확인해 주세요.','訪問記録を保存できませんでした。新しい旅機能用SQLをご確認ください。'));if(btn){btn.disabled=false;btn.textContent='📍 이곳 방문 완료';}}
  },err=>{alert(err.code===1?msg('위치 권한이 필요해요. 브라우저 위치 권한을 허용해 주세요.','位置情報の許可が必要です。'):msg('현재 위치를 확인하지 못했어요. 잠시 후 다시 시도해 주세요.','現在地を確認できませんでした。時間をおいて再度お試しください。'));if(btn){btn.disabled=false;btn.textContent='📍 이곳 방문 완료';}},{enableHighAccuracy:true,timeout:12000,maximumAge:30000});
 }
-function addVisitButtons(){document.querySelectorAll('.place-card').forEach(card=>{let b=card.querySelector('.kyd-visit-trigger');const id=card.dataset.id;const p=currentPlace(id);if(!p)return;if(!b){b=document.createElement('button');b.type='button';b.className='kyd-visit-trigger';b.dataset.kydVisit=id;b.addEventListener('click',e=>{e.stopPropagation();markVisit(p);});card.appendChild(b);}const today=new Date().toLocaleDateString('en-CA',{timeZone:'Asia/Tokyo'});const doneToday=journeyRows.some(r=>String(r.place_id)===String(id)&&(r.visited_on||new Date(r.visited_at).toLocaleDateString('en-CA',{timeZone:'Asia/Tokyo'}))===today);if(doneToday){b.textContent=msg('✓ 오늘 방문 기록 완료','✓ 本日の訪問記録済み');b.disabled=true;}else{b.textContent=journeyRows.some(r=>String(r.place_id)===String(id))?msg('↻ 다시 방문 기록하기','↻ 再訪を記録する'):msg('📍 이곳 방문 완료','📍 訪問を記録');b.disabled=false;}});}
+function addVisitButtons(){document.querySelectorAll('.place-card').forEach(card=>{let b=card.querySelector('.kyd-visit-trigger');const id=card.dataset.id;const p=currentPlace(id);if(!p)return;if(!b){b=document.createElement('button');b.type='button';b.className='kyd-visit-trigger';b.dataset.kydVisit=id;b.addEventListener('click',e=>{e.stopPropagation();markVisit(p);});card.appendChild(b);}const today=new Date().toLocaleDateString('en-CA',{timeZone:'Asia/Tokyo'});const doneToday=journeyRows.some(r=>String(r.place_id)===String(id)&&(r.visited_on||new Date(r.visited_at).toLocaleDateString('en-CA',{timeZone:'Asia/Tokyo'}))===today);if(doneToday){const label=msg('✓ 오늘 방문 기록 완료','✓ 本日の訪問記録済み');if(b.textContent!==label)b.textContent=label;b.disabled=true;}else{const label=journeyRows.some(r=>String(r.place_id)===String(id))?msg('↻ 다시 방문 기록하기','↻ 再訪を記録する'):msg('📍 이곳 방문 완료','📍 訪問を記録');if(b.textContent!==label)b.textContent=label;b.disabled=false;}});}
 function storyText(journey,visits){
  const names=visits.map(v=>v.place_name);const start=new Date(journey.started_at||visits[0]?.visited_at||Date.now());const end=new Date(journey.ended_at||Date.now());
  const date=start.toLocaleDateString(lang()==='ja'?'ja-JP':'ko-KR',{year:'numeric',month:'long',day:'numeric'});
@@ -13948,7 +13948,22 @@ async function loadJourneyShares(){const box=$('kydJourneyShareList');if(!box)re
 async function loadOwnerReplies(){if(typeof communityUser==='undefined'||!communityUser)return;const box=$('ownerReplyHistory');if(!box)return;const {data,error}=await communityClient.from('kyoto_owner_messages').select('id,subject,owner_reply,replied_at,created_at').eq('sender_user_id',communityUser.id).not('owner_reply','is',null).order('replied_at',{ascending:false}).limit(20);box.replaceChildren();if(error){console.warn('owner replies:',error);return;}if(!data?.length)return;const h=document.createElement('h4');h.textContent=msg('주인장의 답변','管理人からの返信');box.append(h);data.forEach(r=>{const a=document.createElement('article'),t=document.createElement('strong'),p=document.createElement('p');t.textContent=r.subject;p.textContent=r.owner_reply;a.append(t,p);box.append(a);});}
 $('kydJourneyRefresh')?.addEventListener('click',loadJourney);$('kydJourneyEnd')?.addEventListener('click',endJourney);$('kydJourneyShare')?.addEventListener('click',shareJourney);
 document.querySelectorAll('[data-kyd-tab="my"]').forEach(b=>b.addEventListener('click',()=>{setTimeout(()=>{loadJourney();loadOwnerReplies();},100);}));
-const observer=new MutationObserver(addVisitButtons);observer.observe(document.body,{childList:true,subtree:true});addVisitButtons();
+// Observe only newly inserted place cards. Watching every child mutation here
+// caused addVisitButtons() to rewrite button text, which retriggered the observer
+// indefinitely and could freeze the page / block taps on mobile.
+const observer=new MutationObserver(records=>{
+ let hasNewPlaceCard=false;
+ for(const record of records){
+  for(const node of record.addedNodes){
+   if(node.nodeType!==1)continue;
+   if(node.matches?.('.place-card')||node.querySelector?.('.place-card')){hasNewPlaceCard=true;break;}
+  }
+  if(hasNewPlaceCard)break;
+ }
+ if(hasNewPlaceCard)addVisitButtons();
+});
+observer.observe(document.body,{childList:true,subtree:true});
+addVisitButtons();
 // Meetup posts are already queried by selectedDate in loadMeetups; keep the date picker and list synchronized.
 const dateInput=$('meetupDate');if(dateInput){dateInput.addEventListener('change',async()=>{const d=dateInput.value;if(!d)return;selectedDate=d;const label=$('selectedDateLabel');if(label)label.textContent=`선택한 날짜: ${d}`;if(typeof loadMeetups==='function')await loadMeetups();});}
 // Chat: Enter sends, Shift+Enter inserts a line; guard against duplicate rapid sends.
