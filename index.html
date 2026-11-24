@@ -13761,7 +13761,22 @@ body:has(.modal-backdrop.show) .kyd-my-location-dock{display:none}
     }
     window.setTimeout(()=>window.map?.invalidateSize?.(),120);
   }
-  page.addEventListener('click',event=>{const button=event.target.closest('[data-intro-action]');if(button)closeIntro(button.dataset.introAction);});
+  // Keep the first-visit screen dismissible even if another page-level
+  // click handler interferes with bubbling. The intro itself is the only
+  // active layer until it is dismissed.
+  page.style.setProperty('z-index','2147483647','important');
+  page.style.setProperty('pointer-events','auto','important');
+  page.addEventListener('click',event=>{
+    const target=event.target instanceof Element ? event.target : null;
+    if(!target)return;
+    const langButton=target.closest('.kyd-intro-langs [data-kyd-lang]');
+    if(langButton)return;
+    const button=target.closest('[data-intro-action]');
+    closeIntro(button ? button.dataset.introAction : 'map');
+  },true);
+  document.addEventListener('keydown',event=>{
+    if(event.key==='Escape' && !page.hidden)closeIntro('map');
+  },true);
   document.addEventListener('kyd:languagechange',applyLanguage);
   let seen=false;try{seen=localStorage.getItem('kydIntroSeen')==='1';}catch(_){}
   if(!seen){page.hidden=false;document.body.classList.add('kyd-intro-active');applyLanguage();}
