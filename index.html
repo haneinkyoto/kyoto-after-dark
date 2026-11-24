@@ -564,7 +564,7 @@ body.kyd-tab-meetup #calendarPanel .stay-auth-card,body.kyd-tab-my #calendarPane
 body.kyd-intro-active{overflow:hidden}
 body.kyd-intro-active>header,body.kyd-intro-active>main,body.kyd-intro-active>#kyotoTabBar{visibility:hidden!important;pointer-events:none!important}
 .kyd-intro-sheet{position:relative;width:min(1120px,100%);min-height:min(720px,calc(100dvh - 40px));background:#f8f5ed;border:1px solid #ded5c7;box-shadow:0 24px 80px #43382720;padding:clamp(20px,4vw,48px);box-sizing:border-box;overflow:hidden}
-.kyd-intro-sheet:before{content:"";position:absolute;inset:12px;border:1px solid #e9e1d4;pointer-events:none}
+.kyd-intro-sheet:before{content:"";position:absolute;inset:12px;border:1px solid #e9e1d4;pointer-events:none!important}
 .kyd-intro-top{position:relative;z-index:2;display:flex;justify-content:space-between;align-items:center;gap:16px;font-size:10px;letter-spacing:.17em;color:#766c5e}
 .kyd-intro-langs{display:flex;align-items:center;gap:7px}.kyd-intro-langs button{border:0;background:none;color:#8c8275;font:inherit;letter-spacing:0;cursor:pointer;padding:4px}.kyd-intro-langs button[aria-pressed="true"]{color:#29251f;font-weight:800;text-decoration:underline;text-underline-offset:4px}
 .kyd-intro-heading{position:relative;z-index:2;max-width:650px;margin:clamp(22px,5vh,54px) 0 22px}
@@ -586,7 +586,7 @@ body.kyd-intro-active>header,body.kyd-intro-active>main,body.kyd-intro-active>#k
 .kyd-intro-card small{font-size:9px;letter-spacing:.18em;opacity:.85;margin-bottom:8px}
 .kyd-intro-card strong{font-family:Georgia,'Noto Serif KR',serif;font-size:clamp(21px,2.6vw,30px);font-weight:500;letter-spacing:-.04em;line-height:1.15}
 .kyd-intro-card span{font-size:11px;line-height:1.55;opacity:.9;margin-top:8px;max-width:230px}
-.kyd-intro-sticker{position:absolute;z-index:3;right:28%;top:43%;width:86px;height:86px;border-radius:50%;display:grid;place-items:center;text-align:center;background:#d5a36e;color:#fffdf5;font-family:Georgia,serif;font-size:12px;line-height:1.2;transform:rotate(12deg);box-shadow:0 5px 15px #35281930;border:1px dashed #fff8}
+.kyd-intro-sticker{pointer-events:none!important;position:absolute;z-index:3;right:28%;top:43%;width:86px;height:86px;border-radius:50%;display:grid;place-items:center;text-align:center;background:#d5a36e;color:#fffdf5;font-family:Georgia,serif;font-size:12px;line-height:1.2;transform:rotate(12deg);box-shadow:0 5px 15px #35281930;border:1px dashed #fff8}
 .kyd-intro-bottom{position:relative;z-index:2;display:flex;justify-content:space-between;align-items:center;gap:16px;border-top:1px solid #e6ded2;padding-top:18px;color:#82786b;font-size:10px;letter-spacing:.13em}
 .kyd-intro-enter{border:0;background:#302c25;color:#fffaf1;padding:13px 20px;font:inherit;font-size:11px;letter-spacing:.08em;cursor:pointer;transition:background .2s}
 .kyd-intro-enter:hover{background:#a65f46}
@@ -13761,7 +13761,7 @@ body:has(.modal-backdrop.show) .kyd-my-location-dock{display:none}
     }
     window.setTimeout(()=>window.map?.invalidateSize?.(),120);
   }
-  page.addEventListener('click',event=>{const button=event.target.closest('[data-intro-action]');if(button)closeIntro(button.dataset.introAction);});
+  page.addEventListener('click',event=>{const path=typeof event.composedPath==='function'?event.composedPath():[event.target];const button=path.find(node=>node&&node.matches&&node.matches('[data-intro-action]'));if(button){event.preventDefault();closeIntro(button.dataset.introAction);}},true);
   document.addEventListener('kyd:languagechange',applyLanguage);
   let seen=false;try{seen=localStorage.getItem('kydIntroSeen')==='1';}catch(_){}
   if(!seen){page.hidden=false;document.body.classList.add('kyd-intro-active');applyLanguage();}
