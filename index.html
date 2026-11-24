@@ -564,7 +564,7 @@ body.kyd-tab-meetup #calendarPanel .stay-auth-card,body.kyd-tab-my #calendarPane
 body.kyd-intro-active{overflow:hidden}
 body.kyd-intro-active>header,body.kyd-intro-active>main,body.kyd-intro-active>#kyotoTabBar{visibility:hidden!important;pointer-events:none!important}
 .kyd-intro-sheet{position:relative;width:min(1120px,100%);min-height:min(720px,calc(100dvh - 40px));background:#f8f5ed;border:1px solid #ded5c7;box-shadow:0 24px 80px #43382720;padding:clamp(20px,4vw,48px);box-sizing:border-box;overflow:hidden}
-.kyd-intro-sheet:before{content:"";position:absolute;inset:12px;border:1px solid #e9e1d4;pointer-events:none!important}
+.kyd-intro-sheet:before{content:"";position:absolute;inset:12px;border:1px solid #e9e1d4;pointer-events:none}
 .kyd-intro-top{position:relative;z-index:2;display:flex;justify-content:space-between;align-items:center;gap:16px;font-size:10px;letter-spacing:.17em;color:#766c5e}
 .kyd-intro-langs{display:flex;align-items:center;gap:7px}.kyd-intro-langs button{border:0;background:none;color:#8c8275;font:inherit;letter-spacing:0;cursor:pointer;padding:4px}.kyd-intro-langs button[aria-pressed="true"]{color:#29251f;font-weight:800;text-decoration:underline;text-underline-offset:4px}
 .kyd-intro-heading{position:relative;z-index:2;max-width:650px;margin:clamp(22px,5vh,54px) 0 22px}
@@ -586,7 +586,7 @@ body.kyd-intro-active>header,body.kyd-intro-active>main,body.kyd-intro-active>#k
 .kyd-intro-card small{font-size:9px;letter-spacing:.18em;opacity:.85;margin-bottom:8px}
 .kyd-intro-card strong{font-family:Georgia,'Noto Serif KR',serif;font-size:clamp(21px,2.6vw,30px);font-weight:500;letter-spacing:-.04em;line-height:1.15}
 .kyd-intro-card span{font-size:11px;line-height:1.55;opacity:.9;margin-top:8px;max-width:230px}
-.kyd-intro-sticker{pointer-events:none!important;position:absolute;z-index:3;right:28%;top:43%;width:86px;height:86px;border-radius:50%;display:grid;place-items:center;text-align:center;background:#d5a36e;color:#fffdf5;font-family:Georgia,serif;font-size:12px;line-height:1.2;transform:rotate(12deg);box-shadow:0 5px 15px #35281930;border:1px dashed #fff8}
+.kyd-intro-sticker{position:absolute;z-index:3;right:28%;top:43%;width:86px;height:86px;border-radius:50%;display:grid;place-items:center;text-align:center;background:#d5a36e;color:#fffdf5;font-family:Georgia,serif;font-size:12px;line-height:1.2;transform:rotate(12deg);box-shadow:0 5px 15px #35281930;border:1px dashed #fff8}
 .kyd-intro-bottom{position:relative;z-index:2;display:flex;justify-content:space-between;align-items:center;gap:16px;border-top:1px solid #e6ded2;padding-top:18px;color:#82786b;font-size:10px;letter-spacing:.13em}
 .kyd-intro-enter{border:0;background:#302c25;color:#fffaf1;padding:13px 20px;font:inherit;font-size:11px;letter-spacing:.08em;cursor:pointer;transition:background .2s}
 .kyd-intro-enter:hover{background:#a65f46}
@@ -13761,7 +13761,7 @@ body:has(.modal-backdrop.show) .kyd-my-location-dock{display:none}
     }
     window.setTimeout(()=>window.map?.invalidateSize?.(),120);
   }
-  page.addEventListener('click',event=>{const path=typeof event.composedPath==='function'?event.composedPath():[event.target];const button=path.find(node=>node&&node.matches&&node.matches('[data-intro-action]'));if(button){event.preventDefault();closeIntro(button.dataset.introAction);}},true);
+  page.addEventListener('click',event=>{const button=event.target.closest('[data-intro-action]');if(button)closeIntro(button.dataset.introAction);});
   document.addEventListener('kyd:languagechange',applyLanguage);
   let seen=false;try{seen=localStorage.getItem('kydIntroSeen')==='1';}catch(_){}
   if(!seen){page.hidden=false;document.body.classList.add('kyd-intro-active');applyLanguage();}
@@ -13841,17 +13841,15 @@ async function markVisit(place){
    if(error)throw error;
    const eventPayload={user_id:communityUser.id,place_id:String(place.id),place_name:place.name||'이자카야',place_category:String(place.category||place.type||place.genre||''),place_area:String(place.area||place.region||''),place_search_text:[place.name,place.category,place.type,place.genre,place.area,place.region,place.neighborhood,place.description,place.tags,place.features,place.keyword].flatMap(v=>Array.isArray(v)?v:[v]).filter(Boolean).join(' '),place_rating:place.rating!=null&&Number.isFinite(Number(place.rating))?Number(place.rating):null,place_lat:lat,place_lng:lng,visited_at:new Date().toISOString(),visited_on:new Date().toLocaleDateString('en-CA',{timeZone:'Asia/Tokyo'}),journey_id:journey.id,review_tags:review.tags,private_review:review.note};
    const {error:eventError}=await communityClient.from('kyoto_badge_visit_events').upsert(eventPayload,{onConflict:'user_id,place_id,visited_on'});
-   // The legacy visit row above is the durable fallback. An event-log failure
-   // must not turn a successful visit save into a misleading total failure.
-   if(eventError)console.warn('Visit saved to kyoto_user_visits; event log unavailable:',eventError);
+   if(eventError)throw eventError;
    if(btn){btn.textContent=msg('✓ 오늘 방문 기록 완료','✓ 本日の訪問記録済み');btn.disabled=true;}
    window.dispatchEvent(new Event('kyd:titles-refresh'));
-   setJourneyStatus(eventError?msg('방문 기록은 저장했어요. 상세 방문 기록은 기존 기록에서 불러옵니다.','訪問記録を保存しました。詳細履歴は既存の記録から読み込みます。'):msg('방문을 현재 여정에 저장했어요. 여정을 마치면 한 편의 스토리로 만들어 드려요.','訪問を現在の旅に保存しました。旅を終了するとストーリーになります。'));
+   setJourneyStatus(msg('방문을 현재 여정에 저장했어요. 여정을 마치면 한 편의 스토리로 만들어 드려요.','訪問を現在の旅に保存しました。旅を終了するとストーリーになります。'));
    await loadJourney();
   }catch(error){console.error(error);alert(msg('방문 기록 저장에 실패했어요. 새 여정 기능용 SQL을 적용했는지 확인해 주세요.','訪問記録を保存できませんでした。新しい旅機能用SQLをご確認ください。'));if(btn){btn.disabled=false;btn.textContent='📍 이곳 방문 완료';}}
  },err=>{alert(err.code===1?msg('위치 권한이 필요해요. 브라우저 위치 권한을 허용해 주세요.','位置情報の許可が必要です。'):msg('현재 위치를 확인하지 못했어요. 잠시 후 다시 시도해 주세요.','現在地を確認できませんでした。時間をおいて再度お試しください。'));if(btn){btn.disabled=false;btn.textContent='📍 이곳 방문 완료';}},{enableHighAccuracy:true,timeout:12000,maximumAge:30000});
 }
-function addVisitButtons(){document.querySelectorAll('.place-card').forEach(card=>{let b=card.querySelector('.kyd-visit-trigger');const id=card.dataset.id;const p=currentPlace(id);if(!p)return;if(!b){b=document.createElement('button');b.type='button';b.className='kyd-visit-trigger';b.dataset.kydVisit=id;b.addEventListener('click',e=>{e.stopPropagation();markVisit(p);});card.appendChild(b);}const today=new Date().toLocaleDateString('en-CA',{timeZone:'Asia/Tokyo'});const doneToday=journeyRows.some(r=>String(r.place_id)===String(id)&&(r.visited_on||new Date(r.visited_at).toLocaleDateString('en-CA',{timeZone:'Asia/Tokyo'}))===today);if(doneToday){const label=msg('✓ 오늘 방문 기록 완료','✓ 本日の訪問記録済み');if(b.textContent!==label)b.textContent=label;b.disabled=true;}else{const label=journeyRows.some(r=>String(r.place_id)===String(id))?msg('↻ 다시 방문 기록하기','↻ 再訪を記録する'):msg('📍 이곳 방문 완료','📍 訪問を記録');if(b.textContent!==label)b.textContent=label;b.disabled=false;}});}
+function addVisitButtons(){document.querySelectorAll('.place-card').forEach(card=>{let b=card.querySelector('.kyd-visit-trigger');const id=card.dataset.id;const p=currentPlace(id);if(!p)return;if(!b){b=document.createElement('button');b.type='button';b.className='kyd-visit-trigger';b.dataset.kydVisit=id;b.addEventListener('click',e=>{e.stopPropagation();markVisit(p);});card.appendChild(b);}const today=new Date().toLocaleDateString('en-CA',{timeZone:'Asia/Tokyo'});const doneToday=journeyRows.some(r=>String(r.place_id)===String(id)&&(r.visited_on||new Date(r.visited_at).toLocaleDateString('en-CA',{timeZone:'Asia/Tokyo'}))===today);const hasPrior=journeyRows.some(r=>String(r.place_id)===String(id));const nextText=doneToday?msg('✓ 오늘 방문 기록 완료','✓ 本日の訪問記録済み'):(hasPrior?msg('↻ 다시 방문 기록하기','↻ 再訪を記録する'):msg('📍 이곳 방문 완료','📍 訪問を記録'));const nextDisabled=!!doneToday;if(b.textContent!==nextText)b.textContent=nextText;if(b.disabled!==nextDisabled)b.disabled=nextDisabled;});}
 function storyText(journey,visits){
  const names=visits.map(v=>v.place_name);const start=new Date(journey.started_at||visits[0]?.visited_at||Date.now());const end=new Date(journey.ended_at||Date.now());
  const date=start.toLocaleDateString(lang()==='ja'?'ja-JP':'ko-KR',{year:'numeric',month:'long',day:'numeric'});
@@ -13890,27 +13888,8 @@ async function loadJourney(){
   communityClient.from('kyoto_journeys').select('id,title,started_at,ended_at,story,visits_snapshot').eq('user_id',communityUser.id).order('started_at',{ascending:false}).limit(100)
  ]);
  if(latestError){list.textContent=msg('방문 기록을 불러오지 못했어요. 잠시 후 다시 시도해 주세요.','訪問記録を読み込めません。時間をおいて再度お試しください。');console.error(latestError);return;}
- // Prefer the event log, but never let an empty event table hide older visits
- // still stored in kyoto_user_visits. Merge both sources by shop + Japan date;
- // the event row wins when the same visit exists in both tables.
- const normalizeVisitDate=r=>r.visited_on|| (r.visited_at?new Date(r.visited_at).toLocaleDateString('en-CA',{timeZone:'Asia/Tokyo'}):'');
- const mergedVisits=new Map();
- (Array.isArray(latest)?latest:[]).forEach(r=>{
-  const visited_on=normalizeVisitDate(r);
-  const key=String(r.place_id)+'|'+visited_on;
-  mergedVisits.set(key,{...r,_source:'visit',visited_on});
- });
- (Array.isArray(events)?events:[]).forEach(r=>{
-  const visited_on=normalizeVisitDate(r);
-  const key=String(r.place_id)+'|'+visited_on;
-  mergedVisits.set(key,{...r,_source:'event',visited_on});
- });
- journeyRows=Array.from(mergedVisits.values()).filter(r=>r.visited_at).sort((a,b)=>new Date(a.visited_at)-new Date(b.visited_at));
- if(eventError)console.warn('Visit event history unavailable; using legacy visit records where available:',eventError);
- if(latestError&&!journeyRows.length){
-  list.textContent=msg('방문 기록을 불러오지 못했어요. Supabase 권한과 테이블을 확인해 주세요.','訪問記録を読み込めません。Supabaseの権限とテーブルをご確認ください。');
-  console.error('Visit history read errors:',{eventError,latestError});return;
- }
+ const sourceRows=!eventError&&Array.isArray(events)?events:(latest||[]);journeyRows=sourceRows.map(r=>({...r,_source:!eventError?'event':'visit',visited_on:r.visited_on||new Date(r.visited_at).toLocaleDateString('en-CA',{timeZone:'Asia/Tokyo'})}));
+ if(eventError)console.warn('Visit event history unavailable; showing latest per shop instead:',eventError);
  journeyStories=journeys||[];activeJourneyId=journeyStories.find(j=>!j.ended_at)?.id||null;
  const uniqueShops=new Set(journeyRows.map(r=>String(r.place_id))).size,days=new Set(journeyRows.map(r=>r.visited_on).filter(Boolean)).size,reviewCount=journeyRows.filter(x=>(x.private_review||'').trim()||(x.review_tags||[]).length).length,areas=new Set(journeyRows.map(x=>x.place_area).filter(Boolean)).size;
  stats.innerHTML=`<span class="kyd-journey-stat"><b>${journeyRows.length}</b><span>${msg('방문 기록','訪問記録')}</span></span><span class="kyd-journey-stat"><b>${uniqueShops}</b><span>${msg('다녀온 가게','訪れたお店')}</span></span><span class="kyd-journey-stat"><b>${days}</b><span>${msg('방문한 날짜','訪問した日')}</span></span><span class="kyd-journey-stat"><b>${areas||'—'}</b><span>${msg('걸어 본 동네','訪れたエリア')}</span></span>`;
@@ -13926,7 +13905,7 @@ async function loadJourney(){
   const h=document.createElement('h4');h.textContent=row.place_name||msg('이름 없는 가게','店名不明');const meta=document.createElement('small');meta.textContent=new Date(row.visited_at).toLocaleTimeString(lang()==='ja'?'ja-JP':'ko-KR',{hour:'2-digit',minute:'2-digit'});
   const tags=document.createElement('p');tags.className='kyd-journey-tags';tags.textContent=(row.review_tags||[]).join(' · ');const ta=document.createElement('textarea');ta.maxLength=500;ta.value=row.private_review||'';ta.placeholder=msg('이날의 한 줄을 남겨 보세요. 나만 볼 수 있어요.','この日のひとことを残しましょう。自分だけに表示されます。');ta.setAttribute('aria-label',msg(`${row.place_name} 개인 리뷰`,` ${row.place_name} の個人メモ`));
   const state=document.createElement('div');state.className='kyd-journey-review-state';const label=document.createElement('span');const save=document.createElement('button');save.type='button';save.hidden=true;save.textContent=msg('수정 내용 저장','変更を保存');
-  let savedValue=ta.value;const hasSavedReview=!!(savedValue.trim()||(row.review_tags||[]).length);const updateState=()=>{const dirty=ta.value.trim()!==savedValue;label.textContent=dirty?msg('저장되지 않은 수정이 있어요','未保存の変更があります'):(hasSavedReview?msg('✓ 저장된 방문 기록','✓ 保存済みの訪問記録'):msg('개인 메모 없음','メモなし'));save.hidden=!dirty;};
+  let savedValue=ta.value;const hasSavedReview=!!savedValue.trim()||(row.review_tags||[]).length>0;const updateState=()=>{const dirty=ta.value.trim()!==savedValue;label.textContent=dirty?msg('저장되지 않은 수정이 있어요','未保存の変更があります'):(hasSavedReview?msg('✓ 저장된 개인 리뷰','✓ 保存済みメモ'):msg('개인 메모 없음','メモなし'));save.hidden=!dirty;};
   ta.addEventListener('input',updateState);
   save.addEventListener('click',async()=>{const value=ta.value.trim();save.disabled=true;save.textContent=msg('저장 중…','保存中…');try{const table=row._source==='event'?'kyoto_badge_visit_events':'kyoto_user_visits';const {error}=await communityClient.from(table).update({private_review:value}).eq('id',row.id).eq('user_id',communityUser.id);if(error)throw error;row.private_review=value;savedValue=value;const master=journeyRows.filter(x=>String(x.place_id)===String(row.place_id)).sort((a,b)=>new Date(b.visited_at)-new Date(a.visited_at))[0];if(master===row&&row._source==='event'){await communityClient.from('kyoto_user_visits').update({private_review:value,review_tags:row.review_tags||[]}).eq('user_id',communityUser.id).eq('place_id',String(row.place_id));}save.textContent=msg('저장 완료','保存しました');updateState();setJourneyStatus(msg('리뷰를 저장했어요. 수정할 때만 저장 버튼이 다시 나타나요.','メモを保存しました。変更したときだけ保存ボタンが表示されます。'));}catch(error){console.error(error);save.textContent=msg('다시 저장','再保存');alert(msg('리뷰 저장에 실패했어요.','メモを保存できませんでした。'));}finally{save.disabled=false;}});
   state.append(label,save);main.append(h,meta);if(tags.textContent)main.append(tags);main.append(ta,state);a.append(number,main);list.append(a);updateState();
@@ -13948,22 +13927,7 @@ async function loadJourneyShares(){const box=$('kydJourneyShareList');if(!box)re
 async function loadOwnerReplies(){if(typeof communityUser==='undefined'||!communityUser)return;const box=$('ownerReplyHistory');if(!box)return;const {data,error}=await communityClient.from('kyoto_owner_messages').select('id,subject,owner_reply,replied_at,created_at').eq('sender_user_id',communityUser.id).not('owner_reply','is',null).order('replied_at',{ascending:false}).limit(20);box.replaceChildren();if(error){console.warn('owner replies:',error);return;}if(!data?.length)return;const h=document.createElement('h4');h.textContent=msg('주인장의 답변','管理人からの返信');box.append(h);data.forEach(r=>{const a=document.createElement('article'),t=document.createElement('strong'),p=document.createElement('p');t.textContent=r.subject;p.textContent=r.owner_reply;a.append(t,p);box.append(a);});}
 $('kydJourneyRefresh')?.addEventListener('click',loadJourney);$('kydJourneyEnd')?.addEventListener('click',endJourney);$('kydJourneyShare')?.addEventListener('click',shareJourney);
 document.querySelectorAll('[data-kyd-tab="my"]').forEach(b=>b.addEventListener('click',()=>{setTimeout(()=>{loadJourney();loadOwnerReplies();},100);}));
-// Observe only newly inserted place cards. Watching every child mutation here
-// caused addVisitButtons() to rewrite button text, which retriggered the observer
-// indefinitely and could freeze the page / block taps on mobile.
-const observer=new MutationObserver(records=>{
- let hasNewPlaceCard=false;
- for(const record of records){
-  for(const node of record.addedNodes){
-   if(node.nodeType!==1)continue;
-   if(node.matches?.('.place-card')||node.querySelector?.('.place-card')){hasNewPlaceCard=true;break;}
-  }
-  if(hasNewPlaceCard)break;
- }
- if(hasNewPlaceCard)addVisitButtons();
-});
-observer.observe(document.body,{childList:true,subtree:true});
-addVisitButtons();
+const observer=new MutationObserver(records=>{const hasNewPlaceCard=records.some(record=>[...record.addedNodes].some(node=>node.nodeType===1&&(node.matches?.('.place-card')||node.querySelector?.('.place-card'))));if(hasNewPlaceCard)addVisitButtons();});observer.observe(document.body,{childList:true,subtree:true});addVisitButtons();
 // Meetup posts are already queried by selectedDate in loadMeetups; keep the date picker and list synchronized.
 const dateInput=$('meetupDate');if(dateInput){dateInput.addEventListener('change',async()=>{const d=dateInput.value;if(!d)return;selectedDate=d;const label=$('selectedDateLabel');if(label)label.textContent=`선택한 날짜: ${d}`;if(typeof loadMeetups==='function')await loadMeetups();});}
 // Chat: Enter sends, Shift+Enter inserts a line; guard against duplicate rapid sends.
