@@ -4975,14 +4975,19 @@ header {
   <button type="button" id="kydTitleRefresh" class="kyd-title-refresh" data-title-text="refresh">진행률 새로고침</button>
  </div>
  <div id="kydTitleSummary" class="kyd-title-overview" aria-live="polite"><div class="kyd-title-overview-main"><strong>0 / 50</strong><span>획득한 칭호</span></div><div class="kyd-title-overview-bar"><span style="width:0%"></span></div><div class="kyd-title-overview-sub">로그인하면 나의 도전 현황을 확인할 수 있어요.</div></div>
- <div id="kydTitleEquipped" class="kyd-title-featured"></div>
- <div class="kyd-title-status-filters" id="kydTitleStatusFilters" role="tablist" aria-label="칭호 상태">
-  <button type="button" data-title-status="challenge" class="active">도전 중 <span id="kydTitleChallengeCount">0</span></button>
-  <button type="button" data-title-status="earned">획득 <span id="kydTitleEarnedCount">0</span></button>
-  <button type="button" data-title-status="all">전체 50</button>
+ <div class="kyd-title-compact-row">
+  <div id="kydTitleEquipped" class="kyd-title-featured"></div>
+  <button type="button" id="kydTitleDetailsToggle" class="kyd-title-details-toggle" aria-expanded="false" aria-controls="kydTitleDetails">칭호 전체 보기 <span aria-hidden="true">⌄</span></button>
  </div>
- <div id="kydTitleFilters" class="kyd-title-filters"></div>
- <div id="kydTitleGrid" class="kyd-title-grid"></div>
+ <div id="kydTitleDetails" class="kyd-title-details" hidden>
+  <div class="kyd-title-status-filters" id="kydTitleStatusFilters" role="tablist" aria-label="칭호 상태">
+   <button type="button" data-title-status="challenge" class="active">도전 중 <span id="kydTitleChallengeCount">0</span></button>
+   <button type="button" data-title-status="earned">획득 <span id="kydTitleEarnedCount">0</span></button>
+   <button type="button" data-title-status="all">전체 50</button>
+  </div>
+  <div id="kydTitleFilters" class="kyd-title-filters"></div>
+  <div id="kydTitleGrid" class="kyd-title-grid"></div>
+ </div>
 </section>
 
 <section id="kydMyJourney" class="kyd-my-journey kyd-journey-v2" aria-label="나의 교토 방문 기록">
@@ -5047,6 +5052,38 @@ header {
 
 <style id="kyd-title-book-style">
 .kyd-title-book{margin:22px 0;padding:18px;border:1px solid #e4d8c7;background:linear-gradient(145deg,#fffdf8,#f5efe5);color:#493e32}.kyd-title-book{border-radius:16px;box-shadow:0 8px 24px rgba(65,48,29,.08)}.kyd-title-book h3{font-size:24px!important;font-weight:650!important;letter-spacing:-.025em;color:#30291f}.kyd-title-book>p,.kyd-title-book .kyd-title-book-head p{font-size:14px!important;line-height:1.8!important;color:#65594b!important}.kyd-title-card{padding:17px!important;border-radius:13px!important;box-shadow:0 3px 10px rgba(65,48,29,.07);border-color:#d8c9b5!important}.kyd-title-card:not(.earned){background:#fffefa!important}.kyd-title-card-top>div{min-width:0}.kyd-title-card strong{font-size:16px!important;line-height:1.55!important;letter-spacing:-.015em}.kyd-title-card small{font-size:12px!important;line-height:1.6!important;color:#5f5142!important}.kyd-title-card p{font-size:14px!important;line-height:1.75!important;color:#3f382f!important}.kyd-title-card .kyd-title-count{font-size:13px!important;color:#493a29!important}.kyd-title-card.earned{background:#f4e8d4!important;border-color:#a98a61!important}.kyd-title-card.secret{background:#f0ece5!important}.kyd-title-progress{height:10px!important;background:#e4dacb!important;border-radius:99px!important}.kyd-title-progress span{background:#765333!important;border-radius:99px!important}.kyd-title-filters button{font-size:13px!important;font-weight:750!important}.kyd-title-book-head p{max-width:680px}.kyd-title-card-top{align-items:flex-start!important;gap:11px!important}.kyd-title-emoji{font-size:25px!important;flex-basis:32px!important;line-height:1.35}.kyd-title-card strong{display:block;font-size:15px!important;line-height:1.5!important;font-weight:800!important;color:#30291f;overflow-wrap:anywhere}.kyd-title-card small{font-size:11px!important;line-height:1.5!important;color:#65594b!important}.kyd-title-card p{font-size:13px!important;line-height:1.7!important;color:#4e463c!important;margin:10px 0 8px!important}.kyd-title-card .kyd-title-count{font-size:12px!important;font-weight:750;color:#554532!important}.kyd-title-progress{height:9px!important;background:#e5dccd!important}.kyd-title-progress span{background:#87613d!important}.kyd-title-filters button{font-size:13px!important;font-weight:700!important;padding:9px 13px!important;border-radius:999px!important}.kyd-title-notice{font-size:13px!important;line-height:1.8!important;color:#453b30!important;border-radius:9px}.kyd-title-card.earned{border-color:#b99a6d!important;background:#f5ead7!important}.kyd-title-card.secret{background:#f0ece5!important}.kyd-title-book-head{display:flex;justify-content:space-between;align-items:flex-start;gap:12px;flex-wrap:wrap}.kyd-title-book h3{font:500 21px Georgia,'Noto Serif KR',serif;margin:0 0 5px}.kyd-title-book p{font-size:12px;line-height:1.7;color:#817568;margin:5px 0 12px}.kyd-title-book-actions{display:flex;gap:7px;flex-wrap:wrap}.kyd-title-book button{border:1px solid #b8a58e;background:#fffaf1;color:#594b3b;padding:8px 11px;border-radius:3px;font-size:12px;cursor:pointer}.kyd-title-book button.primary{background:#554b3e;color:#fffaf1}.kyd-title-progress{height:8px;background:#e8dfd2;border-radius:9px;overflow:hidden;margin:9px 0}.kyd-title-progress span{display:block;height:100%;background:#98734e}.kyd-title-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;margin-top:13px}.kyd-title-card{padding:11px;border:1px solid #e4d9ca;background:#fffdf9;min-width:0}.kyd-title-card.earned{background:#f0e6d6;border-color:#c9b391}.kyd-title-card.secret{background:#eee9e1;text-align:center}.kyd-title-card-top{display:flex;gap:9px;align-items:center}.kyd-title-emoji{font-size:22px;flex:0 0 28px}.kyd-title-card strong{font-size:13px}.kyd-title-card small{display:block;font-size:10px;color:#8c7d6d;margin-top:3px}.kyd-title-card p{font-size:11px;margin:7px 0 5px}.kyd-title-card .kyd-title-progress{height:5px;margin:7px 0}.kyd-title-card .kyd-title-count{font-size:10px;color:#877866;text-align:right}.kyd-title-filters{display:flex;gap:6px;flex-wrap:wrap;margin:12px 0}.kyd-title-filters button.active{background:#554b3e;color:#fffaf1}.kyd-title-notice{padding:11px;margin:10px 0;background:#efe7d9;border-left:3px solid #9a795f;font-size:12px;line-height:1.6}.kyd-title-equipped{display:inline-flex;align-items:center;gap:5px;padding:5px 9px;border:1px solid #c8b18f;background:#f6eddf;font-size:11px}.kyd-title-empty{font-size:12px;color:#8c8175;padding:14px 0}@media(max-width:480px){.kyd-title-book{padding:14px}.kyd-title-grid{grid-template-columns:1fr}.kyd-title-book h3{font-size:19px}}
+
+/* Compact title collection: keep My Page short until the user asks to browse. */
+#kydTitleBook{padding:13px 15px!important;margin:14px 0!important;border-radius:14px!important}
+#kydTitleBook .kyd-title-book-head{align-items:center!important;gap:8px!important}
+#kydTitleBook .kyd-title-book-head p{display:none!important}
+#kydTitleBook .kyd-title-book-head h3{font-size:18px!important;margin:0!important}
+#kydTitleBook .kyd-title-kicker{font-size:9px!important;letter-spacing:.12em!important}
+#kydTitleBook .kyd-title-refresh{padding:6px 9px!important;font-size:10px!important;white-space:nowrap}
+#kydTitleBook .kyd-title-overview{display:grid!important;grid-template-columns:auto minmax(55px,1fr);align-items:center;column-gap:10px;row-gap:3px;padding:9px 0 5px!important;margin:0!important}
+#kydTitleBook .kyd-title-overview-main{display:flex;align-items:baseline;gap:5px;white-space:nowrap}
+#kydTitleBook .kyd-title-overview-main strong{font-size:17px!important}
+#kydTitleBook .kyd-title-overview-main span{font-size:10px!important}
+#kydTitleBook .kyd-title-overview-bar{margin:0!important;height:6px!important}
+#kydTitleBook .kyd-title-overview-sub{grid-column:1/-1;font-size:10px!important;line-height:1.4!important;margin-top:2px}
+#kydTitleBook .kyd-title-compact-row{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-top:5px}
+#kydTitleBook .kyd-title-featured{flex:1;min-width:0;margin:0!important;padding:0!important}
+#kydTitleBook .kyd-title-featured-inner{display:flex;align-items:center;gap:8px;padding:7px 9px!important;border-radius:9px!important}
+#kydTitleBook .kyd-title-featured-inner .kyd-title-avatar{width:25px!important;height:25px!important;flex:0 0 25px!important}
+#kydTitleBook .kyd-title-featured-inner small{font-size:9px!important;display:block;line-height:1.2}
+#kydTitleBook .kyd-title-featured-inner strong{font-size:12px!important;line-height:1.3!important}
+#kydTitleBook .kyd-title-featured-mark{font-size:12px!important}
+#kydTitleBook .kyd-title-featured-empty{font-size:10px!important;padding:7px 0!important}
+#kydTitleBook .kyd-title-details-toggle{flex:0 0 auto;display:inline-flex;align-items:center;gap:5px;padding:8px 10px!important;border-radius:999px!important;background:#554b3e!important;color:#fffaf1!important;border:0!important;font-size:10px!important;font-weight:700}
+#kydTitleBook .kyd-title-details-toggle span{font-size:13px;transition:transform .2s}
+#kydTitleBook .kyd-title-details-toggle[aria-expanded="true"] span{transform:rotate(180deg)}
+#kydTitleBook .kyd-title-details{padding-top:8px}
+#kydTitleBook .kyd-title-details[hidden]{display:none!important}
+#kydTitleBook .kyd-title-status-filters{margin:8px 0!important}
+#kydTitleBook .kyd-title-filters{margin:8px 0!important}
+#kydTitleBook .kyd-title-grid{margin-top:8px!important}
+@media(max-width:480px){#kydTitleBook{padding:12px!important}#kydTitleBook .kyd-title-compact-row{align-items:center}#kydTitleBook .kyd-title-featured-inner{padding:6px!important}#kydTitleBook .kyd-title-details-toggle{padding:8px!important}}
+
 </style>
 
 <script id="kyd-title-book-script">
@@ -5056,6 +5093,11 @@ const $=id=>document.getElementById(id);
 const ja=()=>window.KYOTO_AFTER_DARK_I18N?.getLanguage?.()==='ja'||document.documentElement.lang==='ja';
 const tr=(ko,jp)=>ja()?jp:ko;
 let rows=[],owned=new Set(),equippedKey=null,activeCategory='all',activeStatus='challenge',isLoggedIn=false;
+
+const detailsToggle=$('kydTitleDetailsToggle'),detailsPanel=$('kydTitleDetails');
+function updateDetailsToggle(){if(!detailsToggle||!detailsPanel)return;const open=!detailsPanel.hidden;detailsToggle.setAttribute('aria-expanded',String(open));detailsToggle.innerHTML=`${tr(open?'칭호 접기':'칭호 전체 보기',open?'称号を閉じる':'称号をすべて見る')} <span aria-hidden="true">⌄</span>`;}
+detailsToggle?.addEventListener('click',()=>{if(!detailsPanel)return;detailsPanel.hidden=!detailsPanel.hidden;updateDetailsToggle();});
+
 const cats=[['all','전체','すべて'],['방문 습관','방문 습관','訪問スタイル'],['입맛','입맛','食の好み'],['취향','취향','好み'],['시간','시간','時間帯'],['특별','특별','特別']];
 const dayKey=v=>new Intl.DateTimeFormat('en-CA',{timeZone:'Asia/Tokyo'}).format(new Date(v));
 function partsJst(v){const p=new Intl.DateTimeFormat('en-US',{timeZone:'Asia/Tokyo',weekday:'short',hour:'2-digit',hourCycle:'h23',month:'2-digit',year:'numeric',day:'2-digit'}).formatToParts(new Date(v));return Object.fromEntries(p.map(x=>[x.type,x.value]));}
@@ -5149,7 +5191,8 @@ async function equip(key){if(!communityUser||!communityClient||!owned.has(key))r
 async function load(){if(typeof communityClient==='undefined'||typeof communityUser==='undefined'||!communityUser){isLoggedIn=false;$('kydTitleSummary').innerHTML=`<div class="kyd-title-overview-sub">${tr('칭호 도전을 시작하려면 로그인해 주세요.','称号に挑戦するにはログインしてください。')}</div>`;render();return;}isLoggedIn=true;const uid=communityUser.id;const [ev,un]=await Promise.all([communityClient.from('kyoto_badge_visit_events').select('*').eq('user_id',uid).order('visited_at',{ascending:true}).limit(2000),communityClient.from('kyoto_badge_user_titles').select('title_key,is_equipped').eq('user_id',uid)]);if(ev.error||un.error){console.error(ev.error||un.error);$('kydTitleSummary').textContent=tr('칭호 데이터를 불러오지 못했어요.','称号データを読み込めませんでした。');return;}rows=ev.data||[];owned=new Set((un.data||[]).map(x=>x.title_key));equippedKey=(un.data||[]).find(x=>x.is_equipped)?.title_key||null;for(const d of DEFINITIONS){const p=calc(d,rows);if(p.earned&&!owned.has(d.key)){const {error}=await communityClient.from('kyoto_badge_user_titles').upsert({user_id:uid,title_key:d.key,is_equipped:owned.size===0},{onConflict:'user_id,title_key',ignoreDuplicates:true});if(!error){owned.add(d.key);if(!equippedKey)equippedKey=d.key;}}}render();}
 $('kydTitleRefresh')?.addEventListener('click',load);
 $('kydTitleStatusFilters')?.addEventListener('click',e=>{const b=e.target.closest('[data-title-status]');if(!b)return;activeStatus=b.dataset.titleStatus;render();});
-document.addEventListener('kyd:languagechange',render);window.addEventListener('kyd:titles-refresh',load);
+document.addEventListener('kyd:languagechange',()=>{render();updateDetailsToggle();});window.addEventListener('kyd:titles-refresh',load);
+updateDetailsToggle();
 setTimeout(()=>{const host=$('kydTitleBook');if(host)load();},700);
 })();
 </script>
