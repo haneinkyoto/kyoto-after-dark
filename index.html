@@ -4975,8 +4975,12 @@ header {
 <section id="kydTitleBook" class="kyd-title-book" aria-label="칭호 도감" style="display:none">
  <div class="kyd-title-book-head">
   <div><span class="kyd-title-kicker">KYOTO AFTER DARK · COLLECTION</span><h3 data-title-text="heading">나의 칭호 컬렉션</h3><p data-title-text="intro">방문 기록을 바탕으로 도전하고, 획득한 칭호를 모아 보세요.</p></div>
-  <button type="button" id="kydTitleRefresh" class="kyd-title-refresh" data-title-text="refresh">진행률 새로고침</button>
+  <div class="kyd-title-book-actions">
+   <button type="button" id="kydTitleCollapse" class="kyd-title-refresh" aria-expanded="true">접기 −</button>
+   <button type="button" id="kydTitleRefresh" class="kyd-title-refresh" data-title-text="refresh">진행률 새로고침</button>
+  </div>
  </div>
+ <div id="kydTitleContents">
  <div id="kydTitleSummary" class="kyd-title-overview" aria-live="polite"><div class="kyd-title-overview-main"><strong>0 / 50</strong><span>획득한 칭호</span></div><div class="kyd-title-overview-bar"><span style="width:0%"></span></div><div class="kyd-title-overview-sub">로그인하면 나의 도전 현황을 확인할 수 있어요.</div></div>
  <div id="kydTitleEquipped" class="kyd-title-featured"></div>
  <div class="kyd-title-status-filters" id="kydTitleStatusFilters" role="tablist" aria-label="칭호 상태">
@@ -4986,6 +4990,7 @@ header {
  </div>
  <div id="kydTitleFilters" class="kyd-title-filters"></div>
  <div id="kydTitleGrid" class="kyd-title-grid"></div>
+ </div>
 </section>
 
 <section id="kydMyJourney" class="kyd-my-journey kyd-journey-v2" aria-label="나의 교토 방문 기록">
@@ -14356,44 +14361,47 @@ const chatInput=$('chatInput'),send=$('sendChatBtn');if(chatInput&&send){chatInp
 })();
 </script>
 
-<style id="kyd-title-compact-final">
-/* Compact title collection: constrain the entire panel and make each badge card smaller. */
-#kydTitleBook.kyd-title-book{width:min(100%,760px)!important;max-width:760px!important;box-sizing:border-box!important;margin:14px auto!important;padding:12px!important;border-radius:12px!important;box-shadow:0 4px 14px rgba(65,48,29,.055)!important}
-#kydTitleBook .kyd-title-book-head{gap:8px!important;align-items:center!important}
-#kydTitleBook .kyd-title-kicker{font-size:8px!important;letter-spacing:.12em!important}
-#kydTitleBook h3{font-size:17px!important;margin:3px 0!important}
-#kydTitleBook .kyd-title-book-head p{font-size:10px!important;line-height:1.45!important;margin:2px 0 5px!important;max-width:440px!important}
-#kydTitleBook #kydTitleRefresh{padding:6px 9px!important;font-size:10px!important}
-#kydTitleBook .kyd-title-overview{margin:8px 0!important;padding:9px 11px!important;border-radius:9px!important}
-#kydTitleBook .kyd-title-overview-main strong{font-size:19px!important}
-#kydTitleBook .kyd-title-overview-main span,#kydTitleBook .kyd-title-overview-sub{font-size:10px!important}
-#kydTitleBook .kyd-title-overview-bar{height:5px!important;margin:6px 0!important}
-#kydTitleBook .kyd-title-featured-inner{gap:8px!important;padding:7px 9px!important;border-radius:9px!important}
-#kydTitleBook .kyd-title-avatar,#kydTitleBook .kyd-title-avatar.featured{width:38px!important;height:38px!important;flex-basis:38px!important;border-radius:8px!important}
-#kydTitleBook .kyd-title-featured-inner small{font-size:9px!important}
-#kydTitleBook .kyd-title-featured-inner strong{font-size:12px!important}
-#kydTitleBook .kyd-title-status-filters{gap:5px!important;margin:8px 0 6px!important}
-#kydTitleBook .kyd-title-status-filters button,#kydTitleBook .kyd-title-filters button{padding:5px 8px!important;font-size:10px!important;border-radius:999px!important}
-#kydTitleBook .kyd-title-filters{gap:4px!important;margin:6px 0 8px!important}
-#kydTitleBook .kyd-title-grid{grid-template-columns:repeat(3,minmax(0,1fr))!important;gap:7px!important;margin-top:8px!important}
-#kydTitleBook .kyd-title-card{min-width:0!important;padding:8px!important;border-radius:9px!important;box-shadow:none!important}
-#kydTitleBook .kyd-title-card-top{gap:6px!important;align-items:center!important}
-#kydTitleBook .kyd-title-card strong{font-size:11px!important;line-height:1.3!important;white-space:nowrap!important;overflow:hidden!important;text-overflow:ellipsis!important;overflow-wrap:normal!important}
-#kydTitleBook .kyd-title-card small{font-size:8px!important;line-height:1.3!important;margin-top:2px!important}
-#kydTitleBook .kyd-title-card p{font-size:9px!important;line-height:1.4!important;margin:5px 0 4px!important;min-height:0!important;display:-webkit-box!important;-webkit-line-clamp:2!important;-webkit-box-orient:vertical!important;overflow:hidden!important}
-#kydTitleBook .kyd-title-card .kyd-title-progress{height:4px!important;margin:5px 0!important}
-#kydTitleBook .kyd-title-card .kyd-title-count{font-size:9px!important}
-#kydTitleBook .kyd-title-equip{margin-top:5px!important;padding:4px 7px!important;font-size:9px!important}
-@media(max-width:620px){
- #kydTitleBook.kyd-title-book{width:100%!important;max-width:100%!important;margin:10px 0!important;padding:10px!important}
- #kydTitleBook .kyd-title-grid{grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:6px!important}
- #kydTitleBook .kyd-title-card{padding:7px!important}
- #kydTitleBook .kyd-title-avatar{width:32px!important;height:32px!important;flex-basis:32px!important}
- #kydTitleBook .kyd-title-card strong{font-size:10px!important}
- #kydTitleBook .kyd-title-card small{font-size:7px!important}
- #kydTitleBook .kyd-title-card p{font-size:8px!important}
-}
+
+
+<style id="kyd-title-collapse-style">
+/* 접힌 상태에서는 제목 한 줄만 남기고, 펼치면 기존 도감 디자인/크기를 그대로 사용 */
+#kydTitleBook .kyd-title-book-actions{display:flex;gap:7px;align-items:center;flex-wrap:wrap}
+#kydTitleBook #kydTitleCollapse{border:1px solid #b9a181;background:#fffaf2;color:#5d4933;border-radius:999px;padding:9px 13px;font-size:12px;font-weight:750;cursor:pointer;white-space:nowrap}
+#kydTitleBook #kydTitleContents[hidden]{display:none!important}
+#kydTitleBook.is-collapsed{padding:12px 16px;margin:14px 0}
+#kydTitleBook.is-collapsed .kyd-title-book-head{align-items:center;flex-wrap:nowrap;gap:10px}
+#kydTitleBook.is-collapsed .kyd-title-book-head>div:first-child{min-width:0}
+#kydTitleBook.is-collapsed .kyd-title-kicker,
+#kydTitleBook.is-collapsed .kyd-title-book-head p,
+#kydTitleBook.is-collapsed #kydTitleRefresh{display:none!important}
+#kydTitleBook.is-collapsed .kyd-title-book h3{margin:0;font-size:19px!important;line-height:1.35;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#kydTitleBook.is-collapsed .kyd-title-book-actions{width:auto;flex:0 0 auto;margin-left:auto}
+@media(max-width:620px){#kydTitleBook .kyd-title-book-actions{width:auto;justify-content:flex-end}#kydTitleBook.is-collapsed{padding:11px 13px}}
 </style>
+<script id="kyd-title-collapse-script">
+(()=>{
+ const book=document.getElementById('kydTitleBook');
+ const content=document.getElementById('kydTitleContents');
+ const button=document.getElementById('kydTitleCollapse');
+ if(!book||!content||!button||button.dataset.ready==='1')return;
+ button.dataset.ready='1';
+ const ja=()=>document.documentElement.lang==='ja';
+ const setCollapsed=(collapsed)=>{
+  content.hidden=collapsed;
+  book.classList.toggle('is-collapsed',collapsed);
+  button.setAttribute('aria-expanded',String(!collapsed));
+  button.textContent=collapsed?(ja()?'開く ＋':'펼치기 ＋'):(ja()?'閉じる −':'접기 −');
+  button.setAttribute('aria-label',collapsed?(ja()?'称号図鑑を開く':'칭호 도감 펼치기'):(ja()?'称号図鑑を閉じる':'칭호 도감 접기'));
+ };
+ // 기본 상태는 접힘. 펼쳤을 때는 기존 칭호 도감의 크기와 카드 레이아웃을 변경하지 않는다.
+ setCollapsed(true);
+ button.addEventListener('click',()=>setCollapsed(!content.hidden));
+ document.addEventListener('kyd:languagechange',()=>{
+  button.textContent=content.hidden?(ja()?'開く ＋':'펼치기 ＋'):(ja()?'閉じる −':'접기 −');
+ });
+})();
+</script>
+
 </body>
 
 </html>
