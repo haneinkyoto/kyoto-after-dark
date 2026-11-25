@@ -5129,6 +5129,16 @@ function calc(def,events){
  return getN();
 }
 function avatarStyle(index){const col=index%5,row=Math.floor(index/5);return `background-position:${col*25}% ${row*100/9}%`;}
+const TITLE_SHORT={
+ neighborhood_drinker:['동네 술고래','近所の酒豪'],no_home_plan:['귀가 거부','帰宅拒否'],walking_feet:['발바닥 불남','足が棒'],bar_navigation:['술집 내비','居酒屋ナビ'],
+ stamp_breaker:['도장깨기','店巡り'],kyoto_resident:['교토 주민','京都住民'],backstreet_ghost:['골목 망령','路地裏の亡霊'],front_door_bar:['집 앞 술집','近所が飲み屋'],
+ skewer_king:['꼬치 마니아','串マニア'],oden_heart:['오뎅 진심','おでん愛'],fried_food:['튀김파','揚げ物派'],meat_kneel:['고기 신봉자','肉信者'],
+ soup_life:['국물파','汁物派'],carb_believer:['탄수화물파','炭水化物派'],egg_critic:['계란말이 감별사','だし巻き鑑定士'],menu_collector:['메뉴 수집가','メニュー収集家'],
+ stars_skeptic:['별점 불신자','星を信じない'],hidden_gem:['숨은 맛집 감별사','隠れ名店鑑定士'],sorry_owner:['사장님 죄송','店主さんごめん'],fixed_taste:['취향 확고','好み一筋'],
+ failed_adventure:['실패도 모험','失敗も冒険'],monday_runner:['월요 음주','月曜から飲む'],weekday_weekend:['요일 수집가','曜日コレクター'],sunrise_return:['해 뜨면 귀가','朝帰り'],
+ no_office:['퇴근 없는 술꾼','終わらない酒'],short_night:['짧은 밤','短い夜'],recognized_regular:['얼굴 아는 단골','顔なじみ'],review_soul:['리뷰 장인','レビュー職人'],first_night:['첫 잔 기억상실','最初の一杯'],
+};
+function displayTitleName(def){const pair=TITLE_SHORT[def.key];return pair?pair[ja()?1:0]:(ja()?def.ja:def.ko);}
 function render(){
  const grid=$('kydTitleGrid'),filters=$('kydTitleFilters');if(!grid||!filters)return;
  const earnedDefs=DEFINITIONS.filter(d=>owned.has(d.key));const challengeDefs=DEFINITIONS.filter(d=>!owned.has(d.key));
@@ -5141,10 +5151,10 @@ function render(){
  filters.querySelectorAll('button').forEach(b=>b.addEventListener('click',()=>{activeCategory=b.dataset.titleFilter;render();}));
  let list=DEFINITIONS.filter(d=>activeCategory==='all'||d.cat===activeCategory);
  if(activeStatus==='challenge')list=list.filter(d=>!owned.has(d.key));else if(activeStatus==='earned')list=list.filter(d=>owned.has(d.key));
- grid.innerHTML=list.map(d=>{const p=calc(d,rows),isOwned=owned.has(d.key);const prog=isOwned?1:p.ratio;return `<article class="kyd-title-card ${isOwned?'earned':'challenge'}"><div class="kyd-title-card-top"><span class="kyd-title-avatar" style="${avatarStyle(d.character)}" role="img" aria-label="${ja()?d.ja:d.ko}"></span><div class="kyd-title-card-title"><strong>${ja()?d.ja:d.ko}</strong><small>${tr(d.cat,d.cat==='방문 습관'?'訪問スタイル':d.cat==='입맛'?'食の好み':d.cat==='취향'?'好み':d.cat==='시간'?'時間帯':'特別')} · ${isOwned?tr('획득 완료','獲得済み'):tr('도전 중','挑戦中')}</small></div></div><p>${ja()?d.dja:d.dko}</p><div class="kyd-title-progress"><span style="width:${Math.round(prog*100)}%"></span></div><div class="kyd-title-count">${isOwned?tr('획득 완료','獲得済み'):`${Math.floor(p.n*100)/100} / ${p.target}`}</div>${isOwned?`<button type="button" class="kyd-title-equip" data-equip-title="${d.key}">${equippedKey===d.key?tr('대표 칭호','代表称号'):tr('대표로 설정','代表に設定')}</button>`:''}</article>`;}).join('')||`<div class="kyd-title-empty">${activeStatus==='earned'?tr('아직 획득한 칭호가 없어요. 첫 칭호에 도전해 보세요.','まだ獲得した称号はありません。最初の称号に挑戦しましょう。'):tr('이 조건에 해당하는 칭호가 없어요.','この条件に該当する称号はありません。')}</div>`;
+ grid.innerHTML=list.map(d=>{const p=calc(d,rows),isOwned=owned.has(d.key);const prog=isOwned?1:p.ratio;return `<article class="kyd-title-card ${isOwned?'earned':'challenge'}"><div class="kyd-title-card-top"><span class="kyd-title-avatar" style="${avatarStyle(d.character)}" role="img" aria-label="${displayTitleName(d)}"></span><div class="kyd-title-card-title"><strong>${displayTitleName(d)}</strong><small>${tr(d.cat,d.cat==='방문 습관'?'訪問スタイル':d.cat==='입맛'?'食の好み':d.cat==='취향'?'好み':d.cat==='시간'?'時間帯':'特別')} · ${isOwned?tr('획득 완료','獲得済み'):tr('도전 중','挑戦中')}</small></div></div><p>${ja()?d.dja:d.dko}</p><div class="kyd-title-progress"><span style="width:${Math.round(prog*100)}%"></span></div><div class="kyd-title-count">${isOwned?tr('획득 완료','獲得済み'):`${Math.floor(p.n*100)/100} / ${p.target}`}</div>${isOwned?`<button type="button" class="kyd-title-equip" data-equip-title="${d.key}">${equippedKey===d.key?tr('대표 칭호','代表称号'):tr('대표로 설정','代表に設定')}</button>`:''}</article>`;}).join('')||`<div class="kyd-title-empty">${activeStatus==='earned'?tr('아직 획득한 칭호가 없어요. 첫 칭호에 도전해 보세요.','まだ獲得した称号はありません。最初の称号に挑戦しましょう。'):tr('이 조건에 해당하는 칭호가 없어요.','この条件に該当する称号はありません。')}</div>`;
  grid.querySelectorAll('[data-equip-title]').forEach(b=>b.addEventListener('click',()=>equip(b.dataset.equipTitle)));
  const equipped=DEFINITIONS.find(d=>d.key===equippedKey&&owned.has(d.key));
- $('kydTitleEquipped').innerHTML=equipped?`<div class="kyd-title-featured-inner"><span class="kyd-title-avatar featured" style="${avatarStyle(equipped.character)}"></span><div><small>${tr('내 대표 칭호','自分の代表称号')}</small><strong>${ja()?equipped.ja:equipped.ko}</strong></div><span class="kyd-title-featured-mark">✦</span></div>`:`<div class="kyd-title-featured-empty">${tr('아직 대표 칭호가 없어요. 칭호를 획득하면 여기에 표시돼요.','代表称号はまだありません。称号を獲得するとここに表示されます。')}</div>`;
+ $('kydTitleEquipped').innerHTML=equipped?`<div class="kyd-title-featured-inner"><span class="kyd-title-avatar featured" style="${avatarStyle(equipped.character)}"></span><div><small>${tr('내 대표 칭호','自分の代表称号')}</small><strong>${displayTitleName(equipped)}</strong></div><span class="kyd-title-featured-mark">✦</span></div>`:`<div class="kyd-title-featured-empty">${tr('아직 대표 칭호가 없어요. 칭호를 획득하면 여기에 표시돼요.','代表称号はまだありません。称号を獲得するとここに表示されます。')}</div>`;
 }
 async function equip(key){if(!communityUser||!communityClient||!owned.has(key))return;const first=await communityClient.from('kyoto_badge_user_titles').update({is_equipped:false}).eq('user_id',communityUser.id);if(first.error){console.error(first.error);return;}const second=await communityClient.from('kyoto_badge_user_titles').update({is_equipped:true}).eq('user_id',communityUser.id).eq('title_key',key);if(second.error){console.error(second.error);return;}equippedKey=key;render();}
 async function load(){if(typeof communityClient==='undefined'||typeof communityUser==='undefined'||!communityUser){isLoggedIn=false;$('kydTitleSummary').innerHTML=`<div class="kyd-title-overview-sub">${tr('칭호 도전을 시작하려면 로그인해 주세요.','称号に挑戦するにはログインしてください。')}</div>`;render();return;}isLoggedIn=true;const uid=communityUser.id;const [ev,un]=await Promise.all([communityClient.from('kyoto_badge_visit_events').select('*').eq('user_id',uid).order('visited_at',{ascending:true}).limit(2000),communityClient.from('kyoto_badge_user_titles').select('title_key,is_equipped').eq('user_id',uid)]);if(ev.error||un.error){console.error(ev.error||un.error);$('kydTitleSummary').textContent=tr('칭호 데이터를 불러오지 못했어요.','称号データを読み込めませんでした。');return;}rows=ev.data||[];owned=new Set((un.data||[]).map(x=>x.title_key));equippedKey=(un.data||[]).find(x=>x.is_equipped)?.title_key||null;for(const d of DEFINITIONS){const p=calc(d,rows);if(p.earned&&!owned.has(d.key)){const {error}=await communityClient.from('kyoto_badge_user_titles').upsert({user_id:uid,title_key:d.key,is_equipped:owned.size===0},{onConflict:'user_id,title_key',ignoreDuplicates:true});if(!error){owned.add(d.key);if(!equippedKey)equippedKey=d.key;}}}render();}
@@ -8869,7 +8879,9 @@ document.getElementById('profileToggleBtn')?.addEventListener('click', () => {
     return;
   }
 
-  wrap.style.display = wrap.style.display === 'none' ? 'block' : 'none';
+  const opening = wrap.style.display === 'none';
+  wrap.style.display = opening ? 'block' : 'none';
+  profileToggleBtn.textContent = opening ? '입력창 닫기' : '프로필 작성 / 수정';
 });
 
  
@@ -14089,7 +14101,7 @@ function tickYanko(now){yankoFrame=requestAnimationFrame(tickYanko);if(!yankoRen
 function journeyDayKey(r){return r.visited_on||new Date(r.visited_at).toLocaleDateString('en-CA',{timeZone:'Asia/Tokyo'});}
 function renderYankoDateOptions(){const sel=$('kydYankoDate');if(!sel)return;const days=[...new Set(journeyRows.map(journeyDayKey).filter(Boolean))].sort();const old=yankoSelectedDate;sel.replaceChildren();if(!days.length){const o=document.createElement('option');o.value='';o.textContent=msg('방문 기록 없음','訪問記録なし');sel.append(o);yankoSelectedDate='';return;}days.slice().reverse().forEach(day=>{const o=document.createElement('option');o.value=day;o.textContent=new Date(day+'T12:00:00+09:00').toLocaleDateString(lang()==='ja'?'ja-JP':'ko-KR',{year:'numeric',month:'long',day:'numeric',weekday:'short'});sel.append(o);});yankoSelectedDate=days.includes(old)?old:days[days.length-1];sel.value=yankoSelectedDate;sel.onchange=()=>{yankoSelectedDate=sel.value;drawJourneyMap();};}
 function pauseYankoFollow(){yankoFollowPausedUntil=Date.now()+10000;}
-function drawJourneyMap(){const el=$('kydJourneyMap');if(!el||!window.L)return;if(!journeyMap){journeyMap=L.map(el,{scrollWheelZoom:false});L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{attribution:'© OpenStreetMap'}).addTo(journeyMap);journeyLayer=L.layerGroup().addTo(journeyMap);journeyMap.on('dragstart',pauseYankoFollow);}renderYankoDateOptions();const rows=journeyRows.filter(r=>journeyDayKey(r)===yankoSelectedDate).slice().sort((a,b)=>{const ta=Date.parse(a.visited_at),tb=Date.parse(b.visited_at);if(Number.isFinite(ta)&&Number.isFinite(tb))return ta-tb;if(Number.isFinite(ta))return -1;if(Number.isFinite(tb))return 1;return 0;});yankoRouteRows=rows.filter(r=>Number.isFinite(+r.place_lat)&&Number.isFinite(+r.place_lng));const pts=yankoRouteRows.map(r=>[+r.place_lat,+r.place_lng]);journeyLayer.clearLayers();yankoRouteRows.forEach((r,i)=>L.marker([+r.place_lat,+r.place_lng]).bindPopup(`${i+1}. ${esc(r.place_name)}<br>${new Date(r.visited_at).toLocaleTimeString(lang()==='ja'?'ja-JP':'ko-KR',{hour:'2-digit',minute:'2-digit'})}`).addTo(journeyLayer));if(pts.length>1)L.polyline(pts,{color:'#a4775b',weight:3,dashArray:'5 7'}).addTo(journeyLayer);yankoRoute=pts;yankoStart=0;yankoLastLeg=-1;yankoFollowPausedUntil=0;setYankoActionLabel(null);const summary=$('kydYankoDaySummary');if(summary)summary.textContent=rows.length?msg(`${rows.length}곳 방문 · 시간순으로 산책해요`,`${rows.length}か所訪問 · 時間順に散歩します`):msg('이 날짜에는 방문 기록이 없어요.','この日の訪問記録はありません。');const follow=$('kydYankoFollow');if(follow)follow.onclick=()=>{yankoFollowEnabled=true;yankoFollowPausedUntil=0;if(yankoRoute.length)journeyMap.panTo(yankoRoute[Math.min(1,yankoRoute.length-1)],{animate:true,duration:.8});};setTimeout(()=>{journeyMap.invalidateSize({pan:false});if(el.clientWidth>30&&el.clientHeight>30){if(pts.length>1)journeyMap.fitBounds(pts,{padding:[42,42],maxZoom:15,animate:false});else if(pts.length===1)journeyMap.setView(pts[0],15);else journeyMap.setView([35.0116,135.7681],12);resizeYanko();initYankoOverlay();positionYanko();}if(!yankoResizeObserver&&window.ResizeObserver){yankoResizeObserver=new ResizeObserver(()=>{if(el.clientWidth>30&&el.clientHeight>30){journeyMap.invalidateSize({pan:false});resizeYanko();initYankoOverlay();positionYanko();}});yankoResizeObserver.observe(el);}},220);}
+function drawJourneyMap(){const el=$('kydJourneyMap');if(!el||!window.L)return;if(!journeyMap){journeyMap=L.map(el,{scrollWheelZoom:false});L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{attribution:'© OpenStreetMap'}).addTo(journeyMap);journeyLayer=L.layerGroup().addTo(journeyMap);journeyMap.on('dragstart',pauseYankoFollow);}renderYankoDateOptions();const rows=journeyRows.filter(r=>journeyDayKey(r)===yankoSelectedDate).slice().sort((a,b)=>{const ta=Date.parse(a.visited_at),tb=Date.parse(b.visited_at);if(Number.isFinite(ta)&&Number.isFinite(tb))return ta-tb;if(Number.isFinite(ta))return -1;if(Number.isFinite(tb))return 1;return 0;});yankoRouteRows=rows.filter(r=>Number.isFinite(+r.place_lat)&&Number.isFinite(+r.place_lng));const pts=yankoRouteRows.map(r=>[+r.place_lat,+r.place_lng]);journeyLayer.clearLayers();yankoRouteRows.forEach((r,i)=>{const pin=L.divIcon({className:'kyd-visit-pin-shell',html:`<span class="kyd-visit-pin"><b>${i+1}</b></span>`,iconSize:[34,42],iconAnchor:[17,38],popupAnchor:[0,-35]});const time=Number.isFinite(Date.parse(r.visited_at))?new Date(r.visited_at).toLocaleTimeString(lang()==='ja'?'ja-JP':'ko-KR',{hour:'2-digit',minute:'2-digit'}):msg('시간 미기록','時刻未記録');L.marker([+r.place_lat,+r.place_lng],{icon:pin,zIndexOffset:1000+i}).bindPopup(`<strong>${i+1}. ${esc(r.place_name)}</strong><br>${time}`).addTo(journeyLayer);});if(pts.length>1)L.polyline(pts,{color:'#a4775b',weight:3,dashArray:'5 7'}).addTo(journeyLayer);yankoRoute=pts;yankoStart=0;yankoLastLeg=-1;yankoFollowPausedUntil=0;setYankoActionLabel(null);const summary=$('kydYankoDaySummary');if(summary)summary.textContent=rows.length?msg(`${rows.length}곳 방문 · 시간순으로 산책해요`,`${rows.length}か所訪問 · 時間順に散歩します`):msg('이 날짜에는 방문 기록이 없어요.','この日の訪問記録はありません。');const follow=$('kydYankoFollow');if(follow)follow.onclick=()=>{yankoFollowEnabled=true;yankoFollowPausedUntil=0;if(yankoRoute.length)journeyMap.panTo(yankoRoute[Math.min(1,yankoRoute.length-1)],{animate:true,duration:.8});};setTimeout(()=>{journeyMap.invalidateSize({pan:false});if(el.clientWidth>30&&el.clientHeight>30){if(pts.length>1)journeyMap.fitBounds(pts,{padding:[42,42],maxZoom:15,animate:false});else if(pts.length===1)journeyMap.setView(pts[0],15);else journeyMap.setView([35.0116,135.7681],12);resizeYanko();initYankoOverlay();positionYanko();}if(!yankoResizeObserver&&window.ResizeObserver){yankoResizeObserver=new ResizeObserver(()=>{if(el.clientWidth>30&&el.clientHeight>30){journeyMap.invalidateSize({pan:false});resizeYanko();initYankoOverlay();positionYanko();}});yankoResizeObserver.observe(el);}},220);}
 
 async function shareJourney(){
  if(!communityUser){alert(msg('로그인해 주세요.','ログインしてください。'));return;}
@@ -14296,6 +14308,64 @@ const chatInput=$('chatInput'),send=$('sendChatBtn');if(chatInput&&send){chatInp
 #kydTitleGuideModal[aria-hidden="false"],#kydFunModal[aria-hidden="false"]{pointer-events:auto}
 </style>
 
+
+<style id="kyd-map-profile-title-fix">
+/* Keep the walking character below Leaflet's marker pane: visit pins must never disappear. */
+#kydJourneyMap .kyd-yanko-three-overlay{z-index:550!important}
+#kydJourneyMap .kyd-yanko-fallback{z-index:551!important}
+#kydJourneyMap .leaflet-marker-pane{z-index:650!important}
+#kydJourneyMap .leaflet-popup-pane{z-index:700!important}
+.kyd-visit-pin-shell{background:transparent!important;border:0!important}
+.kyd-visit-pin{display:grid;place-items:center;position:relative;width:32px;height:32px;border:2px solid #fffaf0;border-radius:50% 50% 50% 8px;background:#76533b;color:#fffaf0;box-shadow:0 2px 8px #33271955;transform:rotate(-45deg)}
+.kyd-visit-pin b{font:800 12px/1 system-ui,sans-serif;transform:rotate(45deg)}
+.kyd-visit-pin:after{content:"";position:absolute;inset:4px;border:1px solid #ffffff66;border-radius:50%}
+/* Profile: calm editorial form with clear sections and responsive field cards. */
+#profileSection{padding:clamp(18px,3vw,28px)!important;border:1px solid #e4dacb!important;border-radius:16px!important;background:linear-gradient(150deg,#fffdf8,#f7f2e9)!important;box-shadow:0 10px 30px rgba(57,44,28,.055)!important}
+#profileSection>h3{font-size:22px!important;margin-bottom:5px!important}
+#profileSection>p{font-size:12px!important;line-height:1.75!important;margin-bottom:16px!important}
+#profileToggleBtn{border-radius:999px!important;padding:11px 19px!important;font-size:12px!important;letter-spacing:0!important;box-shadow:0 3px 9px #44301d18}
+#profileFormWrap{display:block;margin-top:18px!important;padding-top:18px;border-top:1px solid #e7ddcf;gap:12px}
+.kyd-profile-section{margin:0 0 14px;padding:15px;border:1px solid #e9e0d4;border-radius:13px;background:#fffefa}
+.kyd-profile-section h4{margin:0 0 12px;color:#65513d;font:700 13px/1.4 'Noto Sans KR','Noto Sans JP',sans-serif;letter-spacing:.01em}
+.kyd-profile-fields{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+.kyd-profile-field{display:flex;flex-direction:column;gap:6px;min-width:0}
+.kyd-profile-field.wide{grid-column:1/-1}
+#profileFormWrap .kyd-profile-field>label{margin:0!important;color:#655b4e;font-size:11px;font-weight:700}
+#profileFormWrap .kyd-profile-field input:not([type=checkbox]),#profileFormWrap .kyd-profile-field select,#profileFormWrap .kyd-profile-field textarea{width:100%;min-width:0;min-height:43px;box-sizing:border-box;border:1px solid #e5dccf!important;border-radius:9px!important;background:#fff!important;padding:10px 12px!important;font-size:13px!important}
+#profileFormWrap .kyd-profile-field textarea{min-height:92px}
+#profileFormWrap .kyd-profile-section .kyd-body-fields{margin:0;padding:12px;border:1px solid #eee5d9;border-radius:10px;background:#faf7f1}
+#profileFormWrap .kyd-profile-section .kyd-body-fields label{font-size:11px;font-weight:700;color:#655b4e}
+#profileFormWrap .kyd-profile-section .kyd-profile-note{margin:7px 0 0;font-size:10px;line-height:1.6;color:#8a7d6d}
+#profileFormWrap .kyd-profile-location{padding:15px;border:1px solid #e8dece;border-radius:12px;background:#faf7f0}
+#profileFormWrap .kyd-profile-location h4{margin:0 0 5px;font:700 13px 'Noto Sans KR','Noto Sans JP',sans-serif;color:#65513d}
+#profileFormWrap .kyd-profile-location>p{font-size:11px;line-height:1.6;color:#827565}
+#profileFormWrap .kyd-profile-location button{margin:5px 5px 0 0!important;padding:9px 12px!important;border:1px solid #d7c9b6!important;border-radius:999px!important;background:#fffdf8!important;color:#65513d!important;font-size:11px!important}
+#profileFormWrap .kyd-profile-privacy{display:grid;gap:9px;padding:13px 15px;border:1px solid #e8dece;border-radius:12px;background:#f7f3eb}
+#profileFormWrap .kyd-profile-privacy label{display:flex;align-items:center;gap:9px;margin:0!important;font-size:12px!important;color:#51483d}
+#profileSaveBtn{width:100%;min-height:46px;border-radius:999px!important;background:#66513d!important;border:0!important;font-size:13px!important;letter-spacing:0!important}
+#profileStatus{font-size:12px;line-height:1.6}
+/* Compact title labels; the explanatory line keeps the full achievement meaning. */
+.kyd-title-card-title strong,.kyd-title-featured-inner strong{display:block;max-width:100%;font-size:14px!important;line-height:1.35!important;letter-spacing:0!important;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.kyd-title-card-title{min-width:0;flex:1}
+.kyd-title-card-top{align-items:center!important}
+@media(max-width:600px){.kyd-profile-fields{grid-template-columns:1fr}.kyd-profile-field.wide{grid-column:auto}.kyd-profile-section{padding:12px}#profileSection{padding:16px!important}.kyd-title-card-title strong,.kyd-title-featured-inner strong{font-size:13px!important}}
+</style>
+<script id="kyd-profile-layout-enhancement">
+(()=>{
+ const form=document.getElementById('profileFormWrap');if(!form||form.dataset.polished==='1')return;form.dataset.polished='1';
+ const ja=()=>document.documentElement.lang==='ja';
+ const sectionAnchor=form.firstChild;const makeSection=(ko,jp)=>{const sec=document.createElement('section');sec.className='kyd-profile-section';const h=document.createElement('h4');h.textContent=ja()?jp:ko;sec.append(h);form.insertBefore(sec,sectionAnchor);return sec;};
+ const basic=makeSection('기본 정보','基本情報'),taste=makeSection('취향','好み'),stay=makeSection('교토 체류 정보','京都の滞在情報');
+ const placeSection=makeSection('위치 설정','位置設定'),privacy=makeSection('공개 범위','公開範囲');
+ const fields=(section,ids)=>{const grid=document.createElement('div');grid.className='kyd-profile-fields';section.append(grid);ids.forEach(id=>{const control=document.getElementById(id);if(!control)return;const label=form.querySelector(`label[for="${id}"]`);if(!label)return;const wrap=document.createElement('div');wrap.className='kyd-profile-field'+(['profileBio','profileLocationLabel'].includes(id)?' wide':'');label.parentNode.insertBefore(wrap,label);wrap.append(label,control);if(id==='profileBio'&&wrap.nextElementSibling&&!wrap.nextElementSibling.matches('label'))wrap.append(wrap.nextElementSibling);grid.append(wrap);});};
+ fields(basic,['profileNickname','profileAge','profileBio','profileGender']);
+ const body=form.querySelector('.kyd-body-fields');if(body){body.classList.add('kyd-profile-field','wide');basic.querySelector('.kyd-profile-fields').append(body);const note=form.querySelector('.kyd-profile-note');if(note)body.append(note);}
+ fields(taste,['profileMbti','profileDrinking','profileDrinks']);fields(stay,['profileStayStart','profileStayEnd']);
+ const loc=document.getElementById('profileLocationLabel');let locBox=loc?.closest('div[style*="border:1px solid #ddd"]');if(locBox){locBox.classList.add('kyd-profile-location');placeSection.append(locBox);}
+ const locPublic=document.getElementById('profileLocationPublic')?.closest('label');const profilePublic=document.getElementById('profileIsPublic')?.closest('label');privacy.classList.add('kyd-profile-privacy');if(locPublic)privacy.append(locPublic);if(profilePublic)privacy.append(profilePublic);
+ const save=document.getElementById('profileSaveBtn'),status=document.getElementById('profileStatus');if(save){const footer=document.createElement('div');footer.className='kyd-profile-save';footer.append(save);if(status)footer.append(status);form.append(footer);}
+})();
+</script>
 </body>
 
 </html>
