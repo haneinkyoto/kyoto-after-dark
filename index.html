@@ -4522,6 +4522,7 @@ header {
 }
 
 </style>
+<style id="kyd-profile-compact-onboarding">#profileSection{max-width:680px;margin:18px auto!important;padding:18px!important;border-radius:12px!important;background:#fffdf8!important;box-shadow:none!important}#profileFormWrap{max-width:560px;margin:12px auto 0!important;padding-top:12px!important}#profileFormWrap .kyd-profile-section{padding:12px;margin:0 0 9px;border-radius:9px}#profileFormWrap .kyd-profile-section h4{font-size:12px;margin-bottom:8px}#profileFormWrap .kyd-profile-fields{gap:8px}#profileFormWrap .kyd-profile-field input:not([type=checkbox]),#profileFormWrap .kyd-profile-field select,#profileFormWrap .kyd-profile-field textarea{min-height:38px;padding:8px 10px!important;border-radius:7px!important;font-size:12px!important}#profileFormWrap .kyd-profile-optional{margin:8px 0 12px;border:1px solid #e8dfd2;border-radius:9px;background:#faf7f1}#profileFormWrap .kyd-profile-optional>summary{padding:12px 14px;cursor:pointer;color:#705a43;font-size:12px;font-weight:700;list-style:none}#profileFormWrap .kyd-profile-optional>summary::-webkit-details-marker{display:none}#profileFormWrap .kyd-profile-optional>summary:after{content:'＋';float:right}#profileFormWrap .kyd-profile-optional[open]>summary:after{content:'－'}#profileFormWrap .kyd-profile-optional>.kyd-profile-section{margin:0 9px 9px}#profileFormWrap .kyd-profile-required-note{margin:8px 0 0;color:#8b745d;font-size:10px}#profileFormWrap #profileSaveBtn{min-height:42px;border-radius:8px!important}@media(max-width:600px){#profileSection{padding:14px!important;margin:12px 0!important}#profileFormWrap .kyd-profile-fields{grid-template-columns:1fr}}</style>
 </head>
 
 <body>
@@ -4676,6 +4677,8 @@ header {
     >
 
  
+
+    <input id="communityAge" type="number" min="18" max="120" inputmode="numeric" placeholder="나이 (만 18세 이상 · 필수)" style="display:none;width:100%;padding:10px;margin:5px 0;box-sizing:border-box;">
 
     <input
 
@@ -8817,22 +8820,21 @@ async function ensureCommunityProfileNickname() {
   if (!nickname) return;
 
   const { data: profile, error: profileError } = await communityClient
-    .from('kyoto_profiles').select('user_id,nickname').eq('user_id', communityUser.id).maybeSingle();
+    .from('kyoto_profiles').select('user_id,nickname,age').eq('user_id', communityUser.id).maybeSingle();
   if (profileError) {
     console.warn('닉네임 프로필 확인 실패:', profileError.message);
     return;
   }
   if (!profile) {
     const { error } = await communityClient.from('kyoto_profiles')
-      .upsert({ user_id: communityUser.id, nickname }, { onConflict: 'user_id', ignoreDuplicates: true });
+      .upsert({ user_id: communityUser.id, nickname, age: Number(communityUser.user_metadata?.age) || null }, { onConflict: 'user_id', ignoreDuplicates: true });
     if (error) console.warn('기본 닉네임 프로필 생성 실패:', error.message);
     return;
   }
-  if (!String(profile.nickname || '').trim()) {
-    const { error } = await communityClient.from('kyoto_profiles')
-      .update({ nickname, updated_at: new Date().toISOString() }).eq('user_id', communityUser.id);
-    if (error) console.warn('빈 닉네임 프로필 보완 실패:', error.message);
-  }
+  const patch = {};
+  if (!String(profile.nickname || '').trim()) patch.nickname = nickname;
+  if (profile.age == null && Number(communityUser.user_metadata?.age) >= 18) patch.age = Number(communityUser.user_metadata.age);
+  if (Object.keys(patch).length) { patch.updated_at = new Date().toISOString(); const { error } = await communityClient.from('kyoto_profiles').update(patch).eq('user_id', communityUser.id); if (error) console.warn('기본 프로필 보완 실패:', error.message); }
 }
 
 async function refreshCommunityUser() {
@@ -8860,6 +8862,7 @@ await refreshDirectMessageBadge();
   await loadMeetups();
 
   await loadMyProfile();
+  if (communityUser) { const {data: rp}=await communityClient.from('kyoto_profiles').select('nickname,age').eq('user_id',communityUser.id).maybeSingle(); if(!rp?.nickname || !(Number(rp?.age)>=18)){ const w=document.getElementById('profileFormWrap'),t=document.getElementById('profileToggleBtn'); if(w)w.style.display='block'; if(t)t.style.display='none'; const n=document.getElementById('profileNickname'),a=document.getElementById('profileAge'); if(n&&!n.value)n.value=communityUser.user_metadata?.nickname||''; if(a&&!a.value&&Number(communityUser.user_metadata?.age)>=18)a.value=communityUser.user_metadata.age; const st=document.getElementById('profileStatus'); if(st)st.textContent='서비스를 계속 이용하려면 닉네임과 만 18세 이상 나이를 먼저 입력해 주세요. 나머지는 나중에 작성해도 됩니다.'; }}
 
   await loadDirectInbox();
 
@@ -9453,13 +9456,7 @@ document.getElementById('profileSaveBtn')?.addEventListener('click', async () =>
 
  
 
-  if (age !== null && (!Number.isInteger(age) || age < 18 || age > 120)) {
-
-    status.textContent = '나이는 만 18세 이상으로 입력해 주세요.';
-
-    return;
-
-  }
+  if (age === null || !Number.isInteger(age) || age < 18 || age > 120) { status.textContent = '나이는 만 18세 이상으로 입력해 주세요. 필수 항목입니다.'; document.getElementById('profileAge')?.focus(); return; }
 
  
 
@@ -9953,11 +9950,8 @@ function openCommunityAuth(mode) {
 
     isSignup ? '회원가입' : '로그인';
 
- 
-
-  document.getElementById('communityNickname').style.display =
-
-    isSignup ? 'block' : 'none';
+  document.getElementById('communityNickname').style.display = isSignup ? 'block' : 'none';
+  document.getElementById('communityAge').style.display = isSignup ? 'block' : 'none';
 
  
 
@@ -10016,16 +10010,14 @@ document.getElementById('communitySignupBtn').addEventListener('click', async ()
   const password = document.getElementById('communityPassword').value;
 
   const nickname = document.getElementById('communityNickname').value.trim();
-
- 
-
-if (!nickname || !email || password.length < 6) {
+  const age = Number(document.getElementById('communityAge').value);
+  if (!nickname || !email || password.length < 6 || !Number.isInteger(age) || age < 18 || age > 120) {
 
   setCommunityStatus(
 
     'communityAuthStatus',
 
-    '닉네임, 이메일, 6자 이상의 비밀번호를 입력해 주세요.'
+    '닉네임, 만 18세 이상 나이, 이메일, 6자 이상의 비밀번호를 입력해 주세요.'
 
   );
 
@@ -10045,11 +10037,7 @@ const { data, error } = await communityClient.auth.signUp({
 
   options: {
 
-    data: {
-
-      nickname: nickname
-
-    }
+    data: { nickname: nickname, age: age }
 
   }
 
@@ -14363,6 +14351,7 @@ const chatInput=$('chatInput'),send=$('sendChatBtn');if(chatInput&&send){chatInp
  fields(taste,['profileMbti','profileDrinking','profileDrinks']);fields(stay,['profileStayStart','profileStayEnd']);
  const loc=document.getElementById('profileLocationLabel');let locBox=loc?.closest('div[style*="border:1px solid #ddd"]');if(locBox){locBox.classList.add('kyd-profile-location');placeSection.append(locBox);}
  const locPublic=document.getElementById('profileLocationPublic')?.closest('label');const profilePublic=document.getElementById('profileIsPublic')?.closest('label');privacy.classList.add('kyd-profile-privacy');if(locPublic)privacy.append(locPublic);if(profilePublic)privacy.append(profilePublic);
+ const optional=document.createElement('details');optional.className='kyd-profile-optional';const summary=document.createElement('summary');summary.textContent=ja()?'任意項目を追加する（後からでもOK）':'선택 정보 추가하기 · 나중에 작성해도 돼요';optional.append(summary);[taste,stay,placeSection,privacy].forEach(sec=>optional.append(sec));form.insertBefore(optional,form.querySelector('.kyd-profile-save'));const note=document.createElement('p');note.className='kyd-profile-required-note';note.textContent=ja()?'必須：ニックネーム・18歳以上の年齢':'필수 항목은 닉네임과 만 18세 이상 나이 두 가지예요.';basic.append(note);
  const save=document.getElementById('profileSaveBtn'),status=document.getElementById('profileStatus');if(save){const footer=document.createElement('div');footer.className='kyd-profile-save';footer.append(save);if(status)footer.append(status);form.append(footer);}
 })();
 </script>
