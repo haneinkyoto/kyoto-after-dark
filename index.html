@@ -14493,19 +14493,41 @@ const chatInput=$('chatInput'),send=$('sendChatBtn');if(chatInput&&send){chatInp
 
 
 <style id="kyd-title-collapse-style">
-/* 접힌 상태에서는 제목 한 줄만 남기고, 펼치면 기존 도감 디자인/크기를 그대로 사용 */
-#kydTitleBook .kyd-title-book-actions{display:flex;gap:7px;align-items:center;flex-wrap:wrap}
-#kydTitleBook #kydTitleCollapse{border:1px solid #b9a181;background:#fffaf2;color:#5d4933;border-radius:999px;padding:9px 13px;font-size:12px;font-weight:750;cursor:pointer;white-space:nowrap}
+/* Title collection: quiet editorial header; existing achievement cards remain untouched. */
+#kydTitleBook{padding:19px 21px!important;border:1px solid #e2d8c9!important;border-radius:14px!important;background:#fcfaf5!important;box-shadow:0 5px 18px rgba(47,39,28,.045)!important}
+#kydTitleBook .kyd-title-book-head{display:flex;align-items:center;justify-content:space-between;gap:22px;padding:0 0 15px;border-bottom:1px solid #e9e1d5}
+#kydTitleBook .kyd-title-book-head>div:first-child{min-width:0}
+#kydTitleBook .kyd-title-kicker{display:block;margin:0 0 7px;font:600 9px/1.3 system-ui,-apple-system,BlinkMacSystemFont,"Noto Sans KR",sans-serif!important;letter-spacing:.16em;color:#9a7960!important}
+#kydTitleBook .kyd-title-book h3{margin:0 0 5px!important;font-family:system-ui,-apple-system,BlinkMacSystemFont,"Noto Sans KR","Yu Gothic",sans-serif!important;font-size:21px!important;font-weight:720!important;line-height:1.35!important;letter-spacing:-.055em!important;color:#302d27!important}
+#kydTitleBook .kyd-title-book-head p{margin:0!important;font-family:system-ui,-apple-system,BlinkMacSystemFont,"Noto Sans KR",sans-serif!important;font-size:11px!important;line-height:1.65!important;letter-spacing:-.015em;color:#898174!important}
+#kydTitleBook .kyd-title-book-actions{display:flex;align-items:center;justify-content:flex-end;gap:14px;flex:0 0 auto}
+#kydTitleBook #kydTitleCollapse{display:inline-flex;align-items:center;gap:9px;min-height:34px;padding:5px 0 5px 10px!important;border:0!important;border-radius:0!important;background:transparent!important;box-shadow:none!important;color:#795d47!important;font-family:system-ui,-apple-system,BlinkMacSystemFont,"Noto Sans KR",sans-serif!important;font-size:11px!important;font-weight:650!important;letter-spacing:-.02em;white-space:nowrap;cursor:pointer}
+#kydTitleBook #kydTitleCollapse::after{content:"⌄";display:inline-flex;align-items:center;justify-content:center;width:25px;height:25px;border:1px solid #ded3c4;border-radius:50%;font-family:Arial,sans-serif;font-size:16px;font-weight:400;line-height:1;color:#866b52;transition:transform .2s ease,background .2s ease,border-color .2s ease}
+#kydTitleBook #kydTitleCollapse[aria-expanded="true"]::after{transform:rotate(180deg)}
+#kydTitleBook #kydTitleCollapse:hover{color:#513e2e!important;background:transparent!important}
+#kydTitleBook #kydTitleCollapse:hover::after{background:#f0e9df;border-color:#cdbca7}
+#kydTitleBook #kydTitleRefresh{padding:7px 10px!important;border:1px solid #e5dccf!important;border-radius:7px!important;background:#fffdf9!important;color:#716554!important;font-family:system-ui,-apple-system,BlinkMacSystemFont,"Noto Sans KR",sans-serif!important;font-size:10px!important;font-weight:600!important;box-shadow:none!important}
 #kydTitleBook #kydTitleContents[hidden]{display:none!important}
-#kydTitleBook.is-collapsed{padding:12px 16px;margin:14px 0}
-#kydTitleBook.is-collapsed .kyd-title-book-head{align-items:center;flex-wrap:nowrap;gap:10px}
-#kydTitleBook.is-collapsed .kyd-title-book-head>div:first-child{min-width:0}
+#kydTitleBook #kydTitleContents{padding-top:15px}
+#kydTitleBook.is-collapsed{padding:15px 19px!important;margin:14px 0}
+#kydTitleBook.is-collapsed .kyd-title-book-head{padding:0;border:0;gap:12px}
 #kydTitleBook.is-collapsed .kyd-title-kicker,
 #kydTitleBook.is-collapsed .kyd-title-book-head p,
 #kydTitleBook.is-collapsed #kydTitleRefresh{display:none!important}
-#kydTitleBook.is-collapsed .kyd-title-book h3{margin:0;font-size:19px!important;line-height:1.35;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#kydTitleBook.is-collapsed .kyd-title-book h3{margin:0!important;font-size:18px!important;line-height:1.35!important;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 #kydTitleBook.is-collapsed .kyd-title-book-actions{width:auto;flex:0 0 auto;margin-left:auto}
-@media(max-width:620px){#kydTitleBook .kyd-title-book-actions{width:auto;justify-content:flex-end}#kydTitleBook.is-collapsed{padding:11px 13px}}
+@media(max-width:620px){
+ #kydTitleBook{padding:15px 14px!important}
+ #kydTitleBook .kyd-title-book-head{gap:10px}
+ #kydTitleBook .kyd-title-book h3{font-size:18px!important}
+ #kydTitleBook .kyd-title-book-head p{font-size:10px!important}
+ #kydTitleBook .kyd-title-book-actions{gap:8px}
+ #kydTitleBook #kydTitleCollapse{gap:6px;padding-left:2px!important;font-size:10px!important}
+ #kydTitleBook #kydTitleCollapse::after{width:23px;height:23px}
+ #kydTitleBook.is-collapsed{padding:13px 14px!important}
+ #kydTitleBook.is-collapsed .kyd-title-book h3{font-size:16px!important}
+}
+@media(prefers-reduced-motion:reduce){#kydTitleBook #kydTitleCollapse::after{transition:none}}
 </style>
 <script id="kyd-title-collapse-script">
 (()=>{
@@ -14519,14 +14541,14 @@ const chatInput=$('chatInput'),send=$('sendChatBtn');if(chatInput&&send){chatInp
   content.hidden=collapsed;
   book.classList.toggle('is-collapsed',collapsed);
   button.setAttribute('aria-expanded',String(!collapsed));
-  button.textContent=collapsed?(ja()?'開く ＋':'펼치기 ＋'):(ja()?'閉じる −':'접기 −');
+  button.textContent=collapsed?(ja()?'コレクションを見る':'칭호 도감 펼치기'):(ja()?'閉じる':'칭호 도감 접기');
   button.setAttribute('aria-label',collapsed?(ja()?'称号図鑑を開く':'칭호 도감 펼치기'):(ja()?'称号図鑑を閉じる':'칭호 도감 접기'));
  };
  // 기본 상태는 접힘. 펼쳤을 때는 기존 칭호 도감의 크기와 카드 레이아웃을 변경하지 않는다.
  setCollapsed(true);
  button.addEventListener('click',()=>setCollapsed(!content.hidden));
  document.addEventListener('kyd:languagechange',()=>{
-  button.textContent=content.hidden?(ja()?'開く ＋':'펼치기 ＋'):(ja()?'閉じる −':'접기 −');
+  button.textContent=content.hidden?(ja()?'コレクションを見る':'칭호 도감 펼치기'):(ja()?'閉じる':'칭호 도감 접기');
  });
 })();
 </script>
